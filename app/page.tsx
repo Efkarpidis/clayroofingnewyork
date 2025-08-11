@@ -435,7 +435,7 @@ export default function Page() {
           <Button
             asChild
             variant="ghost"
-            className="hidden rounded-md bg-black/30 px-3 py-1.5 text-sm font-semibold tracking-tight text-white backdrop-blur-md ring-1 ring-white/10 hover:bg-black/50 hover:text-white sm:inline-flex"
+            className="inline-flex rounded-md bg-black/30 px-3 py-1.5 text-sm font-semibold tracking-tight text-white backdrop-blur-md ring-1 ring-white/10 hover:bg-black/50 hover:text-white"
           >
             <a href="tel:2123654386">212-365-4386</a>
           </Button>

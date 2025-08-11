@@ -11,8 +11,8 @@ export default function AboutPage() {
           <Link href="/" className="text-lg font-semibold tracking-tight">
             Terra Clay
           </Link>
-          <nav className="flex items-center gap-1 sm:gap-2">
-            <Button asChild variant="ghost" className="hidden text-base md:flex">
+          <nav className="flex flex-wrap items-center justify-end gap-1 sm:gap-2">
+            <Button asChild variant="ghost" className="text-base">
               <a href="tel:2123654386" className="flex items-center">
                 <Phone className="mr-2 h-4 w-4" />
                 212-365-4386
