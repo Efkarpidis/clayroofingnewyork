@@ -450,7 +450,7 @@ export default function Page() {
               <SheetTitle className="text-white">Terra Clay</SheetTitle>
             </SheetHeader>
             <nav className="mt-6 space-y-4 text-lg">
-              <Link href="#gallery" className="block hover:underline">
+              <Link href="/gallery" className="block hover:underline">
                 Photo Gallery
               </Link>
               <Link href="#about" className="block hover:underline">
