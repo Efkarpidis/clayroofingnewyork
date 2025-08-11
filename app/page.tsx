@@ -14,7 +14,7 @@ import {
   DialogDescription,
   DialogTrigger,
 } from "@/components/ui/dialog"
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet"
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger, SheetClose } from "@/components/ui/sheet"
 import { useState, useActionState, useEffect, useId } from "react"
 import { useForm, Controller } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
@@ -450,15 +450,21 @@ export default function Page() {
               <SheetTitle className="text-white">Terra Clay</SheetTitle>
             </SheetHeader>
             <nav className="mt-6 space-y-4 text-lg">
-              <Link href="/gallery" className="block hover:underline">
-                Photo Gallery
-              </Link>
-              <Link href="/about" className="block hover:underline">
-                About Us
-              </Link>
-              <Link href="/contact" className="block hover:underline">
-                Contact
-              </Link>
+              <SheetClose asChild>
+                <Link href="/gallery" className="block hover:underline">
+                  Photo Gallery
+                </Link>
+              </SheetClose>
+              <SheetClose asChild>
+                <Link href="/about" className="block hover:underline">
+                  About Us
+                </Link>
+              </SheetClose>
+              <SheetClose asChild>
+                <Link href="/contact" className="block hover:underline">
+                  Contact
+                </Link>
+              </SheetClose>
             </nav>
           </SheetContent>
         </Sheet>
