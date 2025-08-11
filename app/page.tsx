@@ -1,6 +1,7 @@
 "use client"
 
-import type React from "react"
+import React from "react"
+
 import Image from "next/image"
 import Link from "next/link"
 import { Menu, ArrowRight, Check, Loader2 } from "lucide-react"
@@ -27,11 +28,21 @@ const FieldWrapper = ({
   label,
   error,
   children,
-}: { id: string; label: string; error?: string; children: React.ReactNode }) => (
+  labelComponent,
+}: {
+  id: string
+  label?: string
+  error?: string
+  children: React.ReactNode
+  labelComponent?: React.ReactNode
+}) => (
   <div className="space-y-2">
-    <label htmlFor={id} className="block text-base font-medium text-neutral-700">
-      {label}
-    </label>
+    {label && !labelComponent && (
+      <label htmlFor={id} className="block text-base font-medium text-neutral-700">
+        {label}
+      </label>
+    )}
+    {labelComponent}
     {children}
     {error && <p className="mt-1 text-sm text-red-600">{error}</p>}
   </div>
@@ -43,6 +54,42 @@ const FormInput = (props: React.ComponentProps<"input">) => (
     className="block w-full rounded-md border-neutral-300 bg-neutral-50 p-3 text-base shadow-sm focus:border-neutral-500 focus:ring-neutral-500 disabled:cursor-not-allowed disabled:bg-neutral-200"
   />
 )
+
+const PhoneInput = React.forwardRef<HTMLInputElement, Omit<React.ComponentProps<"input">, "type">>((props, ref) => {
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const rawValue = e.target.value.replace(/\D/g, "")
+    let formattedValue = ""
+
+    if (rawValue.length > 0) {
+      formattedValue = `(${rawValue.substring(0, 3)}`
+    }
+    if (rawValue.length >= 4) {
+      formattedValue += `) ${rawValue.substring(3, 6)}`
+    }
+    if (rawValue.length >= 7) {
+      formattedValue += `-${rawValue.substring(6, 10)}`
+    }
+
+    e.target.value = formattedValue
+
+    if (props.onChange) {
+      props.onChange(e)
+    }
+  }
+
+  return (
+    <FormInput
+      {...props}
+      ref={ref}
+      type="tel"
+      inputMode="numeric"
+      placeholder="(###) ###-####"
+      maxLength={14}
+      onChange={handleInputChange}
+    />
+  )
+})
+PhoneInput.displayName = "PhoneInput"
 
 const FormTextarea = (props: React.ComponentProps<"textarea">) => (
   <textarea
@@ -60,6 +107,16 @@ const FormSelect = (props: React.ComponentProps<"select">) => (
   </select>
 )
 
+const FormCheckbox = React.forwardRef<HTMLInputElement, React.ComponentProps<"input">>((props, ref) => (
+  <input
+    ref={ref}
+    type="checkbox"
+    {...props}
+    className="h-4 w-4 rounded border-neutral-400 text-neutral-800 focus:ring-neutral-800"
+  />
+))
+FormCheckbox.displayName = "FormCheckbox"
+
 const RadioCard = ({
   id,
   value,
@@ -74,6 +131,29 @@ const RadioCard = ({
     >
       {children}
     </label>
+  </div>
+)
+
+const YesNoToggle = ({ value, onChange }: { value: boolean | null; onChange: (newValue: boolean) => void }) => (
+  <div className="flex gap-3">
+    <button
+      type="button"
+      onClick={() => onChange(true)}
+      className={`rounded-md px-6 py-2 text-base font-medium transition-colors ${
+        value === true ? "bg-neutral-900 text-white shadow-sm" : "bg-neutral-200 text-neutral-700 hover:bg-neutral-300"
+      }`}
+    >
+      Yes
+    </button>
+    <button
+      type="button"
+      onClick={() => onChange(false)}
+      className={`rounded-md px-6 py-2 text-base font-medium transition-colors ${
+        value === false ? "bg-neutral-900 text-white shadow-sm" : "bg-neutral-200 text-neutral-700 hover:bg-neutral-300"
+      }`}
+    >
+      No
+    </button>
   </div>
 )
 
@@ -115,7 +195,7 @@ function Step1Form({ onSuccess }: { onSuccess: (recordId: string) => void }) {
         <FormInput id={`${id}-name`} {...register("name")} placeholder="John Doe" />
       </FieldWrapper>
       <FieldWrapper id={`${id}-phone`} label="Phone Number" error={errors.phone?.message || state.errors?.phone?.[0]}>
-        <FormInput id={`${id}-phone`} {...register("phone")} type="tel" placeholder="(555) 123-4567" />
+        <PhoneInput id={`${id}-phone`} {...register("phone")} />
       </FieldWrapper>
       <FieldWrapper id={`${id}-email`} label="Email Address" error={errors.email?.message || state.errors?.email?.[0]}>
         <FormInput id={`${id}-email`} {...register("email")} type="email" placeholder="you@example.com" />
@@ -157,9 +237,24 @@ function Step2Form({ airtableRecordId, onSuccess }: { airtableRecordId: string; 
     register,
     control,
     formState: { errors },
+    watch,
+    setValue,
   } = useForm<Step2Data>({
     resolver: zodResolver(step2Schema),
+    defaultValues: {
+      isRoofSizeUnsure: false,
+    },
   })
+
+  const [hasPlans, setHasPlans] = useState<boolean | null>(null)
+  const [hasPhotos, setHasPhotos] = useState<boolean | null>(null)
+  const isRoofSizeUnsure = watch("isRoofSizeUnsure")
+
+  useEffect(() => {
+    if (isRoofSizeUnsure) {
+      setValue("roofSize", "")
+    }
+  }, [isRoofSizeUnsure, setValue])
 
   useEffect(() => {
     if (state.success) {
@@ -173,40 +268,94 @@ function Step2Form({ airtableRecordId, onSuccess }: { airtableRecordId: string; 
       <FieldWrapper id={`${id}-address`} label="Project Address" error={errors.projectAddress?.message}>
         <FormInput id={`${id}-address`} {...register("projectAddress")} placeholder="123 Main St, New York, NY" />
       </FieldWrapper>
-      <FieldWrapper id={`${id}-roofSize`} label="Approx. Roof Size (sq ft)" error={errors.roofSize?.message}>
-        <FormInput id={`${id}-roofSize`} {...register("roofSize")} placeholder="e.g., 2500" />
+
+      <FieldWrapper
+        id={`${id}-roofSize`}
+        error={errors.roofSize?.message}
+        labelComponent={
+          <div className="flex items-center justify-between">
+            <label htmlFor={`${id}-roofSize`} className="text-base font-medium text-neutral-700">
+              Approx. Roof Size (sq ft)
+            </label>
+            <div className="flex items-center gap-2">
+              <FormCheckbox id={`${id}-roofSizeUnsure`} {...register("isRoofSizeUnsure")} />
+              <label htmlFor={`${id}-roofSizeUnsure`} className="text-sm font-medium text-neutral-600">
+                Not sure
+              </label>
+            </div>
+          </div>
+        }
+      >
+        <FormInput
+          id={`${id}-roofSize`}
+          {...register("roofSize")}
+          placeholder="e.g., 2500"
+          disabled={isRoofSizeUnsure}
+        />
       </FieldWrapper>
+
       <FieldWrapper
         id={`${id}-plans`}
-        label="Architectural Plans (Optional)"
+        label="Do you have architectural plans?"
         error={(errors.plans?.message as string) || state.errors?.plans?.[0]}
       >
-        <Controller
-          name="plans"
-          control={control}
-          render={({ field: { onChange } }) => (
-            <FormInput type="file" accept=".pdf,image/*" onChange={(e) => onChange(e.target.files?.[0])} />
-          )}
-        />
-      </FieldWrapper>
-      <FieldWrapper
-        id={`${id}-photos`}
-        label="Photos of Roof (Optional)"
-        error={(errors.photos?.message as string) || state.errors?.photos?.[0]}
-      >
-        <Controller
-          name="photos"
-          control={control}
-          render={({ field: { onChange } }) => (
-            <FormInput
-              type="file"
-              accept="image/*"
-              multiple
-              onChange={(e) => onChange(Array.from(e.target.files || []))}
+        <div className="space-y-3">
+          <YesNoToggle
+            value={hasPlans}
+            onChange={(val) => {
+              setHasPlans(val)
+              if (!val) setValue("plans", [])
+            }}
+          />
+          {hasPlans && (
+            <Controller
+              name="plans"
+              control={control}
+              render={({ field: { onChange } }) => (
+                <FormInput
+                  type="file"
+                  accept="image/*,application/pdf"
+                  multiple
+                  capture="environment"
+                  onChange={(e) => onChange(Array.from(e.target.files || []))}
+                />
+              )}
             />
           )}
-        />
+        </div>
       </FieldWrapper>
+
+      <FieldWrapper
+        id={`${id}-photos`}
+        label="Do you have photos of the roof?"
+        error={(errors.photos?.message as string) || state.errors?.photos?.[0]}
+      >
+        <div className="space-y-3">
+          <YesNoToggle
+            value={hasPhotos}
+            onChange={(val) => {
+              setHasPhotos(val)
+              if (!val) setValue("photos", [])
+            }}
+          />
+          {hasPhotos && (
+            <Controller
+              name="photos"
+              control={control}
+              render={({ field: { onChange } }) => (
+                <FormInput
+                  type="file"
+                  accept="image/*"
+                  multiple
+                  capture="environment"
+                  onChange={(e) => onChange(Array.from(e.target.files || []))}
+                />
+              )}
+            />
+          )}
+        </div>
+      </FieldWrapper>
+
       <FieldWrapper id={`${id}-tileType`} label="Clay Tile Type (if known)">
         <FormSelect {...register("tileType")}>
           <option value="">Select an option...</option>
@@ -224,7 +373,7 @@ function Step2Form({ airtableRecordId, onSuccess }: { airtableRecordId: string; 
         </FormSelect>
       </FieldWrapper>
       <FieldWrapper id={`${id}-referral`} label="How did you hear about us?">
-        <FormInput id={`${id}-referral`} />
+        <FormInput id={`${id}-referral`} {...register("referral")} />
       </FieldWrapper>
       <FieldWrapper id={`${id}-message`} label="Additional Message">
         <FormTextarea id={`${id}-message`} {...register("message")} rows={3} />
@@ -370,5 +519,3 @@ export default function Page() {
     </main>
   )
 }
-
-// Trigger deployment
