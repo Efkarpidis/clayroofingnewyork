@@ -23,6 +23,9 @@ export default function GalleryPage() {
             </Link>
             <nav className="flex items-center gap-2 sm:gap-4">
               <Button asChild variant="ghost" className="text-base">
+                <Link href="/about">About</Link>
+              </Button>
+              <Button asChild variant="ghost" className="text-base">
                 <Link href="/contact">Contact</Link>
               </Button>
               <Button asChild variant="default">

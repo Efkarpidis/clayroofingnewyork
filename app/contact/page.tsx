@@ -119,6 +119,9 @@ export default function ContactPage() {
             <Button asChild variant="ghost" className="text-base">
               <Link href="/gallery">Gallery</Link>
             </Button>
+            <Button asChild variant="ghost" className="text-base">
+              <Link href="/about">About</Link>
+            </Button>
             <Button asChild variant="default">
               <Link href="/#quote">Request a Quote</Link>
             </Button>

@@ -453,6 +453,9 @@ export default function Page() {
               <Link href="/gallery" className="block hover:underline">
                 Photo Gallery
               </Link>
+              <Link href="/about" className="block hover:underline">
+                About Us
+              </Link>
               <Link href="/contact" className="block hover:underline">
                 Contact
               </Link>
