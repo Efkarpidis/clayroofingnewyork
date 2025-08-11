@@ -1,7 +1,6 @@
 "use client"
 
 import React from "react"
-
 import Image from "next/image"
 import Link from "next/link"
 import { Menu, ArrowRight, Check, Loader2 } from "lucide-react"
@@ -424,52 +423,53 @@ export default function Page() {
         <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/30 to-black/10" />
       </div>
 
-      <header className="fixed top-0 left-0 right-0 z-40 flex items-center justify-between px-4 py-3">
-        <Link
-          href="/"
-          className="inline-flex items-center rounded-md bg-black/30 px-3 py-1.5 text-sm font-semibold tracking-tight backdrop-blur-md ring-1 ring-white/10"
-        >
-          Terra Clay
+      <header className="fixed top-0 left-0 right-0 z-40 flex items-center justify-between px-4 py-4 border-b border-neutral-200 bg-white/95 shadow-sm">
+        <Link href="/">
+          <Image src="/terraclay-logo.png" alt="Terra Clay" width={540} height={180} className="h-36 w-auto" />
         </Link>
         <div className="flex items-center gap-2">
           <Button
             asChild
             variant="ghost"
-            className="inline-flex rounded-md bg-black/30 px-3 py-1.5 text-sm font-semibold tracking-tight text-white backdrop-blur-md ring-1 ring-white/10 hover:bg-black/50 hover:text-white"
+            className="inline-flex rounded-md px-3 py-1.5 text-sm font-semibold tracking-tight text-neutral-700 hover:bg-neutral-100"
           >
             <a href="tel:2123654386">212-365-4386</a>
           </Button>
           <Sheet>
             <SheetTrigger asChild>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="rounded-md bg-black/30 p-2 backdrop-blur-md ring-1 ring-white/10 hover:bg-black/50"
-              >
-                <Menu className="h-6 w-6 text-white" />
+              <Button variant="ghost" size="icon" className="rounded-md p-2 text-neutral-700 hover:bg-neutral-100">
+                <Menu className="h-6 w-6" />
                 <span className="sr-only">Open menu</span>
               </Button>
             </SheetTrigger>
-            <SheetContent
-              side="right"
-              className="w-5/6 max-w-sm border-l border-white/10 bg-black/50 text-white backdrop-blur-lg"
-            >
-              <SheetHeader className="border-b-0">
-                <SheetTitle className="text-white">Terra Clay</SheetTitle>
+            <SheetContent side="right" className="w-5/6 max-w-sm bg-white border-l border-neutral-200">
+              <SheetHeader className="border-b border-neutral-100 pb-4">
+                <SheetTitle className="flex items-center justify-center">
+                  <Image src="/terraclay-logo.png" alt="Terra Clay" width={450} height={150} className="h-24 w-auto" />
+                </SheetTitle>
               </SheetHeader>
-              <nav className="mt-6 space-y-4 text-lg">
+              <nav className="mt-8 space-y-6">
                 <SheetClose asChild>
-                  <Link href="/gallery" className="block hover:underline">
+                  <Link
+                    href="/gallery"
+                    className="block text-lg font-medium text-neutral-700 hover:text-neutral-900 hover:underline"
+                  >
                     Photo Gallery
                   </Link>
                 </SheetClose>
                 <SheetClose asChild>
-                  <Link href="/about" className="block hover:underline">
+                  <Link
+                    href="/about"
+                    className="block text-lg font-medium text-neutral-700 hover:text-neutral-900 hover:underline"
+                  >
                     About Us
                   </Link>
                 </SheetClose>
                 <SheetClose asChild>
-                  <Link href="/contact" className="block hover:underline">
+                  <Link
+                    href="/contact"
+                    className="block text-lg font-medium text-neutral-700 hover:text-neutral-900 hover:underline"
+                  >
                     Contact
                   </Link>
                 </SheetClose>

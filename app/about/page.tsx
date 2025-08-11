@@ -6,10 +6,10 @@ import { Phone } from "lucide-react"
 export default function AboutPage() {
   return (
     <div className="bg-white text-neutral-800">
-      <header className="sticky top-0 z-50 border-b border-neutral-200 bg-white/80 backdrop-blur-lg">
-        <div className="container mx-auto flex items-center justify-between px-4 py-3">
-          <Link href="/" className="text-lg font-semibold tracking-tight">
-            Terra Clay
+      <header className="sticky top-0 z-50 border-b border-neutral-200 bg-white shadow-sm">
+        <div className="container mx-auto flex items-center justify-between px-4 py-4">
+          <Link href="/" className="flex items-center">
+            <Image src="/terraclay-logo.png" alt="Terra Clay" width={540} height={180} className="h-36 w-auto" />
           </Link>
           <nav className="flex flex-wrap items-center justify-end gap-1 sm:gap-2">
             <Button asChild variant="ghost" className="text-base">
@@ -34,16 +34,16 @@ export default function AboutPage() {
       <main className="container mx-auto px-4 py-16 sm:py-24">
         <div className="flex flex-col items-center text-center">
           <Image
-            src="/placeholder-logo.png"
+            src="/terraclay-logo.png"
             alt="Terra Clay Logo"
-            width={100}
-            height={100}
-            className="mb-6 h-20 w-20 sm:h-24 sm:w-24"
+            width={900}
+            height={300}
+            className="mb-6 h-60 w-auto sm:h-72"
           />
           <h1 className="text-3xl font-extrabold tracking-tight sm:text-4xl">About TerraClay</h1>
           <p className="mt-4 max-w-2xl text-lg text-neutral-600 sm:text-xl">
             TerraClay specializes in premium Spanish clay tile roofing for high-end homes in New York. For over 20
-            years, we’ve delivered quality, durability, and craftsmanship to every project.
+            years, we've delivered quality, durability, and craftsmanship to every project.
           </p>
         </div>
       </main>

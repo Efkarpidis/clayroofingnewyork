@@ -110,10 +110,10 @@ function ContactForm() {
 export default function ContactPage() {
   return (
     <div className="bg-white text-neutral-800">
-      <header className="sticky top-0 z-50 border-b border-neutral-200 bg-white/80 backdrop-blur-lg">
-        <div className="container mx-auto flex items-center justify-between px-4 py-3">
-          <Link href="/" className="text-lg font-semibold tracking-tight">
-            Terra Clay
+      <header className="sticky top-0 z-50 border-b border-neutral-200 bg-white shadow-sm">
+        <div className="container mx-auto flex items-center justify-between px-4 py-4">
+          <Link href="/" className="flex items-center">
+            <Image src="/terraclay-logo.png" alt="Terra Clay" width={540} height={180} className="h-36 w-auto" />
           </Link>
           <nav className="flex flex-wrap items-center justify-end gap-1 sm:gap-2">
             <Button asChild variant="ghost" className="text-base">
