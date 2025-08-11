@@ -1,10 +1,9 @@
 "use client"
 
 import type React from "react"
-
 import Image from "next/image"
 import Link from "next/link"
-import { Menu, CheckCircle2 } from "lucide-react"
+import { Menu, ArrowRight, Check, Loader2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import {
   Dialog,
@@ -12,45 +11,258 @@ import {
   DialogHeader,
   DialogTitle,
   DialogDescription,
-  DialogFooter,
   DialogTrigger,
 } from "@/components/ui/dialog"
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet"
-import { Input } from "@/components/ui/input"
-import { Textarea } from "@/components/ui/textarea"
-import { Label } from "@/components/ui/label"
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { useState } from "react"
+import { useState, useActionState, useEffect, useId } from "react"
+import { useForm, Controller } from "react-hook-form"
+import { zodResolver } from "@hookform/resolvers/zod"
+import { type Step1Data, step1Schema, type Step2Data, step2Schema } from "./schemas"
+import { handleStep1Submit, handleStep2Submit, type Step1State, type Step2State } from "./actions"
+
+// --- Self-Contained Form UI Components ---
+
+const FieldWrapper = ({
+  id,
+  label,
+  error,
+  children,
+}: { id: string; label: string; error?: string; children: React.ReactNode }) => (
+  <div className="space-y-2">
+    <label htmlFor={id} className="block text-base font-medium text-neutral-700">
+      {label}
+    </label>
+    {children}
+    {error && <p className="mt-1 text-sm text-red-600">{error}</p>}
+  </div>
+)
+
+const FormInput = (props: React.ComponentProps<"input">) => (
+  <input
+    {...props}
+    className="block w-full rounded-md border-neutral-300 bg-neutral-50 p-3 text-base shadow-sm focus:border-neutral-500 focus:ring-neutral-500 disabled:cursor-not-allowed disabled:bg-neutral-200"
+  />
+)
+
+const FormTextarea = (props: React.ComponentProps<"textarea">) => (
+  <textarea
+    {...props}
+    className="block w-full rounded-md border-neutral-300 bg-neutral-50 p-3 text-base shadow-sm focus:border-neutral-500 focus:ring-neutral-500"
+  />
+)
+
+const FormSelect = (props: React.ComponentProps<"select">) => (
+  <select
+    {...props}
+    className="block w-full rounded-md border-neutral-300 bg-neutral-50 p-3 text-base shadow-sm focus:border-neutral-500 focus:ring-neutral-500"
+  >
+    {props.children}
+  </select>
+)
+
+const RadioCard = ({
+  id,
+  value,
+  children,
+  ...props
+}: React.ComponentProps<"input"> & { children: React.ReactNode }) => (
+  <div>
+    <input type="radio" id={id} value={value} className="peer sr-only" {...props} />
+    <label
+      htmlFor={id}
+      className="block cursor-pointer rounded-lg border border-neutral-300 bg-white p-3 text-center text-base font-medium peer-checked:border-neutral-800 peer-checked:ring-1 peer-checked:ring-neutral-800"
+    >
+      {children}
+    </label>
+  </div>
+)
+
+const SubmitButton = ({ children, isPending }: { children: React.ReactNode; isPending: boolean }) => (
+  <button
+    type="submit"
+    disabled={isPending}
+    className="flex w-full items-center justify-center gap-2 rounded-lg bg-neutral-900 px-6 py-3 text-base font-semibold text-white shadow-sm transition-colors hover:bg-neutral-800 disabled:bg-neutral-400"
+  >
+    {isPending ? <Loader2 className="h-5 w-5 animate-spin" /> : children}
+  </button>
+)
+
+// --- Step 1 Form Component ---
+
+function Step1Form({ onSuccess }: { onSuccess: (recordId: string) => void }) {
+  const id = useId()
+  const [state, formAction, isPending] = useActionState<Step1State, FormData>(handleStep1Submit, {
+    message: "",
+    success: false,
+  })
+  const {
+    register,
+    formState: { errors },
+  } = useForm<Step1Data>({
+    resolver: zodResolver(step1Schema),
+    defaultValues: { projectType: undefined },
+  })
+
+  useEffect(() => {
+    if (state.success && state.recordId) {
+      onSuccess(state.recordId)
+    }
+  }, [state, onSuccess])
+
+  return (
+    <form action={formAction} className="space-y-5">
+      <FieldWrapper id={`${id}-name`} label="Full Name" error={errors.name?.message || state.errors?.name?.[0]}>
+        <FormInput id={`${id}-name`} {...register("name")} placeholder="John Doe" />
+      </FieldWrapper>
+      <FieldWrapper id={`${id}-phone`} label="Phone Number" error={errors.phone?.message || state.errors?.phone?.[0]}>
+        <FormInput id={`${id}-phone`} {...register("phone")} type="tel" placeholder="(555) 123-4567" />
+      </FieldWrapper>
+      <FieldWrapper id={`${id}-email`} label="Email Address" error={errors.email?.message || state.errors?.email?.[0]}>
+        <FormInput id={`${id}-email`} {...register("email")} type="email" placeholder="you@example.com" />
+      </FieldWrapper>
+      <FieldWrapper
+        id={`${id}-projectType`}
+        label="What type of project is this?"
+        error={errors.projectType?.message || state.errors?.projectType?.[0]}
+      >
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+          <RadioCard id={`${id}-new`} value="new-construction" {...register("projectType")}>
+            New
+          </RadioCard>
+          <RadioCard id={`${id}-replacement`} value="roof-replacement" {...register("projectType")}>
+            Replacement
+          </RadioCard>
+          <RadioCard id={`${id}-not-sure`} value="not-sure" {...register("projectType")}>
+            Not Sure
+          </RadioCard>
+        </div>
+      </FieldWrapper>
+      <SubmitButton isPending={isPending}>
+        Request Callback <ArrowRight className="h-5 w-5" />
+      </SubmitButton>
+      {!state.success && state.message && <p className="text-center text-sm text-red-600">{state.message}</p>}
+    </form>
+  )
+}
+
+// --- Step 2 Form Component ---
+
+function Step2Form({ airtableRecordId, onSuccess }: { airtableRecordId: string; onSuccess: () => void }) {
+  const id = useId()
+  const [state, formAction, isPending] = useActionState<Step2State, FormData>(handleStep2Submit, {
+    message: "",
+    success: false,
+  })
+  const {
+    register,
+    control,
+    formState: { errors },
+  } = useForm<Step2Data>({
+    resolver: zodResolver(step2Schema),
+  })
+
+  useEffect(() => {
+    if (state.success) {
+      onSuccess()
+    }
+  }, [state, onSuccess])
+
+  return (
+    <form action={formAction} className="space-y-5">
+      <input type="hidden" {...register("airtableRecordId")} value={airtableRecordId} />
+      <FieldWrapper id={`${id}-address`} label="Project Address" error={errors.projectAddress?.message}>
+        <FormInput id={`${id}-address`} {...register("projectAddress")} placeholder="123 Main St, New York, NY" />
+      </FieldWrapper>
+      <FieldWrapper id={`${id}-roofSize`} label="Approx. Roof Size (sq ft)" error={errors.roofSize?.message}>
+        <FormInput id={`${id}-roofSize`} {...register("roofSize")} placeholder="e.g., 2500" />
+      </FieldWrapper>
+      <FieldWrapper
+        id={`${id}-plans`}
+        label="Architectural Plans (Optional)"
+        error={(errors.plans?.message as string) || state.errors?.plans?.[0]}
+      >
+        <Controller
+          name="plans"
+          control={control}
+          render={({ field: { onChange } }) => (
+            <FormInput type="file" accept=".pdf,image/*" onChange={(e) => onChange(e.target.files?.[0])} />
+          )}
+        />
+      </FieldWrapper>
+      <FieldWrapper
+        id={`${id}-photos`}
+        label="Photos of Roof (Optional)"
+        error={(errors.photos?.message as string) || state.errors?.photos?.[0]}
+      >
+        <Controller
+          name="photos"
+          control={control}
+          render={({ field: { onChange } }) => (
+            <FormInput
+              type="file"
+              accept="image/*"
+              multiple
+              onChange={(e) => onChange(Array.from(e.target.files || []))}
+            />
+          )}
+        />
+      </FieldWrapper>
+      <FieldWrapper id={`${id}-tileType`} label="Clay Tile Type (if known)">
+        <FormSelect {...register("tileType")}>
+          <option value="">Select an option...</option>
+          <option value="spanish-s">Traditional Spanish / S-Mission</option>
+          <option value="flat">Flat Tile</option>
+          <option value="not-sure">Not sure / Open to recommendations</option>
+        </FormSelect>
+      </FieldWrapper>
+      <FieldWrapper id={`${id}-timeframe`} label="When are you hoping to start?">
+        <FormSelect {...register("timeframe")}>
+          <option value="">Select a timeframe...</option>
+          <option value="asap">ASAP</option>
+          <option value="1-3-months">Within 1-3 months</option>
+          <option value="exploring">Just exploring options</option>
+        </FormSelect>
+      </FieldWrapper>
+      <FieldWrapper id={`${id}-referral`} label="How did you hear about us?">
+        <FormInput id={`${id}-referral`} />
+      </FieldWrapper>
+      <FieldWrapper id={`${id}-message`} label="Additional Message">
+        <FormTextarea id={`${id}-message`} {...register("message")} rows={3} />
+      </FieldWrapper>
+      <SubmitButton isPending={isPending}>Submit Full Details</SubmitButton>
+      {!state.success && state.message && <p className="text-center text-sm text-red-600">{state.message}</p>}
+    </form>
+  )
+}
+
+// --- Main Landing Page Component ---
 
 export default function Page() {
-  const [openContact, setOpenContact] = useState(false)
-  const [submitted, setSubmitted] = useState(false)
+  const [open, setOpen] = useState(false)
+  const [step, setStep] = useState(1)
+  const [airtableRecordId, setAirtableRecordId] = useState<string | null>(null)
 
-  // Conditional fields
-  const [constructionType, setConstructionType] = useState<string>("")
-  const [hasPlans, setHasPlans] = useState<string>("")
-  const [hasPhotos, setHasPhotos] = useState<string>("")
-  const [notSureSqft, setNotSureSqft] = useState(false)
-
-  function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
-    e.preventDefault()
-    // Here you could send FormData to a Server Action or API route.
-    setSubmitted(true)
+  const handleStep1Success = (recordId: string) => {
+    setAirtableRecordId(recordId)
+    setStep(2)
   }
 
-  function resetFormAndClose() {
-    setSubmitted(false)
-    setOpenContact(false)
-    setConstructionType("")
-    setHasPlans("")
-    setHasPhotos("")
-    setNotSureSqft(false)
+  const handleStep2Success = () => {
+    setStep(3) // Confirmation step
   }
+
+  // Reset form when dialog is closed
+  useEffect(() => {
+    if (!open) {
+      setTimeout(() => {
+        setStep(1)
+        setAirtableRecordId(null)
+      }, 200) // Delay to allow dialog to close before state reset
+    }
+  }, [open])
 
   return (
     <main className="relative h-dvh w-full overflow-hidden bg-black text-white">
-      {/* Background image */}
       <div className="absolute inset-0">
         <Image
           src="/images/hero-clay-roof.jpg"
@@ -63,31 +275,30 @@ export default function Page() {
         <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/30 to-black/10" />
       </div>
 
-      {/* Fixed minimal header */}
-      <header
-        className="fixed top-0 left-0 right-0 z-40 flex items-center justify-between px-4 py-3"
-        aria-label="Primary"
-      >
+      <header className="fixed top-0 left-0 right-0 z-40 flex items-center justify-between px-4 py-3">
         <Link
           href="/"
           className="inline-flex items-center rounded-md bg-black/30 px-3 py-1.5 text-sm font-semibold tracking-tight backdrop-blur-md ring-1 ring-white/10"
         >
-          <span className="sr-only">Terra Clay — Home</span>
           Terra Clay
         </Link>
-
         <Sheet>
           <SheetTrigger asChild>
-            <button
-              aria-label="Open menu"
-              className="inline-flex items-center justify-center rounded-md bg-black/30 p-2 backdrop-blur-md ring-1 ring-white/10"
+            <Button
+              variant="ghost"
+              size="icon"
+              className="rounded-md bg-black/30 p-2 backdrop-blur-md ring-1 ring-white/10 hover:bg-black/50"
             >
               <Menu className="h-6 w-6 text-white" />
-            </button>
+              <span className="sr-only">Open menu</span>
+            </Button>
           </SheetTrigger>
-          <SheetContent side="right" className="w-5/6 max-w-sm">
-            <SheetHeader>
-              <SheetTitle>Terra Clay</SheetTitle>
+          <SheetContent
+            side="right"
+            className="w-5/6 max-w-sm border-l border-white/10 bg-black/50 text-white backdrop-blur-lg"
+          >
+            <SheetHeader className="border-b-0">
+              <SheetTitle className="text-white">Terra Clay</SheetTitle>
             </SheetHeader>
             <nav className="mt-6 space-y-4 text-lg">
               <Link href="#gallery" className="block hover:underline">
@@ -104,7 +315,6 @@ export default function Page() {
         </Sheet>
       </header>
 
-      {/* Centered hero copy and CTA */}
       <section className="relative z-30 flex h-full w-full items-center">
         <div className="mx-auto flex w-full max-w-xl flex-col items-center px-4 text-center">
           <h1 className="text-balance text-3xl font-extrabold leading-tight sm:text-4xl">
@@ -114,277 +324,49 @@ export default function Page() {
             Serving New York City for over 20 years.
           </p>
 
-          <Dialog
-            open={openContact}
-            onOpenChange={(o) => {
-              setOpenContact(o)
-              if (!o) setSubmitted(false)
-            }}
-          >
+          <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
-              <Button
-                onClick={() => setOpenContact(true)}
-                className="mt-6 h-12 w-full max-w-[260px] rounded-full bg-neutral-900 text-white hover:bg-neutral-800"
-                aria-haspopup="dialog"
-              >
+              <Button className="mt-6 h-12 w-full max-w-[260px] rounded-full bg-neutral-900 text-white hover:bg-neutral-800">
                 Request a Quote
               </Button>
             </DialogTrigger>
-            <DialogContent className="sm:max-w-lg">
-              {!submitted ? (
-                <>
-                  <DialogHeader>
-                    <DialogTitle>Request a Quote</DialogTitle>
-                    <DialogDescription>Tell us about your project and we will reach out shortly.</DialogDescription>
-                  </DialogHeader>
+            <DialogContent className="sm:max-w-lg overflow-y-auto max-h-[90dvh]">
+              <DialogHeader>
+                <DialogTitle>
+                  {step === 1 && "Get a Free Roofing Quote"}
+                  {step === 2 && "Provide More Details (Optional)"}
+                </DialogTitle>
+                <DialogDescription>
+                  {step === 1 && "Start with the basics. We'll call you back within 24 hours."}
+                  {step === 2 && "Your callback is requested! For a faster quote, add more info below."}
+                </DialogDescription>
+              </DialogHeader>
 
-                  <form className="space-y-5" onSubmit={handleSubmit} id="quote-form" encType="multipart/form-data">
-                    {/* Contact */}
-                    <div className="space-y-4">
-                      <div className="space-y-2">
-                        <Label htmlFor="name">
-                          Name<span className="sr-only"> (required)</span>
-                        </Label>
-                        <Input id="name" name="name" placeholder="Your full name" required />
-                      </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="email">
-                          Email<span className="sr-only"> (required)</span>
-                        </Label>
-                        <Input id="email" name="email" type="email" placeholder="you@email.com" required />
-                      </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="phone">
-                          Phone Number<span className="sr-only"> (required)</span>
-                        </Label>
-                        <Input id="phone" name="phone" type="tel" placeholder="(555) 555-5555" required />
-                      </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="address">
-                          Project Address (Street, City, Zip)<span className="sr-only"> (required)</span>
-                        </Label>
-                        <Input id="address" name="address" placeholder="123 Main St, New York, NY 10001" required />
-                      </div>
-                    </div>
-
-                    {/* Project type */}
-                    <div className="space-y-2">
-                      <Label>
-                        Is this a new construction or a roof replacement? <span className="text-red-500">*</span>
-                      </Label>
-                      <RadioGroup
-                        value={constructionType}
-                        onValueChange={setConstructionType}
-                        name="constructionType"
-                        className="grid grid-cols-1 gap-3"
-                        required
-                      >
-                        <div className="flex items-center space-x-2 rounded-md border border-neutral-200 p-3 dark:border-neutral-800">
-                          <RadioGroupItem value="new" id="construction-new" />
-                          <Label htmlFor="construction-new" className="font-medium">
-                            New Construction
-                          </Label>
-                        </div>
-                        <div className="flex items-center space-x-2 rounded-md border border-neutral-200 p-3 dark:border-neutral-800">
-                          <RadioGroupItem value="replacement" id="construction-replacement" />
-                          <Label htmlFor="construction-replacement" className="font-medium">
-                            Roof Replacement
-                          </Label>
-                        </div>
-                        <div className="flex items-center space-x-2 rounded-md border border-neutral-200 p-3 dark:border-neutral-800">
-                          <RadioGroupItem value="not-sure" id="construction-unsure" />
-                          <Label htmlFor="construction-unsure" className="font-medium">
-                            Not Sure
-                          </Label>
-                        </div>
-                      </RadioGroup>
-                    </div>
-
-                    {/* Sqft + Not sure */}
-                    <div className="space-y-2">
-                      <Label htmlFor="sqft">Approximate roof square footage?</Label>
-                      <div className="flex items-center gap-3">
-                        <Input
-                          id="sqft"
-                          name="squareFootage"
-                          placeholder="e.g., 2,500"
-                          className="flex-1"
-                          disabled={notSureSqft}
-                          inputMode="numeric"
-                        />
-                        <div className="flex items-center gap-2 whitespace-nowrap">
-                          <input
-                            id="sqft-unknown"
-                            name="squareFootageUnknown"
-                            type="checkbox"
-                            className="h-4 w-4 accent-neutral-900"
-                            checked={notSureSqft}
-                            onChange={(e) => setNotSureSqft(e.target.checked)}
-                          />
-                          <Label htmlFor="sqft-unknown" className="text-sm">
-                            Not sure
-                          </Label>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Plans/Blueprints */}
-                    <div className="space-y-2">
-                      <Label>Do you have existing architectural plans or blueprints you can share?</Label>
-                      <RadioGroup
-                        value={hasPlans}
-                        onValueChange={setHasPlans}
-                        name="plans"
-                        className="grid grid-cols-1 gap-3"
-                      >
-                        <div className="flex items-center space-x-2 rounded-md border border-neutral-200 p-3 dark:border-neutral-800">
-                          <RadioGroupItem value="yes" id="plans-yes" />
-                          <Label htmlFor="plans-yes" className="font-medium">
-                            Yes – I can email or upload a copy
-                          </Label>
-                        </div>
-                        <div className="flex items-center space-x-2 rounded-md border border-neutral-200 p-3 dark:border-neutral-800">
-                          <RadioGroupItem value="no" id="plans-no" />
-                          <Label htmlFor="plans-no" className="font-medium">
-                            No – I don’t have them
-                          </Label>
-                        </div>
-                      </RadioGroup>
-
-                      {hasPlans === "yes" && (
-                        <div className="space-y-2">
-                          <Label htmlFor="plansFile" className="text-sm">
-                            Upload plans (PDF, images)
-                          </Label>
-                          <Input id="plansFile" name="plansFile" type="file" accept=".pdf,image/*" />
-                        </div>
-                      )}
-                    </div>
-
-                    {/* Tile type */}
-                    <div className="space-y-2">
-                      <Label htmlFor="tileType">Type of clay tile (if known):</Label>
-                      <Select name="tileType">
-                        <SelectTrigger id="tileType" className="w-full">
-                          <SelectValue placeholder="Select a tile type" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="spanish">Traditional Spanish / S-Mission</SelectItem>
-                          <SelectItem value="flat">Flat Tile</SelectItem>
-                          <SelectItem value="not-sure">Not sure — open to recommendations</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-
-                    {/* Photos */}
-                    <div className="space-y-2">
-                      <Label>Photos of current roof or structure?</Label>
-                      <RadioGroup
-                        value={hasPhotos}
-                        onValueChange={setHasPhotos}
-                        name="photos"
-                        className="grid grid-cols-1 gap-3"
-                      >
-                        <div className="flex items-center space-x-2 rounded-md border border-neutral-200 p-3 dark:border-neutral-800">
-                          <RadioGroupItem value="yes" id="photos-yes" />
-                          <Label htmlFor="photos-yes" className="font-medium">
-                            Yes – I’ll upload or send
-                          </Label>
-                        </div>
-                        <div className="flex items-center space-x-2 rounded-md border border-neutral-200 p-3 dark:border-neutral-800">
-                          <RadioGroupItem value="no" id="photos-no" />
-                          <Label htmlFor="photos-no" className="font-medium">
-                            No
-                          </Label>
-                        </div>
-                      </RadioGroup>
-
-                      {hasPhotos === "yes" && (
-                        <div className="space-y-2">
-                          <Label htmlFor="photosFiles" className="text-sm">
-                            Upload photos (you can select multiple)
-                          </Label>
-                          <Input id="photosFiles" name="photosFiles" type="file" accept="image/*" multiple />
-                        </div>
-                      )}
-                    </div>
-
-                    {/* Timeline */}
-                    <div className="space-y-2">
-                      <Label htmlFor="timeline">When are you hoping to start the project?</Label>
-                      <Select name="timeline">
-                        <SelectTrigger id="timeline" className="w-full">
-                          <SelectValue placeholder="Choose a timeframe" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="asap">ASAP</SelectItem>
-                          <SelectItem value="1-3-months">Within the next 1–3 months</SelectItem>
-                          <SelectItem value="exploring">Just exploring options for now</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-
-                    {/* Referral */}
-                    <div className="space-y-2">
-                      <Label htmlFor="referral">How did you hear about us?</Label>
-                      <Input id="referral" name="referral" placeholder="Friend, contractor, Google, etc." />
-                    </div>
-
-                    {/* Additional message */}
-                    <div className="space-y-2">
-                      <Label htmlFor="message">Brief message</Label>
-                      <Textarea
-                        id="message"
-                        name="message"
-                        placeholder="Tell us anything else we should know..."
-                        rows={4}
-                      />
-                    </div>
-
-                    <DialogFooter className="gap-2 pt-1">
-                      <Button type="button" variant="secondary" onClick={() => setOpenContact(false)}>
-                        Cancel
-                      </Button>
-                      <Button type="submit" className="bg-neutral-900 hover:bg-neutral-800">
-                        Submit
-                      </Button>
-                    </DialogFooter>
-                  </form>
-                </>
-              ) : (
-                <div className="flex flex-col items-center justify-center gap-4 py-8 text-center">
-                  <CheckCircle2 className="h-10 w-10 text-green-600" />
-                  <div>
-                    <h3 className="text-lg font-semibold">Request submitted</h3>
-                    <p className="mt-1 text-sm text-neutral-600 dark:text-neutral-400" aria-live="polite">
-                      Thank you, we’ll review your project and get back to you shortly.
+              <div className="mt-4">
+                {step < 3 && (
+                  <div className="mb-4 text-center text-sm font-medium text-neutral-500">Step {step} of 2</div>
+                )}
+                {step === 1 && <Step1Form onSuccess={handleStep1Success} />}
+                {step === 2 && airtableRecordId && (
+                  <Step2Form airtableRecordId={airtableRecordId} onSuccess={handleStep2Success} />
+                )}
+                {step === 3 && (
+                  <div className="text-center py-8">
+                    <Check className="mx-auto h-12 w-12 text-green-600 bg-green-100 rounded-full p-2" />
+                    <h2 className="mt-4 text-xl font-semibold text-neutral-800">Thank You!</h2>
+                    <p className="mt-1 text-neutral-600">
+                      Your information has been submitted. We’ll be in touch soon.
                     </p>
-                  </div>
-                  <div className="flex gap-2">
-                    <Button variant="secondary" onClick={() => setSubmitted(false)}>
-                      Fill another
-                    </Button>
-                    <Button className="bg-neutral-900 hover:bg-neutral-800" onClick={resetFormAndClose}>
+                    <Button variant="outline" className="mt-6 bg-transparent" onClick={() => setOpen(false)}>
                       Close
                     </Button>
                   </div>
-                </div>
-              )}
+                )}
+              </div>
             </DialogContent>
           </Dialog>
         </div>
       </section>
-
-      {/* Invisible anchors for potential future sections */}
-      <div id="gallery" className="sr-only">
-        Gallery
-      </div>
-      <div id="about" className="sr-only">
-        About
-      </div>
-      <div id="contact" className="sr-only">
-        Contact
-      </div>
     </main>
   )
 }
