@@ -411,7 +411,7 @@ export default function Page() {
   }, [open])
 
   return (
-    <main className="relative h-dvh w-full overflow-hidden bg-black text-white">
+    <main className="relative h-dvh w-full overflow-hidden bg-black text-white" id="home">
       <div className="absolute inset-0">
         <Image
           src="/images/hero-clay-roof.jpg"
@@ -453,10 +453,7 @@ export default function Page() {
               <Link href="/gallery" className="block hover:underline">
                 Photo Gallery
               </Link>
-              <Link href="#about" className="block hover:underline">
-                About Us
-              </Link>
-              <Link href="#contact" className="block hover:underline">
+              <Link href="/contact" className="block hover:underline">
                 Contact
               </Link>
             </nav>
@@ -464,7 +461,7 @@ export default function Page() {
         </Sheet>
       </header>
 
-      <section className="relative z-30 flex h-full w-full items-center">
+      <section className="relative z-30 flex h-full w-full items-center" id="quote">
         <div className="mx-auto flex w-full max-w-xl flex-col items-center px-4 text-center">
           <h1 className="text-balance text-3xl font-extrabold leading-tight sm:text-4xl">
             Clay Tile Roofing Specialists – NYC

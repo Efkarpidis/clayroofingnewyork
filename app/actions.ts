@@ -1,6 +1,6 @@
 "use server"
 
-import { step1Schema, step2Schema } from "./schemas"
+import { step1Schema, step2Schema, contactFormSchema } from "./schemas"
 import type { z } from "zod"
 
 // --- STATE TYPES FOR useActionState ---
@@ -27,6 +27,17 @@ export type Step2State = {
   success: boolean
 }
 
+export type ContactFormState = {
+  message: string
+  errors?: {
+    name?: string[]
+    email?: string[]
+    phone?: string[]
+    message?: string[]
+  }
+  success: boolean
+}
+
 // --- SIMULATED API/DB FUNCTIONS ---
 
 async function createAirtableRecord(data: z.infer<typeof step1Schema>) {
@@ -41,12 +52,18 @@ async function updateAirtableRecord(recordId: string, data: Omit<z.infer<typeof 
   console.log(`Step 2: Updating Airtable record ${recordId} with data:`, data)
   await new Promise((resolve) => setTimeout(resolve, 1000))
   console.log("Step 2: Record updated successfully.")
-  if (data.plans && data.plans.size > 0) {
-    console.log(`Simulating upload for plan: ${data.plans.name}`)
+  if (data.plans && data.plans.length > 0) {
+    data.plans.forEach((plan) => console.log(`Simulating upload for plan: ${plan.name}`))
   }
   if (data.photos && data.photos.length > 0) {
     data.photos.forEach((photo) => console.log(`Simulating upload for photo: ${photo.name}`))
   }
+}
+
+async function submitContactMessage(data: z.infer<typeof contactFormSchema>) {
+  console.log("Contact Form: Submitting message:", data)
+  await new Promise((resolve) => setTimeout(resolve, 1000))
+  console.log("Contact Form: Message submitted successfully.")
 }
 
 // --- SERVER ACTIONS ---
@@ -88,7 +105,8 @@ export async function handleStep2Submit(prevState: Step2State, formData: FormDat
     airtableRecordId: formData.get("airtableRecordId"),
     projectAddress: formData.get("projectAddress"),
     roofSize: formData.get("roofSize"),
-    plans: formData.get("plans"),
+    isRoofSizeUnsure: formData.get("isRoofSizeUnsure") === "on",
+    plans: formData.getAll("plans").filter((p: FormDataEntryValue) => (p as File).size > 0),
     photos: formData.getAll("photos").filter((p: FormDataEntryValue) => (p as File).size > 0),
     tileType: formData.get("tileType"),
     timeframe: formData.get("timeframe"),
@@ -114,6 +132,40 @@ export async function handleStep2Submit(prevState: Step2State, formData: FormDat
     }
   } catch (error) {
     console.error("Error in Step 2:", error)
+    return {
+      message: "An unexpected error occurred. Please try again.",
+      success: false,
+    }
+  }
+}
+
+export async function handleContactFormSubmit(
+  prevState: ContactFormState,
+  formData: FormData,
+): Promise<ContactFormState> {
+  const validatedFields = contactFormSchema.safeParse({
+    name: formData.get("name"),
+    email: formData.get("email"),
+    phone: formData.get("phone"),
+    message: formData.get("message"),
+  })
+
+  if (!validatedFields.success) {
+    return {
+      message: "Please fix the errors below.",
+      errors: validatedFields.error.flatten().fieldErrors,
+      success: false,
+    }
+  }
+
+  try {
+    await submitContactMessage(validatedFields.data)
+    return {
+      message: "Message sent successfully!",
+      success: true,
+    }
+  } catch (error) {
+    console.error("Error in Contact Form:", error)
     return {
       message: "An unexpected error occurred. Please try again.",
       success: false,

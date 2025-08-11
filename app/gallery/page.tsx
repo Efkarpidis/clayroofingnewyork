@@ -21,9 +21,14 @@ export default function GalleryPage() {
             <Link href="/" className="text-lg font-semibold tracking-tight">
               Terra Clay
             </Link>
-            <Button asChild variant="outline">
-              <Link href="/#quote">Request a Quote</Link>
-            </Button>
+            <nav className="flex items-center gap-2 sm:gap-4">
+              <Button asChild variant="ghost" className="text-base">
+                <Link href="/contact">Contact</Link>
+              </Button>
+              <Button asChild variant="default">
+                <Link href="/#quote">Request a Quote</Link>
+              </Button>
+            </nav>
           </div>
         </header>
 

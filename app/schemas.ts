@@ -43,5 +43,13 @@ export const step2Schema = z.object({
   message: z.string().optional(),
 })
 
+export const contactFormSchema = z.object({
+  name: z.string().min(2, { message: "Please enter your name." }),
+  email: z.string().email({ message: "Please enter a valid email address." }),
+  phone: z.string().optional(),
+  message: z.string().min(10, { message: "Your message must be at least 10 characters long." }),
+})
+
 export type Step1Data = z.infer<typeof step1Schema>
 export type Step2Data = z.infer<typeof step2Schema>
+export type ContactFormData = z.infer<typeof contactFormSchema>
