@@ -431,43 +431,52 @@ export default function Page() {
         >
           Terra Clay
         </Link>
-        <Sheet>
-          <SheetTrigger asChild>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="rounded-md bg-black/30 p-2 backdrop-blur-md ring-1 ring-white/10 hover:bg-black/50"
-            >
-              <Menu className="h-6 w-6 text-white" />
-              <span className="sr-only">Open menu</span>
-            </Button>
-          </SheetTrigger>
-          <SheetContent
-            side="right"
-            className="w-5/6 max-w-sm border-l border-white/10 bg-black/50 text-white backdrop-blur-lg"
+        <div className="flex items-center gap-2">
+          <Button
+            asChild
+            variant="ghost"
+            className="hidden rounded-md bg-black/30 px-3 py-1.5 text-sm font-semibold tracking-tight text-white backdrop-blur-md ring-1 ring-white/10 hover:bg-black/50 hover:text-white sm:inline-flex"
           >
-            <SheetHeader className="border-b-0">
-              <SheetTitle className="text-white">Terra Clay</SheetTitle>
-            </SheetHeader>
-            <nav className="mt-6 space-y-4 text-lg">
-              <SheetClose asChild>
-                <Link href="/gallery" className="block hover:underline">
-                  Photo Gallery
-                </Link>
-              </SheetClose>
-              <SheetClose asChild>
-                <Link href="/about" className="block hover:underline">
-                  About Us
-                </Link>
-              </SheetClose>
-              <SheetClose asChild>
-                <Link href="/contact" className="block hover:underline">
-                  Contact
-                </Link>
-              </SheetClose>
-            </nav>
-          </SheetContent>
-        </Sheet>
+            <a href="tel:2123654386">212-365-4386</a>
+          </Button>
+          <Sheet>
+            <SheetTrigger asChild>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="rounded-md bg-black/30 p-2 backdrop-blur-md ring-1 ring-white/10 hover:bg-black/50"
+              >
+                <Menu className="h-6 w-6 text-white" />
+                <span className="sr-only">Open menu</span>
+              </Button>
+            </SheetTrigger>
+            <SheetContent
+              side="right"
+              className="w-5/6 max-w-sm border-l border-white/10 bg-black/50 text-white backdrop-blur-lg"
+            >
+              <SheetHeader className="border-b-0">
+                <SheetTitle className="text-white">Terra Clay</SheetTitle>
+              </SheetHeader>
+              <nav className="mt-6 space-y-4 text-lg">
+                <SheetClose asChild>
+                  <Link href="/gallery" className="block hover:underline">
+                    Photo Gallery
+                  </Link>
+                </SheetClose>
+                <SheetClose asChild>
+                  <Link href="/about" className="block hover:underline">
+                    About Us
+                  </Link>
+                </SheetClose>
+                <SheetClose asChild>
+                  <Link href="/contact" className="block hover:underline">
+                    Contact
+                  </Link>
+                </SheetClose>
+              </nav>
+            </SheetContent>
+          </Sheet>
+        </div>
       </header>
 
       <section className="relative z-30 flex h-full w-full items-center" id="quote">

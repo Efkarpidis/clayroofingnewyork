@@ -6,6 +6,7 @@ import Link from "next/link"
 import { galleryData, tileTypes, type Photo } from "../gallery-data"
 import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent } from "@/components/ui/dialog"
+import { Phone } from "lucide-react"
 
 export default function GalleryPage() {
   const [activeFilter, setActiveFilter] = useState("All")
@@ -21,7 +22,13 @@ export default function GalleryPage() {
             <Link href="/" className="text-lg font-semibold tracking-tight">
               Terra Clay
             </Link>
-            <nav className="flex items-center gap-2 sm:gap-4">
+            <nav className="flex items-center gap-1 sm:gap-2">
+              <Button asChild variant="ghost" className="hidden text-base md:flex">
+                <a href="tel:2123654386" className="flex items-center">
+                  <Phone className="mr-2 h-4 w-4" />
+                  212-365-4386
+                </a>
+              </Button>
               <Button asChild variant="ghost" className="text-base">
                 <Link href="/about">About</Link>
               </Button>

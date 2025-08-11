@@ -115,7 +115,13 @@ export default function ContactPage() {
           <Link href="/" className="text-lg font-semibold tracking-tight">
             Terra Clay
           </Link>
-          <nav className="flex items-center gap-2 sm:gap-4">
+          <nav className="flex items-center gap-1 sm:gap-2">
+            <Button asChild variant="ghost" className="hidden text-base md:flex">
+              <a href="tel:2123654386" className="flex items-center">
+                <Phone className="mr-2 h-4 w-4" />
+                212-365-4386
+              </a>
+            </Button>
             <Button asChild variant="ghost" className="text-base">
               <Link href="/gallery">Gallery</Link>
             </Button>
@@ -148,8 +154,8 @@ export default function ContactPage() {
                 </p>
                 <p className="flex items-center gap-3">
                   <Phone className="h-6 w-6 text-neutral-500" />
-                  <a href="tel:555-123-4567" className="hover:underline">
-                    (555) 123-4567
+                  <a href="tel:212-365-4386" className="hover:underline">
+                    (212) 365-4386
                   </a>
                 </p>
                 <p className="flex items-center gap-3">
