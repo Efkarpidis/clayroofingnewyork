@@ -110,25 +110,25 @@ function ContactForm() {
 export default function ContactPage() {
   return (
     <div className="bg-white text-neutral-800">
-      <header className="sticky top-0 z-50 border-b border-neutral-200 bg-white shadow-sm">
-        <div className="container mx-auto flex items-center justify-between px-4 py-4">
+      <header className="sticky top-0 z-50 border-b border-neutral-200 bg-white/95 shadow-sm">
+        <div className="container mx-auto flex items-center justify-between px-4 py-2">
           <Link href="/" className="flex items-center">
-            <Image src="/terraclay-logo.png" alt="Terra Clay" width={540} height={180} className="h-36 w-auto" />
+            <Image src="/terraclay-logo.png" alt="Terra Clay" width={540} height={180} className="h-32 w-auto" />
           </Link>
-          <nav className="flex flex-wrap items-center justify-end gap-1 sm:gap-2">
-            <Button asChild variant="ghost" className="text-base">
-              <a href="tel:2123654386" className="flex items-center">
-                <Phone className="mr-2 h-4 w-4" />
-                212-365-4386
-              </a>
+          <nav className="flex items-center gap-1 sm:gap-2 flex-wrap">
+            <Button asChild variant="ghost" className="text-sm font-medium text-neutral-700 hover:bg-neutral-100">
+              <a href="tel:2123654386">212-365-4386</a>
             </Button>
-            <Button asChild variant="ghost" className="text-base">
+            <Button asChild variant="ghost" className="text-sm font-medium text-neutral-700 hover:bg-neutral-100">
               <Link href="/gallery">Gallery</Link>
             </Button>
-            <Button asChild variant="ghost" className="text-base">
+            <Button asChild variant="ghost" className="text-sm font-medium text-neutral-700 hover:bg-neutral-100">
               <Link href="/about">About</Link>
             </Button>
-            <Button asChild variant="default">
+            <Button asChild variant="ghost" className="text-sm font-medium text-neutral-700 hover:bg-neutral-100">
+              <Link href="/contact">Contact</Link>
+            </Button>
+            <Button asChild className="bg-orange-600 text-white hover:bg-orange-700 text-sm font-semibold">
               <Link href="/#quote">Request a Quote</Link>
             </Button>
           </nav>
@@ -197,8 +197,21 @@ export default function ContactPage() {
       </main>
 
       <footer className="border-t border-neutral-200 bg-neutral-50">
-        <div className="container mx-auto px-4 py-6 text-center text-neutral-500">
-          <p>&copy; {new Date().getFullYear()} Terra Clay. All Rights Reserved.</p>
+        <div className="container mx-auto px-4 py-6 space-y-4">
+          <div className="flex items-center justify-center gap-3 text-sm text-neutral-600">
+            <a
+              href="https://www.laescandella.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-3 hover:opacity-80 transition-opacity"
+            >
+              <Image src="/la-escandella-logo.webp" alt="La Escandella" width={80} height={40} className="h-6 w-auto" />
+              <span>Proudly partnered with La Escandella.</span>
+            </a>
+          </div>
+          <div className="text-center text-neutral-500">
+            <p>&copy; {new Date().getFullYear()} Terra Clay. All Rights Reserved.</p>
+          </div>
         </div>
       </footer>
     </div>

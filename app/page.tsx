@@ -3,7 +3,7 @@
 import React from "react"
 import Image from "next/image"
 import Link from "next/link"
-import { Menu, ArrowRight, Check, Loader2 } from "lucide-react"
+import { ArrowRight, Check, Loader2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import {
   Dialog,
@@ -13,7 +13,6 @@ import {
   DialogDescription,
   DialogTrigger,
 } from "@/components/ui/dialog"
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger, SheetClose } from "@/components/ui/sheet"
 import { useState, useActionState, useEffect, useId } from "react"
 import { useForm, Controller } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
@@ -211,8 +210,8 @@ function Step1Form({ onSuccess }: { onSuccess: (recordId: string) => void }) {
           <RadioCard id={`${id}-replacement`} value="roof-replacement" {...register("projectType")}>
             Replacement
           </RadioCard>
-          <RadioCard id={`${id}-not-sure`} value="not-sure" {...register("projectType")}>
-            Not Sure
+          <RadioCard id={`${id}-other`} value="other" {...register("projectType")}>
+            Other
           </RadioCard>
         </div>
       </FieldWrapper>
@@ -423,74 +422,63 @@ export default function Page() {
         <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/30 to-black/10" />
       </div>
 
-      <header className="fixed top-0 left-0 right-0 z-40 flex items-center justify-between px-4 py-4 border-b border-neutral-200 bg-white/95 shadow-sm">
-        <Link href="/">
-          <Image src="/terraclay-logo.png" alt="Terra Clay" width={540} height={180} className="h-36 w-auto" />
+      <header className="fixed top-0 left-0 right-0 z-40 flex items-center justify-between px-4 py-2">
+        <Link href="/" className="flex items-center">
+          <Image
+            src="/terraclay-logo.png"
+            alt="Terra Clay"
+            width={540}
+            height={180}
+            className="h-32 w-auto drop-shadow-lg"
+          />
         </Link>
-        <div className="flex items-center gap-2">
+        <nav className="flex items-center gap-1 sm:gap-2 flex-wrap">
           <Button
             asChild
             variant="ghost"
-            className="inline-flex rounded-md px-3 py-1.5 text-sm font-semibold tracking-tight text-neutral-700 hover:bg-neutral-100"
+            className="text-sm font-medium text-white hover:bg-white/20 hover:text-white drop-shadow-md shadow-black/50"
           >
             <a href="tel:2123654386">212-365-4386</a>
           </Button>
-          <Sheet>
-            <SheetTrigger asChild>
-              <Button variant="ghost" size="icon" className="rounded-md p-2 text-neutral-700 hover:bg-neutral-100">
-                <Menu className="h-6 w-6" />
-                <span className="sr-only">Open menu</span>
-              </Button>
-            </SheetTrigger>
-            <SheetContent side="right" className="w-5/6 max-w-sm bg-white border-l border-neutral-200">
-              <SheetHeader className="border-b border-neutral-100 pb-4">
-                <SheetTitle className="flex items-center justify-center">
-                  <Image src="/terraclay-logo.png" alt="Terra Clay" width={450} height={150} className="h-24 w-auto" />
-                </SheetTitle>
-              </SheetHeader>
-              <nav className="mt-8 space-y-6">
-                <SheetClose asChild>
-                  <Link
-                    href="/gallery"
-                    className="block text-lg font-medium text-neutral-700 hover:text-neutral-900 hover:underline"
-                  >
-                    Photo Gallery
-                  </Link>
-                </SheetClose>
-                <SheetClose asChild>
-                  <Link
-                    href="/about"
-                    className="block text-lg font-medium text-neutral-700 hover:text-neutral-900 hover:underline"
-                  >
-                    About Us
-                  </Link>
-                </SheetClose>
-                <SheetClose asChild>
-                  <Link
-                    href="/contact"
-                    className="block text-lg font-medium text-neutral-700 hover:text-neutral-900 hover:underline"
-                  >
-                    Contact
-                  </Link>
-                </SheetClose>
-              </nav>
-            </SheetContent>
-          </Sheet>
-        </div>
+          <Button
+            asChild
+            variant="ghost"
+            className="text-sm font-medium text-white hover:bg-white/20 hover:text-white drop-shadow-md shadow-black/50"
+          >
+            <Link href="/gallery">Gallery</Link>
+          </Button>
+          <Button
+            asChild
+            variant="ghost"
+            className="text-sm font-medium text-white hover:bg-white/20 hover:text-white drop-shadow-md shadow-black/50"
+          >
+            <Link href="/about">About</Link>
+          </Button>
+          <Button
+            asChild
+            variant="ghost"
+            className="text-sm font-medium text-white hover:bg-white/20 hover:text-white drop-shadow-md shadow-black/50"
+          >
+            <Link href="/contact">Contact</Link>
+          </Button>
+          <Button asChild className="bg-orange-600 text-white hover:bg-orange-700 text-sm font-semibold px-4 py-2">
+            <Link href="/request-quote">Request a Quote</Link>
+          </Button>
+        </nav>
       </header>
 
       <section className="relative z-30 flex h-full w-full items-center" id="quote">
         <div className="mx-auto flex w-full max-w-xl flex-col items-center px-4 text-center">
-          <h1 className="text-balance text-3xl font-extrabold leading-tight sm:text-4xl">
+          <h1 className="text-balance text-4xl font-extrabold leading-tight sm:text-5xl drop-shadow-lg">
             Clay Tile Roofing Specialists – NYC
           </h1>
-          <p className="mt-2 text-pretty text-base font-medium text-white/90 sm:text-lg">
+          <p className="mt-4 text-pretty text-base font-medium text-white/90 sm:text-lg drop-shadow-md">
             Serving New York City for over 20 years.
           </p>
 
           <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
-              <Button className="mt-6 h-12 w-full max-w-[260px] rounded-full bg-neutral-900 text-white hover:bg-neutral-800">
+              <Button className="mt-6 h-12 w-full max-w-[260px] rounded-full bg-orange-600 text-white hover:bg-orange-700 hover:shadow-lg transition-all duration-200">
                 Request a Quote
               </Button>
             </DialogTrigger>
@@ -531,6 +519,25 @@ export default function Page() {
           </Dialog>
         </div>
       </section>
+
+      <footer className="border-t border-neutral-200 bg-neutral-50">
+        <div className="container mx-auto px-4 py-6 space-y-4">
+          <div className="flex items-center justify-center gap-3 text-sm text-neutral-600">
+            <a
+              href="https://www.laescandella.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-3 hover:opacity-80 transition-opacity"
+            >
+              <Image src="/la-escandella-logo.webp" alt="La Escandella" width={80} height={40} className="h-6 w-auto" />
+              <span>Proudly partnered with La Escandella.</span>
+            </a>
+          </div>
+          <div className="text-center text-neutral-500">
+            <p>&copy; {new Date().getFullYear()} Terra Clay. All Rights Reserved.</p>
+          </div>
+        </div>
+      </footer>
     </main>
   )
 }
