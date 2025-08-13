@@ -425,8 +425,8 @@ export default function Page() {
       <header className="fixed top-0 left-0 right-0 z-40 flex items-center justify-between px-4 py-2">
         <Link href="/" className="flex items-center">
           <Image
-            src="/clay-tile-ny-logo.png"
-            alt="Clay Tile NY"
+            src="/clay-roofs-ny-logo.png"
+            alt="Clay Roofs NY"
             width={540}
             height={180}
             className="h-32 w-auto drop-shadow-lg"
@@ -507,7 +507,7 @@ export default function Page() {
                     <Check className="mx-auto h-12 w-12 text-green-600 bg-green-100 rounded-full p-2" />
                     <h2 className="mt-4 text-xl font-semibold text-neutral-800">Thank You!</h2>
                     <p className="mt-1 text-neutral-600">
-                      Your information has been submitted. We’ll be in touch soon.
+                      Your information has been submitted. We'll be in touch soon.
                     </p>
                     <Button variant="outline" className="mt-6 bg-transparent" onClick={() => setOpen(false)}>
                       Close
@@ -534,7 +534,7 @@ export default function Page() {
             </a>
           </div>
           <div className="text-center text-neutral-500">
-            <p>&copy; {new Date().getFullYear()} Clay Tile NY. All Rights Reserved.</p>
+            <p>&copy; {new Date().getFullYear()} Clay Roofs NY. All Rights Reserved.</p>
           </div>
         </div>
       </footer>
