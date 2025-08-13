@@ -8,7 +8,7 @@ export default function AboutPage() {
       <header className="sticky top-0 z-50 border-b border-neutral-200 bg-white/95 shadow-sm">
         <div className="container mx-auto flex items-center justify-between px-4 py-2">
           <Link href="/" className="flex items-center">
-            <Image src="/terraclay-logo.png" alt="Terra Clay" width={540} height={180} className="h-32 w-auto" />
+            <Image src="/clay-tile-ny-logo.png" alt="Clay Tile NY" width={540} height={180} className="h-32 w-auto" />
           </Link>
           <nav className="flex items-center gap-1 sm:gap-2 flex-wrap">
             <Button asChild variant="ghost" className="text-sm font-medium text-neutral-700 hover:bg-neutral-100">
@@ -33,15 +33,15 @@ export default function AboutPage() {
       <main className="container mx-auto px-4 py-16 sm:py-24">
         <div className="flex flex-col items-center text-center">
           <Image
-            src="/terraclay-logo.png"
-            alt="Terra Clay Logo"
+            src="/clay-tile-ny-logo.png"
+            alt="Clay Tile NY Logo"
             width={900}
             height={300}
             className="mb-6 h-64 w-auto sm:h-80"
           />
-          <h1 className="text-3xl font-extrabold tracking-tight sm:text-4xl">About TerraClay</h1>
+          <h1 className="text-3xl font-extrabold tracking-tight sm:text-4xl">About Clay Tile NY</h1>
           <p className="mt-4 max-w-2xl text-lg text-neutral-600 sm:text-xl">
-            TerraClay specializes in premium Spanish clay tile roofing for high-end homes in New York. For over 20
+            Clay Tile NY specializes in premium Spanish clay tile roofing for high-end homes in New York. For over 20
             years, we've delivered quality, durability, and craftsmanship to every project.
           </p>
         </div>
@@ -61,7 +61,7 @@ export default function AboutPage() {
             </a>
           </div>
           <div className="text-center text-neutral-500">
-            <p>&copy; {new Date().getFullYear()} Terra Clay. All Rights Reserved.</p>
+            <p>&copy; {new Date().getFullYear()} Clay Tile NY. All Rights Reserved.</p>
           </div>
         </div>
       </footer>

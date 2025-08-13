@@ -425,8 +425,8 @@ export default function Page() {
       <header className="fixed top-0 left-0 right-0 z-40 flex items-center justify-between px-4 py-2">
         <Link href="/" className="flex items-center">
           <Image
-            src="/terraclay-logo.png"
-            alt="Terra Clay"
+            src="/clay-tile-ny-logo.png"
+            alt="Clay Tile NY"
             width={540}
             height={180}
             className="h-32 w-auto drop-shadow-lg"
@@ -534,7 +534,7 @@ export default function Page() {
             </a>
           </div>
           <div className="text-center text-neutral-500">
-            <p>&copy; {new Date().getFullYear()} Terra Clay. All Rights Reserved.</p>
+            <p>&copy; {new Date().getFullYear()} Clay Tile NY. All Rights Reserved.</p>
           </div>
         </div>
       </footer>

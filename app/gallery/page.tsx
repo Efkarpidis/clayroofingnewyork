@@ -19,7 +19,7 @@ export default function GalleryPage() {
         <header className="sticky top-0 z-50 border-b border-neutral-200 bg-white/95 shadow-sm">
           <div className="container mx-auto flex items-center justify-between px-4 py-2">
             <Link href="/" className="flex items-center">
-              <Image src="/terraclay-logo.png" alt="Terra Clay" width={540} height={180} className="h-32 w-auto" />
+              <Image src="/clay-tile-ny-logo.png" alt="Clay Tile NY" width={540} height={180} className="h-32 w-auto" />
             </Link>
             <nav className="flex items-center gap-1 sm:gap-2 flex-wrap">
               <Button asChild variant="ghost" className="text-sm font-medium text-neutral-700 hover:bg-neutral-100">
@@ -122,7 +122,7 @@ export default function GalleryPage() {
               </a>
             </div>
             <div className="text-center text-neutral-500">
-              <p>&copy; {new Date().getFullYear()} Terra Clay. All Rights Reserved.</p>
+              <p>&copy; {new Date().getFullYear()} Clay Tile NY. All Rights Reserved.</p>
             </div>
           </div>
         </footer>
