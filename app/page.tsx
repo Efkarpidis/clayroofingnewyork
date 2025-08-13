@@ -3,7 +3,7 @@
 import React from "react"
 import Image from "next/image"
 import Link from "next/link"
-import { ArrowRight, Check, Loader2, Upload, X, Camera } from "lucide-react"
+import { ArrowRight, Check, Loader2, Upload, X, Camera, FileText, ImageIcon } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import {
   Dialog,
@@ -160,18 +160,19 @@ const FileUploadButton = ({
   onChange,
   accept,
   multiple = false,
-  capture,
   label,
+  isPhotos = false,
 }: {
   files: File[]
   onChange: (files: File[]) => void
   accept: string
   multiple?: boolean
-  capture?: string
   label: string
+  isPhotos?: boolean
 }) => {
   const [isMobile, setIsMobile] = useState(false)
   const fileInputRef = React.useRef<HTMLInputElement>(null)
+  const cameraInputRef = React.useRef<HTMLInputElement>(null)
 
   useEffect(() => {
     setIsMobile(/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent))
@@ -196,23 +197,51 @@ const FileUploadButton = ({
 
   return (
     <div className="space-y-3">
+      {/* Hidden file inputs */}
       <input
         ref={fileInputRef}
         type="file"
         accept={accept}
         multiple={multiple}
-        capture={capture as any}
         onChange={handleFileChange}
         className="sr-only"
       />
-      <button
-        type="button"
-        onClick={() => fileInputRef.current?.click()}
-        className="flex w-full items-center justify-center gap-3 rounded-lg border-2 border-dashed border-neutral-300 bg-neutral-50 p-6 text-base font-medium text-neutral-700 transition-colors hover:border-neutral-400 hover:bg-neutral-100"
-      >
-        {isMobile ? <Camera className="h-6 w-6" /> : <Upload className="h-6 w-6" />}
-        {isMobile ? "Upload or Take Photo" : label}
-      </button>
+      {isPhotos && isMobile && (
+        <input
+          ref={cameraInputRef}
+          type="file"
+          accept="image/*"
+          capture="environment"
+          multiple={multiple}
+          onChange={handleFileChange}
+          className="sr-only"
+        />
+      )}
+
+      {/* Upload buttons */}
+      <div className="space-y-2">
+        {/* Main upload button */}
+        <button
+          type="button"
+          onClick={() => fileInputRef.current?.click()}
+          className="flex w-full items-center justify-center gap-3 rounded-lg border-2 border-dashed border-neutral-300 bg-neutral-50 p-6 text-base font-medium text-neutral-700 transition-colors hover:border-neutral-400 hover:bg-neutral-100"
+        >
+          {isPhotos ? <ImageIcon className="h-6 w-6" /> : <Upload className="h-6 w-6" />}
+          {isPhotos ? "Choose Photos from Library" : label}
+        </button>
+
+        {/* Camera button for mobile photos */}
+        {isPhotos && isMobile && (
+          <button
+            type="button"
+            onClick={() => cameraInputRef.current?.click()}
+            className="flex w-full items-center justify-center gap-3 rounded-lg border border-neutral-300 bg-white p-4 text-base font-medium text-neutral-700 transition-colors hover:border-neutral-400 hover:bg-neutral-50"
+          >
+            <Camera className="h-5 w-5" />
+            Take New Photo
+          </button>
+        )}
+      </div>
 
       {files.length > 0 && (
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
@@ -228,7 +257,7 @@ const FileUploadButton = ({
                 ) : (
                   <div className="flex h-full items-center justify-center">
                     <div className="text-center">
-                      <Upload className="mx-auto h-8 w-8 text-neutral-400" />
+                      <FileText className="mx-auto h-8 w-8 text-neutral-400" />
                       <p className="mt-1 text-xs text-neutral-500 truncate px-2">{file.name}</p>
                     </div>
                   </div>
@@ -419,8 +448,8 @@ function Step2Form({ airtableRecordId, onSuccess }: { airtableRecordId: string; 
               onChange={setPlanFiles}
               accept="image/*,application/pdf"
               multiple
-              capture="environment"
               label="Upload Files"
+              isPhotos={false}
             />
           )}
         </div>
@@ -448,8 +477,8 @@ function Step2Form({ airtableRecordId, onSuccess }: { airtableRecordId: string; 
               onChange={setPhotoFiles}
               accept="image/*"
               multiple
-              capture="environment"
               label="Upload Photos"
+              isPhotos={true}
             />
           )}
         </div>
