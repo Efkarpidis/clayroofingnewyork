@@ -49,7 +49,6 @@ const SubmitButton = ({ children, isPending }: { children: React.ReactNode; isPe
     className="flex w-full items-center justify-center gap-2 rounded-lg bg-neutral-900 px-6 py-3 text-base font-semibold text-white shadow-sm transition-colors hover:bg-neutral-800 disabled:bg-neutral-400"
   >
     {isPending ? <Loader2 className="h-5 w-5 animate-spin" /> : children}
-    {!isPending && children}
   </button>
 )
 
@@ -101,7 +100,7 @@ function ContactForm() {
       <FieldWrapper id={`${id}-message`} label="Message" error={errors.message?.message || state.errors?.message?.[0]}>
         <FormTextarea {...register("message")} rows={5} placeholder="How can we help you?" />
       </FieldWrapper>
-      <SubmitButton isPending={isPending}>Send Message</SubmitButton>
+      <SubmitButton isPending={isPending}>Submit</SubmitButton>
       {!state.success && state.message && <p className="text-center text-sm text-red-600">{state.message}</p>}
     </form>
   )
