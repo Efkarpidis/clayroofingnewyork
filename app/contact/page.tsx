@@ -150,7 +150,7 @@ export default function ContactPage() {
               <div className="mt-4 space-y-4 text-lg text-neutral-700">
                 <p className="flex items-start gap-3">
                   <MapPin className="h-6 w-6 flex-shrink-0 text-neutral-500 mt-1" />
-                  <span>123 Clay Street, Queens, NY 11101</span>
+                  <span>33-15 127th Pl, Corona, NY 11368</span>
                 </p>
                 <p className="flex items-center gap-3">
                   <Phone className="h-6 w-6 text-neutral-500" />
@@ -160,8 +160,8 @@ export default function ContactPage() {
                 </p>
                 <p className="flex items-center gap-3">
                   <Mail className="h-6 w-6 text-neutral-500" />
-                  <a href="mailto:contact@terraclay.com" className="hover:underline">
-                    contact@terraclay.com
+                  <a href="mailto:hello@clayroofsny.com" className="hover:underline">
+                    hello@clayroofsny.com
                   </a>
                 </p>
               </div>
