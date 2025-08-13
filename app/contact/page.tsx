@@ -179,15 +179,6 @@ export default function ContactPage() {
                 </p>
               </div>
             </div>
-            <div className="aspect-[4/3] w-full overflow-hidden rounded-lg">
-              <Image
-                src="/placeholder.svg?width=800&height=600"
-                alt="Map showing business location"
-                width={800}
-                height={600}
-                className="w-full h-full object-cover"
-              />
-            </div>
           </div>
 
           <div className="rounded-lg border border-neutral-200 bg-neutral-50 p-6 sm:p-8">
