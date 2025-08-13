@@ -3,7 +3,7 @@
 import React from "react"
 import Image from "next/image"
 import Link from "next/link"
-import { ArrowRight, Check, Loader2 } from "lucide-react"
+import { ArrowRight, Check, Loader2, Upload, X, Camera } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import {
   Dialog,
@@ -14,7 +14,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog"
 import { useState, useActionState, useEffect, useId } from "react"
-import { useForm, Controller } from "react-hook-form"
+import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { type Step1Data, step1Schema, type Step2Data, step2Schema } from "./schemas"
 import { handleStep1Submit, handleStep2Submit, type Step1State, type Step2State } from "./actions"
@@ -155,6 +155,100 @@ const YesNoToggle = ({ value, onChange }: { value: boolean | null; onChange: (ne
   </div>
 )
 
+const FileUploadButton = ({
+  files,
+  onChange,
+  accept,
+  multiple = false,
+  capture,
+  label,
+}: {
+  files: File[]
+  onChange: (files: File[]) => void
+  accept: string
+  multiple?: boolean
+  capture?: string
+  label: string
+}) => {
+  const [isMobile, setIsMobile] = useState(false)
+  const fileInputRef = React.useRef<HTMLInputElement>(null)
+
+  useEffect(() => {
+    setIsMobile(/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent))
+  }, [])
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const selectedFiles = Array.from(e.target.files || [])
+    onChange([...files, ...selectedFiles])
+  }
+
+  const removeFile = (index: number) => {
+    const newFiles = files.filter((_, i) => i !== index)
+    onChange(newFiles)
+  }
+
+  const getFilePreview = (file: File) => {
+    if (file.type.startsWith("image/")) {
+      return URL.createObjectURL(file)
+    }
+    return null
+  }
+
+  return (
+    <div className="space-y-3">
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept={accept}
+        multiple={multiple}
+        capture={capture as any}
+        onChange={handleFileChange}
+        className="sr-only"
+      />
+      <button
+        type="button"
+        onClick={() => fileInputRef.current?.click()}
+        className="flex w-full items-center justify-center gap-3 rounded-lg border-2 border-dashed border-neutral-300 bg-neutral-50 p-6 text-base font-medium text-neutral-700 transition-colors hover:border-neutral-400 hover:bg-neutral-100"
+      >
+        {isMobile ? <Camera className="h-6 w-6" /> : <Upload className="h-6 w-6" />}
+        {isMobile ? "Upload or Take Photo" : label}
+      </button>
+
+      {files.length > 0 && (
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+          {files.map((file, index) => (
+            <div key={index} className="relative">
+              <div className="aspect-square overflow-hidden rounded-lg border border-neutral-200 bg-neutral-100">
+                {getFilePreview(file) ? (
+                  <img
+                    src={getFilePreview(file)! || "/placeholder.svg"}
+                    alt={file.name}
+                    className="h-full w-full object-cover"
+                  />
+                ) : (
+                  <div className="flex h-full items-center justify-center">
+                    <div className="text-center">
+                      <Upload className="mx-auto h-8 w-8 text-neutral-400" />
+                      <p className="mt-1 text-xs text-neutral-500 truncate px-2">{file.name}</p>
+                    </div>
+                  </div>
+                )}
+              </div>
+              <button
+                type="button"
+                onClick={() => removeFile(index)}
+                className="absolute -right-2 -top-2 flex h-6 w-6 items-center justify-center rounded-full bg-red-500 text-white hover:bg-red-600"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  )
+}
+
 const SubmitButton = ({ children, isPending }: { children: React.ReactNode; isPending: boolean }) => (
   <button
     type="submit"
@@ -246,6 +340,8 @@ function Step2Form({ airtableRecordId, onSuccess }: { airtableRecordId: string; 
 
   const [hasPlans, setHasPlans] = useState<boolean | null>(null)
   const [hasPhotos, setHasPhotos] = useState<boolean | null>(null)
+  const [planFiles, setPlanFiles] = useState<File[]>([])
+  const [photoFiles, setPhotoFiles] = useState<File[]>([])
   const isRoofSizeUnsure = watch("isRoofSizeUnsure")
 
   useEffect(() => {
@@ -259,6 +355,15 @@ function Step2Form({ airtableRecordId, onSuccess }: { airtableRecordId: string; 
       onSuccess()
     }
   }, [state, onSuccess])
+
+  // Update form values when files change
+  useEffect(() => {
+    setValue("plans", planFiles)
+  }, [planFiles, setValue])
+
+  useEffect(() => {
+    setValue("photos", photoFiles)
+  }, [photoFiles, setValue])
 
   return (
     <form action={formAction} className="space-y-5">
@@ -302,22 +407,20 @@ function Step2Form({ airtableRecordId, onSuccess }: { airtableRecordId: string; 
             value={hasPlans}
             onChange={(val) => {
               setHasPlans(val)
-              if (!val) setValue("plans", [])
+              if (!val) {
+                setPlanFiles([])
+                setValue("plans", [])
+              }
             }}
           />
           {hasPlans && (
-            <Controller
-              name="plans"
-              control={control}
-              render={({ field: { onChange } }) => (
-                <FormInput
-                  type="file"
-                  accept="image/*,application/pdf"
-                  multiple
-                  capture="environment"
-                  onChange={(e) => onChange(Array.from(e.target.files || []))}
-                />
-              )}
+            <FileUploadButton
+              files={planFiles}
+              onChange={setPlanFiles}
+              accept="image/*,application/pdf"
+              multiple
+              capture="environment"
+              label="Upload Files"
             />
           )}
         </div>
@@ -333,22 +436,20 @@ function Step2Form({ airtableRecordId, onSuccess }: { airtableRecordId: string; 
             value={hasPhotos}
             onChange={(val) => {
               setHasPhotos(val)
-              if (!val) setValue("photos", [])
+              if (!val) {
+                setPhotoFiles([])
+                setValue("photos", [])
+              }
             }}
           />
           {hasPhotos && (
-            <Controller
-              name="photos"
-              control={control}
-              render={({ field: { onChange } }) => (
-                <FormInput
-                  type="file"
-                  accept="image/*"
-                  multiple
-                  capture="environment"
-                  onChange={(e) => onChange(Array.from(e.target.files || []))}
-                />
-              )}
+            <FileUploadButton
+              files={photoFiles}
+              onChange={setPhotoFiles}
+              accept="image/*"
+              multiple
+              capture="environment"
+              label="Upload Photos"
             />
           )}
         </div>
