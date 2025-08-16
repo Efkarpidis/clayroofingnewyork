@@ -3,7 +3,7 @@
 import React from "react"
 import Image from "next/image"
 import Link from "next/link"
-import { ArrowRight, Check, Loader2, Upload, X, Camera, FileText, ImageIcon } from "lucide-react"
+import { ArrowRight, Check, Loader2, Upload, X, Camera, FileText, ImageIcon, Menu } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import {
   Dialog,
@@ -13,6 +13,7 @@ import {
   DialogDescription,
   DialogTrigger,
 } from "@/components/ui/dialog"
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 import { StickyCallBar } from "@/components/sticky-call-bar"
 import { useState, useActionState, useEffect, useId } from "react"
 import { useForm } from "react-hook-form"
@@ -561,10 +562,12 @@ export default function Page() {
               alt="Clay Roofs NY"
               width={540}
               height={180}
-              className="h-32 w-auto drop-shadow-lg"
+              className="h-20 w-auto drop-shadow-lg sm:h-24 md:h-32"
             />
           </Link>
-          <nav className="flex items-center gap-1 sm:gap-2 flex-wrap">
+
+          {/* Desktop Navigation */}
+          <nav className="hidden md:flex items-center gap-1 sm:gap-2 flex-wrap">
             <Button
               asChild
               variant="ghost"
@@ -597,20 +600,64 @@ export default function Page() {
               <Link href="/request-quote">Request a Quote</Link>
             </Button>
           </nav>
+
+          {/* Mobile Menu */}
+          <Sheet>
+            <SheetTrigger asChild>
+              <Button variant="ghost" size="icon" className="md:hidden text-white hover:bg-white/20">
+                <Menu className="h-6 w-6" />
+                <span className="sr-only">Toggle menu</span>
+              </Button>
+            </SheetTrigger>
+            <SheetContent side="right" className="w-[300px] sm:w-[400px]">
+              <nav className="flex flex-col space-y-4 mt-8">
+                <a
+                  href="tel:2123654386"
+                  className="flex items-center justify-center py-3 px-4 text-lg font-medium text-neutral-700 hover:bg-neutral-100 rounded-lg transition-colors"
+                >
+                  Call (212) 365-4386
+                </a>
+                <Link
+                  href="/gallery"
+                  className="flex items-center justify-center py-3 px-4 text-lg font-medium text-neutral-700 hover:bg-neutral-100 rounded-lg transition-colors"
+                >
+                  Projects
+                </Link>
+                <Link
+                  href="/about"
+                  className="flex items-center justify-center py-3 px-4 text-lg font-medium text-neutral-700 hover:bg-neutral-100 rounded-lg transition-colors"
+                >
+                  About
+                </Link>
+                <Link
+                  href="/contact"
+                  className="flex items-center justify-center py-3 px-4 text-lg font-medium text-neutral-700 hover:bg-neutral-100 rounded-lg transition-colors"
+                >
+                  Contact
+                </Link>
+                <Button
+                  asChild
+                  className="bg-orange-600 text-white hover:bg-orange-700 text-lg font-semibold py-3 px-6 h-auto"
+                >
+                  <Link href="#quote">Request a Quote</Link>
+                </Button>
+              </nav>
+            </SheetContent>
+          </Sheet>
         </header>
 
         <section className="relative z-30 flex h-full w-full items-center" id="quote">
           <div className="mx-auto flex w-full max-w-xl flex-col items-center px-4 text-center">
-            <h1 className="text-balance text-4xl font-extrabold leading-tight sm:text-5xl drop-shadow-lg">
+            <h1 className="text-balance text-2xl font-extrabold leading-tight sm:text-3xl md:text-4xl lg:text-5xl drop-shadow-lg">
               Clay Tile Roofing Specialists – NYC
             </h1>
-            <p className="mt-4 text-pretty text-base font-medium text-white/90 sm:text-lg drop-shadow-md">
+            <p className="mt-4 text-pretty text-sm font-medium text-white/90 sm:text-base md:text-lg drop-shadow-md">
               Serving New York City for over 20 years.
             </p>
 
             <Dialog open={open} onOpenChange={setOpen}>
               <DialogTrigger asChild>
-                <Button className="mt-6 h-12 w-full max-w-[260px] rounded-full bg-orange-600 text-white hover:bg-orange-700 hover:shadow-lg transition-all duration-200">
+                <Button className="mt-6 h-12 w-full max-w-[280px] sm:max-w-[300px] md:max-w-[260px] rounded-full bg-orange-600 text-white hover:bg-orange-700 hover:shadow-lg transition-all duration-200 text-base sm:text-lg md:text-base font-semibold">
                   Request a Quote
                 </Button>
               </DialogTrigger>
@@ -653,40 +700,40 @@ export default function Page() {
         </section>
 
         {/* Why Choose Us Section */}
-        <section className="py-16 bg-neutral-50">
-          <div className="container mx-auto px-4 space-y-8">
-            <h2 className="text-center text-3xl font-extrabold leading-tight sm:text-4xl drop-shadow-lg">
+        <section className="py-8 md:py-16 bg-neutral-50 text-neutral-800">
+          <div className="container mx-auto px-4 space-y-6 md:space-y-8">
+            <h2 className="text-center text-2xl md:text-3xl lg:text-4xl font-extrabold leading-tight">
               Why Choose Us?
             </h2>
-            <div className="grid grid-cols-1 gap-8 sm:grid-cols-2">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 md:gap-8">
               {/* Card 1 */}
-              <div className="bg-white rounded-lg p-6 shadow-lg">
-                <h3 className="text-xl font-semibold text-neutral-800">Experience</h3>
-                <p className="mt-4 text-neutral-600">
+              <div className="bg-white rounded-lg p-4 md:p-6 shadow-lg">
+                <h3 className="text-lg md:text-xl font-semibold text-neutral-800">Experience</h3>
+                <p className="mt-3 md:mt-4 text-sm md:text-base text-neutral-600">
                   With over 20 years of experience, we have the knowledge and skills to handle any roofing project.
                 </p>
               </div>
 
               {/* Card 2 */}
-              <div className="bg-white rounded-lg p-6 shadow-lg">
-                <h3 className="text-xl font-semibold text-neutral-800">Quality</h3>
-                <p className="mt-4 text-neutral-600">
+              <div className="bg-white rounded-lg p-4 md:p-6 shadow-lg">
+                <h3 className="text-lg md:text-xl font-semibold text-neutral-800">Quality</h3>
+                <p className="mt-3 md:mt-4 text-sm md:text-base text-neutral-600">
                   We use only the highest quality clay tiles and materials to ensure your roof lasts for years.
                 </p>
               </div>
 
               {/* Card 3 */}
-              <div className="bg-white rounded-lg p-6 shadow-lg">
-                <h3 className="text-xl font-semibold text-neutral-800">Service</h3>
-                <p className="mt-4 text-neutral-600">
+              <div className="bg-white rounded-lg p-4 md:p-6 shadow-lg">
+                <h3 className="text-lg md:text-xl font-semibold text-neutral-800">Service</h3>
+                <p className="mt-3 md:mt-4 text-sm md:text-base text-neutral-600">
                   Our friendly and professional team is always ready to assist you with any questions or concerns.
                 </p>
               </div>
 
               {/* Card 4 */}
-              <div className="bg-white rounded-lg p-6 shadow-lg">
-                <h3 className="text-xl font-semibold text-neutral-800">Affordability</h3>
-                <p className="mt-4 text-neutral-600">
+              <div className="bg-white rounded-lg p-4 md:p-6 shadow-lg">
+                <h3 className="text-lg md:text-xl font-semibold text-neutral-800">Affordability</h3>
+                <p className="mt-3 md:mt-4 text-sm md:text-base text-neutral-600">
                   We offer competitive pricing without compromising on quality or service.
                 </p>
               </div>
