@@ -111,14 +111,14 @@ export default function ContactPage() {
       <header className="sticky top-0 z-50 border-b border-neutral-200 bg-white/95 shadow-sm">
         <div className="max-w-7xl mx-auto flex items-center justify-between px-4 sm:px-6 lg:px-8">
           <Link href="/" className="flex items-center">
-            <Image src="/clay-roofs-ny-logo.png" alt="Clay Roofs NY" width={120} height={40} className="h-8 w-auto" />
+            <Image src="/clay-roofs-ny-logo.png" alt="Clay Roofs NY" width={540} height={180} className="h-32 w-auto" />
           </Link>
           <nav className="flex items-center gap-1 sm:gap-2 flex-wrap">
             <Button asChild variant="ghost" className="text-sm font-medium text-neutral-700 hover:bg-neutral-100">
               <a href="tel:2123654386">212-365-4386</a>
             </Button>
             <Button asChild variant="ghost" className="text-sm font-medium text-neutral-700 hover:bg-neutral-100">
-              <Link href="/gallery">Gallery</Link>
+              <Link href="/gallery">Projects</Link>
             </Button>
             <Button asChild variant="ghost" className="text-sm font-medium text-neutral-700 hover:bg-neutral-100">
               <Link href="/about">About</Link>

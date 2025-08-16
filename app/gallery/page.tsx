@@ -28,9 +28,9 @@ export default function GalleryPage() {
                 <Image
                   src="/clay-roofs-ny-logo.png"
                   alt="Clay Roofs NY"
-                  width={120}
-                  height={40}
-                  className="h-8 w-auto"
+                  width={540}
+                  height={180}
+                  className="h-32 w-auto"
                 />
               </div>
 
@@ -40,7 +40,7 @@ export default function GalleryPage() {
                   Home
                 </Link>
                 <Link href="/gallery" className="text-gray-900 hover:text-orange-600 font-medium">
-                  Gallery
+                  Projects
                 </Link>
                 <Link href="/about" className="text-gray-700 hover:text-orange-600">
                   About
@@ -72,7 +72,7 @@ export default function GalleryPage() {
                       Home
                     </Link>
                     <Link href="/gallery" className="text-gray-900 hover:text-orange-600 font-medium">
-                      Gallery
+                      Projects
                     </Link>
                     <Link href="/about" className="text-gray-700 hover:text-orange-600">
                       About
@@ -105,10 +105,9 @@ export default function GalleryPage() {
                 Back to Home
               </Link>
             </div>
-            <h1 className="text-4xl md:text-5xl font-bold mb-4">Our Clay Tile Roofing Gallery</h1>
+            <h1 className="text-4xl md:text-5xl font-bold mb-4">Our Clay Tile Roofing Projects</h1>
             <p className="text-xl text-gray-300 max-w-3xl">
-              Explore our portfolio of premium clay tile roofing installations across New York City. Each project
-              showcases our commitment to quality craftsmanship and attention to detail.
+              Explore our portfolio of premium clay tile roofing installations across New York City.
             </p>
           </div>
         </section>

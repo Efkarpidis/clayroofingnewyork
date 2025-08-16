@@ -577,7 +577,7 @@ export default function Page() {
               variant="ghost"
               className="text-sm font-medium text-white hover:bg-white/20 hover:text-white drop-shadow-md shadow-black/50"
             >
-              <Link href="/gallery">Gallery</Link>
+              <Link href="/gallery">Projects</Link>
             </Button>
             <Button
               asChild

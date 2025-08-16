@@ -23,7 +23,7 @@ export default function AboutPage() {
                 <a href="tel:2123654386">212-365-4386</a>
               </Button>
               <Button asChild variant="ghost" className="text-sm font-medium text-neutral-700 hover:bg-neutral-100">
-                <Link href="/gallery">Gallery</Link>
+                <Link href="/gallery">Projects</Link>
               </Button>
               <Button asChild variant="ghost" className="text-sm font-medium text-neutral-700 hover:bg-neutral-100">
                 <Link href="/about">About</Link>
