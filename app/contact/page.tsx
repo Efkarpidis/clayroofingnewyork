@@ -1,226 +1,304 @@
-"use client"
-
-import type React from "react"
-
-import { useActionState, useEffect, useId } from "react"
-import Link from "next/link"
 import Image from "next/image"
-import { useForm } from "react-hook-form"
-import { zodResolver } from "@hookform/resolvers/zod"
-import { MapPin, Phone, Mail, Clock, Check, Loader2 } from "lucide-react"
+import Link from "next/link"
 import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Textarea } from "@/components/ui/textarea"
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
+import { Menu, Phone, Mail, MapPin, Clock, ArrowLeft } from "lucide-react"
 import { StickyCallBar } from "@/components/sticky-call-bar"
-import { type ContactFormData, contactFormSchema } from "../schemas"
-import { handleContactFormSubmit, type ContactFormState } from "../actions"
-
-// Reusable form components from the main page
-const FieldWrapper = ({
-  id,
-  label,
-  error,
-  children,
-}: { id: string; label: string; error?: string; children: React.ReactNode }) => (
-  <div className="space-y-2">
-    <label htmlFor={id} className="block text-base font-medium text-neutral-700">
-      {label}
-    </label>
-    {children}
-    {error && <p className="mt-1 text-sm text-red-600">{error}</p>}
-  </div>
-)
-
-const FormInput = (props: React.ComponentProps<"input">) => (
-  <input
-    {...props}
-    className="block w-full rounded-md border-neutral-300 bg-neutral-100 p-3 text-base shadow-sm focus:border-neutral-500 focus:ring-neutral-500 disabled:cursor-not-allowed disabled:bg-neutral-200"
-  />
-)
-
-const FormTextarea = (props: React.ComponentProps<"textarea">) => (
-  <textarea
-    {...props}
-    className="block w-full rounded-md border-neutral-300 bg-neutral-100 p-3 text-base shadow-sm focus:border-neutral-500 focus:ring-neutral-500"
-  />
-)
-
-const SubmitButton = ({ children, isPending }: { children: React.ReactNode; isPending: boolean }) => (
-  <button
-    type="submit"
-    disabled={isPending}
-    className="flex w-full items-center justify-center gap-2 rounded-lg bg-neutral-900 px-6 py-3 text-base font-semibold text-white shadow-sm transition-colors hover:bg-neutral-800 disabled:bg-neutral-400"
-  >
-    {isPending ? <Loader2 className="h-5 w-5 animate-spin" /> : children}
-  </button>
-)
-
-function ContactForm() {
-  const id = useId()
-  const [state, formAction, isPending] = useActionState<ContactFormState, FormData>(handleContactFormSubmit, {
-    message: "",
-    success: false,
-  })
-  const {
-    register,
-    formState: { errors },
-    reset,
-  } = useForm<ContactFormData>({
-    resolver: zodResolver(contactFormSchema),
-  })
-
-  useEffect(() => {
-    if (state.success) {
-      reset()
-    }
-  }, [state, reset])
-
-  if (state.success) {
-    return (
-      <div className="flex flex-col items-center justify-center rounded-lg border border-green-200 bg-green-50 p-8 text-center">
-        <Check className="h-12 w-12 rounded-full bg-green-100 p-2 text-green-600" />
-        <h3 className="mt-4 text-xl font-semibold text-neutral-800">Message Sent!</h3>
-        <p className="mt-1 text-neutral-600">Thank you for reaching out. We'll get back to you shortly.</p>
-      </div>
-    )
-  }
-
-  return (
-    <form action={formAction} className="space-y-5">
-      <FieldWrapper id={`${id}-name`} label="Full Name" error={errors.name?.message || state.errors?.name?.[0]}>
-        <FormInput {...register("name")} placeholder="John Doe" />
-      </FieldWrapper>
-      <FieldWrapper id={`${id}-email`} label="Email" error={errors.email?.message || state.errors?.email?.[0]}>
-        <FormInput {...register("email")} type="email" placeholder="you@example.com" />
-      </FieldWrapper>
-      <FieldWrapper
-        id={`${id}-phone`}
-        label="Phone (Optional)"
-        error={errors.phone?.message || state.errors?.phone?.[0]}
-      >
-        <FormInput {...register("phone")} type="tel" placeholder="(555) 123-4567" />
-      </FieldWrapper>
-      <FieldWrapper id={`${id}-message`} label="Message" error={errors.message?.message || state.errors?.message?.[0]}>
-        <FormTextarea {...register("message")} rows={5} placeholder="How can we help you?" />
-      </FieldWrapper>
-      <SubmitButton isPending={isPending}>Submit</SubmitButton>
-      {!state.success && state.message && <p className="text-center text-sm text-red-600">{state.message}</p>}
-    </form>
-  )
-}
+import { submitContactForm } from "../actions"
 
 export default function ContactPage() {
   return (
-    <>
-      <div className="bg-white text-neutral-800">
-        <header className="sticky top-0 z-50 border-b border-neutral-200 bg-white/95 shadow-sm">
-          <div className="container mx-auto flex items-center justify-between px-4 py-2">
-            <Link href="/" className="flex items-center">
-              <Image
-                src="/clay-roofs-ny-logo.png"
-                alt="Clay Roofs NY"
-                width={540}
-                height={180}
-                className="h-32 w-auto"
-              />
-            </Link>
-            <nav className="flex items-center gap-1 sm:gap-2 flex-wrap">
-              <Button asChild variant="ghost" className="text-sm font-medium text-neutral-700 hover:bg-neutral-100">
-                <a href="tel:2123654386">212-365-4386</a>
-              </Button>
-              <Button asChild variant="ghost" className="text-sm font-medium text-neutral-700 hover:bg-neutral-100">
-                <Link href="/gallery">Gallery</Link>
-              </Button>
-              <Button asChild variant="ghost" className="text-sm font-medium text-neutral-700 hover:bg-neutral-100">
-                <Link href="/about">About</Link>
-              </Button>
-              <Button asChild variant="ghost" className="text-sm font-medium text-neutral-700 hover:bg-neutral-100">
-                <Link href="/contact">Contact</Link>
-              </Button>
-              <Button asChild className="bg-orange-600 text-white hover:bg-orange-700 text-sm font-semibold">
-                <Link href="/#quote">Request a Quote</Link>
-              </Button>
-            </nav>
-          </div>
-        </header>
+    <div className="min-h-screen bg-white pb-20">
+      {/* Header */}
+      <header className="bg-white shadow-sm sticky top-0 z-30">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center h-16">
+            <div className="flex items-center">
+              <Image src="/clay-roofs-ny-logo.png" alt="Clay Roofs NY" width={120} height={40} className="h-8 w-auto" />
+            </div>
 
-        <main className="container mx-auto px-4 py-12 sm:py-16 pb-20">
-          <div className="text-center">
-            <h1 className="text-3xl font-extrabold tracking-tight sm:text-4xl">Contact Us</h1>
-            <p className="mt-2 max-w-2xl mx-auto text-lg text-neutral-600">
-              Have a question or need a quote? We're here to help.
+            {/* Desktop Navigation */}
+            <nav className="hidden md:flex space-x-8">
+              <Link href="/" className="text-gray-700 hover:text-orange-600">
+                Home
+              </Link>
+              <Link href="/gallery" className="text-gray-700 hover:text-orange-600">
+                Gallery
+              </Link>
+              <Link href="/about" className="text-gray-700 hover:text-orange-600">
+                About
+              </Link>
+              <Link href="/contact" className="text-gray-900 hover:text-orange-600 font-medium">
+                Contact
+              </Link>
+            </nav>
+
+            <div className="hidden md:flex items-center space-x-4">
+              <a href="tel:+12123654386" className="text-orange-600 hover:text-orange-700">
+                <Phone className="w-5 h-5" />
+              </a>
+              <Button className="bg-orange-600 hover:bg-orange-700 text-white">
+                <Link href="/">Get Quote</Link>
+              </Button>
+            </div>
+
+            {/* Mobile menu button */}
+            <Sheet>
+              <SheetTrigger asChild>
+                <Button variant="ghost" size="icon" className="md:hidden">
+                  <Menu className="h-6 w-6" />
+                </Button>
+              </SheetTrigger>
+              <SheetContent>
+                <nav className="flex flex-col space-y-4 mt-8">
+                  <Link href="/" className="text-gray-700 hover:text-orange-600">
+                    Home
+                  </Link>
+                  <Link href="/gallery" className="text-gray-700 hover:text-orange-600">
+                    Gallery
+                  </Link>
+                  <Link href="/about" className="text-gray-700 hover:text-orange-600">
+                    About
+                  </Link>
+                  <Link href="/contact" className="text-gray-900 hover:text-orange-600 font-medium">
+                    Contact
+                  </Link>
+                  <div className="pt-4 border-t">
+                    <a
+                      href="tel:+12123654386"
+                      className="flex items-center space-x-2 text-orange-600 hover:text-orange-700"
+                    >
+                      <Phone className="w-5 h-5" />
+                      <span>(212) 365-4386</span>
+                    </a>
+                  </div>
+                </nav>
+              </SheetContent>
+            </Sheet>
+          </div>
+        </div>
+      </header>
+
+      {/* Hero Section */}
+      <section className="bg-gray-900 text-white py-16">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center mb-6">
+            <Link href="/" className="flex items-center text-orange-400 hover:text-orange-300 mr-4">
+              <ArrowLeft className="w-5 h-5 mr-2" />
+              Back to Home
+            </Link>
+          </div>
+          <h1 className="text-4xl md:text-5xl font-bold mb-4">Contact Clay Roofs NY</h1>
+          <p className="text-xl text-gray-300 max-w-3xl">
+            Ready to start your clay tile roofing project? Get in touch with our team of experts. We're here to answer
+            your questions and provide you with a free consultation.
+          </p>
+        </div>
+      </section>
+
+      {/* Contact Form & Info Section */}
+      <section className="py-16">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
+            {/* Contact Form */}
+            <div>
+              <h2 className="text-2xl font-bold text-gray-900 mb-6">Send Us a Message</h2>
+              <form action={submitContactForm} className="space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <Label htmlFor="firstName">First Name *</Label>
+                    <Input id="firstName" name="firstName" required />
+                  </div>
+                  <div>
+                    <Label htmlFor="lastName">Last Name *</Label>
+                    <Input id="lastName" name="lastName" required />
+                  </div>
+                </div>
+
+                <div>
+                  <Label htmlFor="email">Email *</Label>
+                  <Input id="email" name="email" type="email" required />
+                </div>
+
+                <div>
+                  <Label htmlFor="phone">Phone *</Label>
+                  <Input id="phone" name="phone" type="tel" required />
+                </div>
+
+                <div>
+                  <Label htmlFor="subject">Subject</Label>
+                  <Input id="subject" name="subject" placeholder="How can we help you?" />
+                </div>
+
+                <div>
+                  <Label htmlFor="message">Message *</Label>
+                  <Textarea
+                    id="message"
+                    name="message"
+                    placeholder="Tell us about your project or question..."
+                    className="min-h-[120px]"
+                    required
+                  />
+                </div>
+
+                <Button type="submit" className="w-full bg-orange-600 hover:bg-orange-700">
+                  Submit
+                </Button>
+              </form>
+            </div>
+
+            {/* Contact Information */}
+            <div>
+              <h2 className="text-2xl font-bold text-gray-900 mb-6">Get in Touch</h2>
+              <div className="space-y-6">
+                <div className="flex items-start space-x-4">
+                  <div className="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                    <Phone className="w-6 h-6 text-orange-600" />
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-semibold text-gray-900 mb-1">Phone</h3>
+                    <a href="tel:+12123654386" className="text-orange-600 hover:text-orange-700 font-medium">
+                      (212) 365-4386
+                    </a>
+                    <p className="text-gray-600 text-sm mt-1">
+                      Call us for immediate assistance or to schedule a consultation
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex items-start space-x-4">
+                  <div className="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                    <Mail className="w-6 h-6 text-orange-600" />
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-semibold text-gray-900 mb-1">Email</h3>
+                    <a
+                      href="mailto:hello@clayroofsny.com"
+                      className="text-orange-600 hover:text-orange-700 font-medium"
+                    >
+                      hello@clayroofsny.com
+                    </a>
+                    <p className="text-gray-600 text-sm mt-1">Send us an email and we'll respond within 24 hours</p>
+                  </div>
+                </div>
+
+                <div className="flex items-start space-x-4">
+                  <div className="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                    <MapPin className="w-6 h-6 text-orange-600" />
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-semibold text-gray-900 mb-1">Address</h3>
+                    <p className="text-gray-900 font-medium">
+                      33-15 127th Pl
+                      <br />
+                      Corona, NY 11368
+                    </p>
+                    <p className="text-gray-600 text-sm mt-1">Visit our office for in-person consultations</p>
+                  </div>
+                </div>
+
+                <div className="flex items-start space-x-4">
+                  <div className="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                    <Clock className="w-6 h-6 text-orange-600" />
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-semibold text-gray-900 mb-1">Business Hours</h3>
+                    <div className="text-gray-900 space-y-1">
+                      <p>Monday - Friday: 8:00 AM - 6:00 PM</p>
+                      <p>Saturday: 9:00 AM - 4:00 PM</p>
+                      <p>Sunday: Closed</p>
+                    </div>
+                    <p className="text-gray-600 text-sm mt-1">Emergency services available 24/7</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Service Areas Section */}
+      <section className="py-16 bg-gray-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">Service Areas</h2>
+            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+              We proudly serve all five boroughs of New York City and surrounding areas.
             </p>
           </div>
 
-          <div className="mt-16 grid grid-cols-1 gap-16 lg:grid-cols-2">
-            <div className="space-y-8">
-              <div>
-                <h2 className="text-2xl font-bold">Get in Touch</h2>
-                <div className="mt-4 space-y-4 text-lg text-neutral-700">
-                  <p className="flex items-start gap-3">
-                    <MapPin className="h-6 w-6 flex-shrink-0 text-neutral-500 mt-1" />
-                    <span>33-15 127th Pl, Corona, NY 11368</span>
-                  </p>
-                  <p className="flex items-center gap-3">
-                    <Phone className="h-6 w-6 text-neutral-500" />
-                    <a href="tel:212-365-4386" className="hover:underline">
-                      (212) 365-4386
-                    </a>
-                  </p>
-                  <p className="flex items-center gap-3">
-                    <Mail className="h-6 w-6 text-neutral-500" />
-                    <a href="mailto:hello@clayroofsny.com" className="hover:underline">
-                      hello@clayroofsny.com
-                    </a>
-                  </p>
-                </div>
-              </div>
-              <div>
-                <h2 className="text-2xl font-bold">Business Hours</h2>
-                <div className="mt-4 space-y-2 text-lg text-neutral-700">
-                  <p className="flex items-center gap-3">
-                    <Clock className="h-6 w-6 text-neutral-500" />
-                    <span>Monday - Friday: 8:00 AM - 5:00 PM</span>
-                  </p>
-                  <p className="flex items-center gap-3">
-                    <Clock className="h-6 w-6 text-transparent" />
-                    <span>Saturday - Sunday: By Appointment</span>
-                  </p>
-                </div>
-              </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="bg-white p-6 rounded-lg shadow-md">
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">Manhattan</h3>
+              <p className="text-gray-600 text-sm">
+                Upper East Side, Upper West Side, Midtown, Downtown, and all Manhattan neighborhoods
+              </p>
             </div>
 
-            <div className="rounded-lg border border-neutral-200 bg-neutral-50 p-6 sm:p-8">
-              <ContactForm />
+            <div className="bg-white p-6 rounded-lg shadow-md">
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">Brooklyn</h3>
+              <p className="text-gray-600 text-sm">
+                Park Slope, Williamsburg, DUMBO, Brooklyn Heights, and all Brooklyn areas
+              </p>
+            </div>
+
+            <div className="bg-white p-6 rounded-lg shadow-md">
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">Queens</h3>
+              <p className="text-gray-600 text-sm">
+                Astoria, Long Island City, Flushing, Forest Hills, and all Queens neighborhoods
+              </p>
+            </div>
+
+            <div className="bg-white p-6 rounded-lg shadow-md">
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">The Bronx</h3>
+              <p className="text-gray-600 text-sm">Riverdale, Fordham, Bronx Park, and all Bronx communities</p>
+            </div>
+
+            <div className="bg-white p-6 rounded-lg shadow-md">
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">Staten Island</h3>
+              <p className="text-gray-600 text-sm">St. George, Stapleton, New Dorp, and all Staten Island areas</p>
+            </div>
+
+            <div className="bg-white p-6 rounded-lg shadow-md">
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">Surrounding Areas</h3>
+              <p className="text-gray-600 text-sm">Westchester County, Nassau County, and select areas in New Jersey</p>
             </div>
           </div>
-        </main>
+        </div>
+      </section>
 
-        <footer className="border-t border-neutral-200 bg-neutral-50">
-          <div className="container mx-auto px-4 py-6 space-y-4">
-            <div className="flex items-center justify-center gap-3 text-sm text-neutral-600">
-              <a
-                href="https://www.laescandella.com"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center gap-3 hover:opacity-80 transition-opacity"
-              >
-                <Image
-                  src="/la-escandella-logo.webp"
-                  alt="La Escandella"
-                  width={80}
-                  height={40}
-                  className="h-6 w-auto"
-                />
-                <span>Proudly partnered with La Escandella.</span>
-              </a>
-            </div>
-            <div className="text-center text-neutral-500">
-              <p>&copy; {new Date().getFullYear()} Clay Roofs NY. All Rights Reserved.</p>
-            </div>
+      {/* CTA Section */}
+      <section className="py-16 bg-orange-600 text-white">
+        <div className="max-w-4xl mx-auto text-center px-4 sm:px-6 lg:px-8">
+          <h2 className="text-3xl md:text-4xl font-bold mb-4">Ready to Get Started?</h2>
+          <p className="text-xl mb-8 text-orange-100">
+            Don't wait to protect and beautify your property with premium clay tile roofing. Contact us today for your
+            free consultation and quote.
+          </p>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <Button
+              size="lg"
+              variant="outline"
+              className="border-white text-white hover:bg-white hover:text-orange-600 px-8 py-3 text-lg bg-transparent"
+            >
+              <Link href="/">Get Free Quote</Link>
+            </Button>
+            <Button
+              size="lg"
+              variant="outline"
+              className="border-white text-white hover:bg-white hover:text-orange-600 px-8 py-3 text-lg bg-transparent"
+            >
+              <a href="tel:+12123654386">Call Now</a>
+            </Button>
           </div>
-        </footer>
-      </div>
+        </div>
+      </section>
 
+      {/* Sticky Call Bar */}
       <StickyCallBar />
-    </>
+    </div>
   )
 }
