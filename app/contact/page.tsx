@@ -1,7 +1,7 @@
 "use client"
 
 import type React from "react"
-
+import { useActionState } from "react"
 import Link from "next/link"
 import Image from "next/image"
 import { Button } from "@/components/ui/button"
@@ -52,9 +52,17 @@ const SubmitButton = ({ children, isPending }: { children: React.ReactNode; isPe
   </button>
 )
 
+type ContactFormState = {
+  message: string
+  success: boolean
+}
+
 function ContactForm() {
   const id = "contact-form"
-  const [state, formAction, isPending] = handleContactFormSubmit
+  const [state, formAction, isPending] = useActionState<ContactFormState, ContactFormData>(handleContactFormSubmit, {
+    message: "",
+    success: false,
+  })
   const {
     register,
     formState: { errors },
