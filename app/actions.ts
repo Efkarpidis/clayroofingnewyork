@@ -1,7 +1,7 @@
 "use server"
 
-import { step1Schema, step2Schema, type contactFormSchema, quoteRequestSchema } from "./schemas"
-import { z } from "zod"
+import { step1Schema, step2Schema, contactFormSchema } from "./schemas"
+import type { z } from "zod"
 
 // --- STATE TYPES FOR useActionState ---
 export type Step1State = {
@@ -34,21 +34,6 @@ export type ContactFormState = {
     email?: string[]
     phone?: string[]
     message?: string[]
-  }
-  success: boolean
-}
-
-export type QuoteRequestState = {
-  message: string
-  errors?: {
-    firstName?: string[]
-    lastName?: string[]
-    email?: string[]
-    phone?: string[]
-    address?: string[]
-    projectType?: string[]
-    timeline?: string[]
-    description?: string[]
   }
   success: boolean
 }
@@ -158,62 +143,11 @@ export async function handleContactFormSubmit(
   prevState: ContactFormState,
   formData: FormData,
 ): Promise<ContactFormState> {
-  const validatedFields = z
-    .object({
-      firstName: z.string().min(2, { message: "Please enter your first name." }),
-      lastName: z.string().min(2, { message: "Please enter your last name." }),
-      email: z.string().email({ message: "Please enter a valid email address." }),
-      phone: z.string().min(10, { message: "Please enter your phone number." }),
-      subject: z.string().optional(),
-      message: z.string().min(10, { message: "Your message must be at least 10 characters long." }),
-    })
-    .safeParse({
-      firstName: formData.get("firstName"),
-      lastName: formData.get("lastName"),
-      email: formData.get("email"),
-      phone: formData.get("phone"),
-      subject: formData.get("subject"),
-      message: formData.get("message"),
-    })
-
-  if (!validatedFields.success) {
-    return {
-      message: "Please fix the errors below.",
-      errors: validatedFields.error.flatten().fieldErrors,
-      success: false,
-    }
-  }
-
-  try {
-    console.log("Contact Form: Submitting message:", validatedFields.data)
-    await new Promise((resolve) => setTimeout(resolve, 1000))
-    console.log("Contact Form: Message submitted successfully.")
-
-    return {
-      message: "Message sent successfully!",
-      success: true,
-    }
-  } catch (error) {
-    console.error("Error in Contact Form:", error)
-    return {
-      message: "An unexpected error occurred. Please try again.",
-      success: false,
-    }
-  }
-}
-
-export async function submitQuoteRequest(prevState: QuoteRequestState, formData: FormData): Promise<QuoteRequestState> {
-  const validatedFields = quoteRequestSchema.safeParse({
-    firstName: formData.get("firstName"),
-    lastName: formData.get("lastName"),
+  const validatedFields = contactFormSchema.safeParse({
+    name: formData.get("name"),
     email: formData.get("email"),
     phone: formData.get("phone"),
-    address: formData.get("address"),
-    projectType: formData.get("projectType"),
-    tileType: formData.get("tileType"),
-    timeline: formData.get("timeline"),
-    budget: formData.get("budget"),
-    description: formData.get("description"),
+    message: formData.get("message"),
   })
 
   if (!validatedFields.success) {
@@ -225,16 +159,13 @@ export async function submitQuoteRequest(prevState: QuoteRequestState, formData:
   }
 
   try {
-    console.log("Quote Request: Submitting request:", validatedFields.data)
-    await new Promise((resolve) => setTimeout(resolve, 1000))
-    console.log("Quote Request: Request submitted successfully.")
-
+    await submitContactMessage(validatedFields.data)
     return {
-      message: "Quote request submitted successfully!",
+      message: "Message sent successfully!",
       success: true,
     }
   } catch (error) {
-    console.error("Error in Quote Request:", error)
+    console.error("Error in Contact Form:", error)
     return {
       message: "An unexpected error occurred. Please try again.",
       success: false,

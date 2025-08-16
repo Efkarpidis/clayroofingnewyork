@@ -1,613 +1,685 @@
 "use client"
 
-import type React from "react"
-import { useState, useActionState, useEffect } from "react"
+import React from "react"
 import Image from "next/image"
 import Link from "next/link"
+import { ArrowRight, Check, Loader2, Upload, X, Camera, FileText, ImageIcon } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Textarea } from "@/components/ui/textarea"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
-import { Menu, Phone, Mail, MapPin, Clock, Star, Upload, Camera, X, Check, Loader2 } from "lucide-react"
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogTrigger,
+} from "@/components/ui/dialog"
 import { StickyCallBar } from "@/components/sticky-call-bar"
-import { submitQuoteRequest, type QuoteRequestState } from "./actions"
+import { useState, useEffect, useId } from "react"
+import { useForm } from "react-hook-form"
+import { zodResolver } from "@hookform/resolvers/zod"
+import { type Step1Data, step1Schema, type Step2Data, step2Schema } from "./schemas"
+import { handleStep1Submit, handleStep2Submit, type Step1State, type Step2State } from "./actions"
+import { useActionState } from "./useActionState" // Import useActionState
 
-export default function HomePage() {
-  const [isQuoteModalOpen, setIsQuoteModalOpen] = useState(false)
-  const [planFiles, setPlanFiles] = useState<File[]>([])
-  const [photoFiles, setPhotoFiles] = useState<File[]>([])
-  const [state, formAction, isPending] = useActionState<QuoteRequestState, FormData>(submitQuoteRequest, {
-    message: "",
-    success: false,
-  })
+// --- Self-Contained Form UI Components ---
 
-  // Reset form when modal closes
-  useEffect(() => {
-    if (!isQuoteModalOpen) {
-      setPlanFiles([])
-      setPhotoFiles([])
+const FieldWrapper = ({
+  id,
+  label,
+  error,
+  children,
+  labelComponent,
+}: {
+  id: string
+  label?: string
+  error?: string
+  children: React.ReactNode
+  labelComponent?: React.ReactNode
+}) => (
+  <div className="space-y-2">
+    {label && !labelComponent && (
+      <label htmlFor={id} className="block text-base font-medium text-neutral-700">
+        {label}
+      </label>
+    )}
+    {labelComponent}
+    {children}
+    {error && <p className="mt-1 text-sm text-red-600">{error}</p>}
+  </div>
+)
+
+const FormInput = (props: React.ComponentProps<"input">) => (
+  <input
+    {...props}
+    className="block w-full rounded-md border-neutral-300 bg-neutral-50 p-3 text-base shadow-sm focus:border-neutral-500 focus:ring-neutral-500 disabled:cursor-not-allowed disabled:bg-neutral-200"
+  />
+)
+
+const PhoneInput = React.forwardRef<HTMLInputElement, Omit<React.ComponentProps<"input">, "type">>((props, ref) => {
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const rawValue = e.target.value.replace(/\D/g, "")
+    let formattedValue = ""
+
+    if (rawValue.length > 0) {
+      formattedValue = `(${rawValue.substring(0, 3)}`
     }
-  }, [isQuoteModalOpen])
-
-  // Close modal on successful submission
-  useEffect(() => {
-    if (state.success) {
-      setTimeout(() => {
-        setIsQuoteModalOpen(false)
-      }, 2000)
+    if (rawValue.length >= 4) {
+      formattedValue += `) ${rawValue.substring(3, 6)}`
     }
-  }, [state.success])
-
-  const handleFileUpload = (files: FileList | null, type: "plans" | "photos") => {
-    if (!files) return
-
-    const fileArray = Array.from(files)
-    if (type === "plans") {
-      setPlanFiles((prev) => [...prev, ...fileArray])
-    } else {
-      setPhotoFiles((prev) => [...prev, ...fileArray])
+    if (rawValue.length >= 7) {
+      formattedValue += `-${rawValue.substring(6, 10)}`
     }
-  }
 
-  const removeFile = (index: number, type: "plans" | "photos") => {
-    if (type === "plans") {
-      setPlanFiles((prev) => prev.filter((_, i) => i !== index))
-    } else {
-      setPhotoFiles((prev) => prev.filter((_, i) => i !== index))
+    e.target.value = formattedValue
+
+    if (props.onChange) {
+      props.onChange(e)
     }
-  }
-
-  const FileUploadButton = ({
-    type,
-    accept,
-    multiple = true,
-    children,
-  }: {
-    type: "plans" | "photos"
-    accept: string
-    multiple?: boolean
-    children: React.ReactNode
-  }) => (
-    <div className="relative">
-      <input
-        type="file"
-        accept={accept}
-        multiple={multiple}
-        onChange={(e) => handleFileUpload(e.target.files, type)}
-        className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
-      />
-      <div className="flex items-center justify-center gap-2 px-4 py-3 border-2 border-dashed border-gray-300 rounded-lg hover:border-gray-400 transition-colors cursor-pointer bg-gray-50 hover:bg-gray-100">
-        {children}
-      </div>
-    </div>
-  )
-
-  const CameraButton = ({ type }: { type: "photos" }) => (
-    <div className="relative md:hidden">
-      <input
-        type="file"
-        accept="image/*"
-        capture="environment"
-        onChange={(e) => handleFileUpload(e.target.files, type)}
-        className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
-      />
-      <div className="flex items-center justify-center gap-2 px-4 py-3 border-2 border-dashed border-blue-300 rounded-lg hover:border-blue-400 transition-colors cursor-pointer bg-blue-50 hover:bg-blue-100">
-        <Camera className="w-5 h-5 text-blue-600" />
-        <span className="text-sm font-medium text-blue-700">Take New Photo</span>
-      </div>
-    </div>
-  )
-
-  const FilePreview = ({ file, index, type }: { file: File; index: number; type: "plans" | "photos" }) => {
-    const isImage = file.type.startsWith("image/")
-
-    return (
-      <div className="relative group">
-        <div className="w-16 h-16 bg-gray-100 rounded-lg overflow-hidden border">
-          {isImage ? (
-            <img
-              src={URL.createObjectURL(file) || "/placeholder.svg"}
-              alt={file.name}
-              className="w-full h-full object-cover"
-            />
-          ) : (
-            <div className="w-full h-full flex items-center justify-center">
-              <Upload className="w-6 h-6 text-gray-400" />
-            </div>
-          )}
-        </div>
-        <button
-          type="button"
-          onClick={() => removeFile(index, type)}
-          className="absolute -top-2 -right-2 w-5 h-5 bg-red-500 text-white rounded-full flex items-center justify-center text-xs hover:bg-red-600 transition-colors"
-        >
-          <X className="w-3 h-3" />
-        </button>
-        <div className="absolute bottom-0 left-0 right-0 bg-black/70 text-white text-xs p-1 rounded-b-lg truncate">
-          {file.name}
-        </div>
-      </div>
-    )
-  }
-
-  if (state.success) {
-    return (
-      <div className="flex flex-col items-center justify-center p-8 text-center">
-        <Check className="h-12 w-12 text-green-600 bg-green-100 rounded-full p-2 mb-4" />
-        <h3 className="text-xl font-semibold text-gray-900 mb-2">Quote Request Submitted!</h3>
-        <p className="text-gray-600">Thank you for your request. We'll contact you within 24 hours.</p>
-      </div>
-    )
   }
 
   return (
-    <div className="min-h-screen bg-white pb-20">
-      {/* Header */}
-      <header className="bg-white shadow-sm sticky top-0 z-30">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <div className="flex items-center">
-              <Image src="/clay-roofs-ny-logo.png" alt="Clay Roofs NY" width={120} height={40} className="h-8 w-auto" />
-            </div>
+    <FormInput
+      {...props}
+      ref={ref}
+      type="tel"
+      inputMode="numeric"
+      placeholder="(###) ###-####"
+      maxLength={14}
+      onChange={handleInputChange}
+    />
+  )
+})
+PhoneInput.displayName = "PhoneInput"
 
-            {/* Desktop Navigation */}
-            <nav className="hidden md:flex space-x-8">
-              <Link href="/" className="text-gray-900 hover:text-orange-600 font-medium">
-                Home
-              </Link>
-              <Link href="/gallery" className="text-gray-700 hover:text-orange-600">
-                Gallery
-              </Link>
-              <Link href="/about" className="text-gray-700 hover:text-orange-600">
-                About
-              </Link>
-              <Link href="/contact" className="text-gray-700 hover:text-orange-600">
-                Contact
-              </Link>
-            </nav>
+const FormTextarea = (props: React.ComponentProps<"textarea">) => (
+  <textarea
+    {...props}
+    className="block w-full rounded-md border-neutral-300 bg-neutral-50 p-3 text-base shadow-sm focus:border-neutral-500 focus:ring-neutral-500"
+  />
+)
 
-            <div className="hidden md:flex items-center space-x-4">
-              <a href="tel:+12123654386" className="text-orange-600 hover:text-orange-700">
-                <Phone className="w-5 h-5" />
-              </a>
-              <Dialog open={isQuoteModalOpen} onOpenChange={setIsQuoteModalOpen}>
-                <DialogTrigger asChild>
-                  <Button className="bg-orange-600 hover:bg-orange-700 text-white">Get Quote</Button>
-                </DialogTrigger>
-                <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
-                  <DialogHeader>
-                    <DialogTitle>Get Your Free Quote</DialogTitle>
-                  </DialogHeader>
-                  <form action={formAction} className="space-y-6">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div>
-                        <Label htmlFor="firstName">First Name *</Label>
-                        <Input id="firstName" name="firstName" required />
-                      </div>
-                      <div>
-                        <Label htmlFor="lastName">Last Name *</Label>
-                        <Input id="lastName" name="lastName" required />
-                      </div>
+const FormSelect = (props: React.ComponentProps<"select">) => (
+  <select
+    {...props}
+    className="block w-full rounded-md border-neutral-300 bg-neutral-50 p-3 text-base shadow-sm focus:border-neutral-500 focus:ring-neutral-500"
+  >
+    {props.children}
+  </select>
+)
+
+const FormCheckbox = React.forwardRef<HTMLInputElement, React.ComponentProps<"input">>((props, ref) => (
+  <input
+    ref={ref}
+    type="checkbox"
+    {...props}
+    className="h-4 w-4 rounded border-neutral-400 text-neutral-800 focus:ring-neutral-800"
+  />
+))
+FormCheckbox.displayName = "FormCheckbox"
+
+const RadioCard = ({
+  id,
+  value,
+  children,
+  ...props
+}: React.ComponentProps<"input"> & { children: React.ReactNode }) => (
+  <div>
+    <input type="radio" id={id} value={value} className="peer sr-only" {...props} />
+    <label
+      htmlFor={id}
+      className="block cursor-pointer rounded-lg border border-neutral-300 bg-white p-3 text-center text-base font-medium peer-checked:border-neutral-800 peer-checked:ring-1 peer-checked:ring-neutral-800"
+    >
+      {children}
+    </label>
+  </div>
+)
+
+const YesNoToggle = ({ value, onChange }: { value: boolean | null; onChange: (newValue: boolean) => void }) => (
+  <div className="flex gap-3">
+    <button
+      type="button"
+      onClick={() => onChange(true)}
+      className={`rounded-md px-6 py-2 text-base font-medium transition-colors ${
+        value === true ? "bg-neutral-900 text-white shadow-sm" : "bg-neutral-200 text-neutral-700 hover:bg-neutral-300"
+      }`}
+    >
+      Yes
+    </button>
+    <button
+      type="button"
+      onClick={() => onChange(false)}
+      className={`rounded-md px-6 py-2 text-base font-medium transition-colors ${
+        value === false ? "bg-neutral-900 text-white shadow-sm" : "bg-neutral-200 text-neutral-700 hover:bg-neutral-300"
+      }`}
+    >
+      No
+    </button>
+  </div>
+)
+
+const FileUploadButton = ({
+  files,
+  onChange,
+  accept,
+  multiple = false,
+  label,
+  isPhotos = false,
+}: {
+  files: File[]
+  onChange: (files: File[]) => void
+  accept: string
+  multiple?: boolean
+  label: string
+  isPhotos?: boolean
+}) => {
+  const [isMobile, setIsMobile] = useState(false)
+  const fileInputRef = React.useRef<HTMLInputElement>(null)
+  const cameraInputRef = React.useRef<HTMLInputElement>(null)
+
+  useEffect(() => {
+    setIsMobile(/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent))
+  }, [])
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const selectedFiles = Array.from(e.target.files || [])
+    onChange([...files, ...selectedFiles])
+  }
+
+  const removeFile = (index: number) => {
+    const newFiles = files.filter((_, i) => i !== index)
+    onChange(newFiles)
+  }
+
+  const getFilePreview = (file: File) => {
+    if (file.type.startsWith("image/")) {
+      return URL.createObjectURL(file)
+    }
+    return null
+  }
+
+  return (
+    <div className="space-y-3">
+      {/* Hidden file inputs */}
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept={accept}
+        multiple={multiple}
+        onChange={handleFileChange}
+        className="sr-only"
+      />
+      {isPhotos && isMobile && (
+        <input
+          ref={cameraInputRef}
+          type="file"
+          accept="image/*"
+          capture="environment"
+          multiple={multiple}
+          onChange={handleFileChange}
+          className="sr-only"
+        />
+      )}
+
+      {/* Upload buttons */}
+      <div className="space-y-2">
+        {/* Main upload button */}
+        <button
+          type="button"
+          onClick={() => fileInputRef.current?.click()}
+          className="flex w-full items-center justify-center gap-3 rounded-lg border-2 border-dashed border-neutral-300 bg-neutral-50 p-6 text-base font-medium text-neutral-700 transition-colors hover:border-neutral-400 hover:bg-neutral-100"
+        >
+          {isPhotos ? <ImageIcon className="h-6 w-6" /> : <Upload className="h-6 w-6" />}
+          {isPhotos ? "Choose Photos from Library" : label}
+        </button>
+
+        {/* Camera button for mobile photos */}
+        {isPhotos && isMobile && (
+          <button
+            type="button"
+            onClick={() => cameraInputRef.current?.click()}
+            className="flex w-full items-center justify-center gap-3 rounded-lg border border-neutral-300 bg-white p-4 text-base font-medium text-neutral-700 transition-colors hover:border-neutral-400 hover:bg-neutral-50"
+          >
+            <Camera className="h-5 w-5" />
+            Take New Photo
+          </button>
+        )}
+      </div>
+
+      {files.length > 0 && (
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+          {files.map((file, index) => (
+            <div key={index} className="relative">
+              <div className="aspect-square overflow-hidden rounded-lg border border-neutral-200 bg-neutral-100">
+                {getFilePreview(file) ? (
+                  <img
+                    src={getFilePreview(file)! || "/placeholder.svg"}
+                    alt={file.name}
+                    className="h-full w-full object-cover"
+                  />
+                ) : (
+                  <div className="flex h-full items-center justify-center">
+                    <div className="text-center">
+                      <FileText className="mx-auto h-8 w-8 text-neutral-400" />
+                      <p className="mt-1 text-xs text-neutral-500 truncate px-2">{file.name}</p>
                     </div>
-
-                    <div>
-                      <Label htmlFor="email">Email *</Label>
-                      <Input id="email" name="email" type="email" required />
-                    </div>
-
-                    <div>
-                      <Label htmlFor="phone">Phone *</Label>
-                      <Input id="phone" name="phone" type="tel" required />
-                    </div>
-
-                    <div>
-                      <Label htmlFor="address">Property Address *</Label>
-                      <Input id="address" name="address" required />
-                    </div>
-
-                    <div>
-                      <Label htmlFor="projectType">Project Type *</Label>
-                      <Select name="projectType" required>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select project type" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="new-installation">New Installation</SelectItem>
-                          <SelectItem value="replacement">Roof Replacement</SelectItem>
-                          <SelectItem value="repair">Repair</SelectItem>
-                          <SelectItem value="maintenance">Maintenance</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-
-                    <div>
-                      <Label htmlFor="tileType">Preferred Tile Type</Label>
-                      <Select name="tileType">
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select tile type (optional)" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="mission">Mission Tile</SelectItem>
-                          <SelectItem value="french">French Tile</SelectItem>
-                          <SelectItem value="slate">Slate Tile</SelectItem>
-                          <SelectItem value="barrel">Barrel Tile</SelectItem>
-                          <SelectItem value="flat">Flat Tile</SelectItem>
-                          <SelectItem value="other">Other</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-
-                    <div>
-                      <Label>Timeline *</Label>
-                      <RadioGroup name="timeline" className="mt-2" required>
-                        <div className="flex items-center space-x-2">
-                          <RadioGroupItem value="asap" id="asap" />
-                          <Label htmlFor="asap">ASAP</Label>
-                        </div>
-                        <div className="flex items-center space-x-2">
-                          <RadioGroupItem value="1-3-months" id="1-3-months" />
-                          <Label htmlFor="1-3-months">1-3 months</Label>
-                        </div>
-                        <div className="flex items-center space-x-2">
-                          <RadioGroupItem value="3-6-months" id="3-6-months" />
-                          <Label htmlFor="3-6-months">3-6 months</Label>
-                        </div>
-                        <div className="flex items-center space-x-2">
-                          <RadioGroupItem value="6-months-plus" id="6-months-plus" />
-                          <Label htmlFor="6-months-plus">6+ months</Label>
-                        </div>
-                      </RadioGroup>
-                    </div>
-
-                    <div>
-                      <Label htmlFor="budget">Budget Range</Label>
-                      <Select name="budget">
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select budget range (optional)" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="under-25k">Under $25,000</SelectItem>
-                          <SelectItem value="25k-50k">$25,000 - $50,000</SelectItem>
-                          <SelectItem value="50k-100k">$50,000 - $100,000</SelectItem>
-                          <SelectItem value="100k-plus">$100,000+</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-
-                    <div>
-                      <Label htmlFor="description">Project Description</Label>
-                      <Textarea
-                        id="description"
-                        name="description"
-                        placeholder="Tell us more about your project..."
-                        className="min-h-[100px]"
-                      />
-                    </div>
-
-                    {/* Architectural Plans Upload */}
-                    <div>
-                      <Label>Do you have architectural plans? (Optional)</Label>
-                      <div className="mt-2 space-y-3">
-                        <FileUploadButton type="plans" accept=".pdf,.jpg,.jpeg,.png,.gif">
-                          <Upload className="w-5 h-5 text-gray-600" />
-                          <span className="text-sm font-medium text-gray-700">Upload Files</span>
-                        </FileUploadButton>
-
-                        {planFiles.length > 0 && (
-                          <div className="flex flex-wrap gap-2">
-                            {planFiles.map((file, index) => (
-                              <FilePreview key={index} file={file} index={index} type="plans" />
-                            ))}
-                          </div>
-                        )}
-                      </div>
-                    </div>
-
-                    {/* Roof Photos Upload */}
-                    <div>
-                      <Label>Do you have photos of the roof? (Optional)</Label>
-                      <div className="mt-2 space-y-3">
-                        <FileUploadButton type="photos" accept="image/*">
-                          <Upload className="w-5 h-5 text-blue-600" />
-                          <span className="text-sm font-medium text-blue-700">Choose Photos from Library</span>
-                        </FileUploadButton>
-
-                        <CameraButton type="photos" />
-
-                        {photoFiles.length > 0 && (
-                          <div className="flex flex-wrap gap-2">
-                            {photoFiles.map((file, index) => (
-                              <FilePreview key={index} file={file} index={index} type="photos" />
-                            ))}
-                          </div>
-                        )}
-                      </div>
-                    </div>
-
-                    <Button type="submit" className="w-full bg-orange-600 hover:bg-orange-700">
-                      {isPending ? (
-                        <div className="flex items-center justify-center">
-                          <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-                          Submitting...
-                        </div>
-                      ) : (
-                        "Submit"
-                      )}
-                    </Button>
-                  </form>
-                </DialogContent>
-              </Dialog>
-            </div>
-
-            {/* Mobile menu button */}
-            <Sheet>
-              <SheetTrigger asChild>
-                <Button variant="ghost" size="icon" className="md:hidden">
-                  <Menu className="h-6 w-6" />
-                </Button>
-              </SheetTrigger>
-              <SheetContent>
-                <nav className="flex flex-col space-y-4 mt-8">
-                  <Link href="/" className="text-gray-900 hover:text-orange-600 font-medium">
-                    Home
-                  </Link>
-                  <Link href="/gallery" className="text-gray-700 hover:text-orange-600">
-                    Gallery
-                  </Link>
-                  <Link href="/about" className="text-gray-700 hover:text-orange-600">
-                    About
-                  </Link>
-                  <Link href="/contact" className="text-gray-700 hover:text-orange-600">
-                    Contact
-                  </Link>
-                  <div className="pt-4 border-t">
-                    <a
-                      href="tel:+12123654386"
-                      className="flex items-center space-x-2 text-orange-600 hover:text-orange-700"
-                    >
-                      <Phone className="w-5 h-5" />
-                      <span>(212) 365-4386</span>
-                    </a>
                   </div>
-                </nav>
-              </SheetContent>
-            </Sheet>
-          </div>
+                )}
+              </div>
+              <button
+                type="button"
+                onClick={() => removeFile(index)}
+                className="absolute -right-2 -top-2 flex h-6 w-6 items-center justify-center rounded-full bg-red-500 text-white hover:bg-red-600"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+          ))}
         </div>
-      </header>
+      )}
+    </div>
+  )
+}
 
-      {/* Hero Section */}
-      <section className="relative h-[600px] flex items-center justify-center">
+const SubmitButton = ({ children, isPending }: { children: React.ReactNode; isPending: boolean }) => (
+  <button
+    type="submit"
+    disabled={isPending}
+    className="flex w-full items-center justify-center gap-2 rounded-lg bg-neutral-900 px-6 py-3 text-base font-semibold text-white shadow-sm transition-colors hover:bg-neutral-800 disabled:bg-neutral-400"
+  >
+    {isPending ? <Loader2 className="h-5 w-5 animate-spin" /> : children}
+  </button>
+)
+
+// --- Step 1 Form Component ---
+
+function Step1Form({ onSuccess }: { onSuccess: (recordId: string) => void }) {
+  const id = useId()
+  const [state, formAction, isPending] = useActionState<Step1State, FormData>(handleStep1Submit, {
+    message: "",
+    success: false,
+  })
+  const {
+    register,
+    formState: { errors },
+  } = useForm<Step1Data>({
+    resolver: zodResolver(step1Schema),
+    defaultValues: { projectType: undefined },
+  })
+
+  useEffect(() => {
+    if (state.success && state.recordId) {
+      onSuccess(state.recordId)
+    }
+  }, [state, onSuccess])
+
+  return (
+    <form action={formAction} className="space-y-5">
+      <FieldWrapper id={`${id}-name`} label="Full Name" error={errors.name?.message || state.errors?.name?.[0]}>
+        <FormInput id={`${id}-name`} {...register("name")} placeholder="John Doe" />
+      </FieldWrapper>
+      <FieldWrapper id={`${id}-phone`} label="Phone Number" error={errors.phone?.message || state.errors?.phone?.[0]}>
+        <PhoneInput id={`${id}-phone`} {...register("phone")} />
+      </FieldWrapper>
+      <FieldWrapper id={`${id}-email`} label="Email Address" error={errors.email?.message || state.errors?.email?.[0]}>
+        <FormInput id={`${id}-email`} {...register("email")} type="email" placeholder="you@example.com" />
+      </FieldWrapper>
+      <FieldWrapper
+        id={`${id}-projectType`}
+        label="What type of project is this?"
+        error={errors.projectType?.message || state.errors?.projectType?.[0]}
+      >
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+          <RadioCard id={`${id}-new`} value="new-construction" {...register("projectType")}>
+            New
+          </RadioCard>
+          <RadioCard id={`${id}-replacement`} value="roof-replacement" {...register("projectType")}>
+            Replacement
+          </RadioCard>
+          <RadioCard id={`${id}-other`} value="other" {...register("projectType")}>
+            Other
+          </RadioCard>
+        </div>
+      </FieldWrapper>
+      <SubmitButton isPending={isPending}>
+        Request Callback <ArrowRight className="h-5 w-5" />
+      </SubmitButton>
+      {!state.success && state.message && <p className="text-center text-sm text-red-600">{state.message}</p>}
+    </form>
+  )
+}
+
+// --- Step 2 Form Component ---
+
+function Step2Form({ airtableRecordId, onSuccess }: { airtableRecordId: string; onSuccess: () => void }) {
+  const id = useId()
+  const [state, formAction, isPending] = useActionState<Step2State, FormData>(handleStep2Submit, {
+    message: "",
+    success: false,
+  })
+  const {
+    register,
+    control,
+    formState: { errors },
+    watch,
+    setValue,
+  } = useForm<Step2Data>({
+    resolver: zodResolver(step2Schema),
+    defaultValues: {
+      isRoofSizeUnsure: false,
+    },
+  })
+
+  const [hasPlans, setHasPlans] = useState<boolean | null>(null)
+  const [hasPhotos, setHasPhotos] = useState<boolean | null>(null)
+  const [planFiles, setPlanFiles] = useState<File[]>([])
+  const [photoFiles, setPhotoFiles] = useState<File[]>([])
+  const isRoofSizeUnsure = watch("isRoofSizeUnsure")
+
+  useEffect(() => {
+    if (isRoofSizeUnsure) {
+      setValue("roofSize", "")
+    }
+  }, [isRoofSizeUnsure, setValue])
+
+  useEffect(() => {
+    if (state.success) {
+      onSuccess()
+    }
+  }, [state, onSuccess])
+
+  // Update form values when files change
+  useEffect(() => {
+    setValue("plans", planFiles)
+  }, [planFiles, setValue])
+
+  useEffect(() => {
+    setValue("photos", photoFiles)
+  }, [photoFiles, setValue])
+
+  return (
+    <form action={formAction} className="space-y-5">
+      <input type="hidden" {...register("airtableRecordId")} value={airtableRecordId} />
+      <FieldWrapper id={`${id}-address`} label="Project Address" error={errors.projectAddress?.message}>
+        <FormInput id={`${id}-address`} {...register("projectAddress")} placeholder="123 Main St, New York, NY" />
+      </FieldWrapper>
+
+      <FieldWrapper
+        id={`${id}-roofSize`}
+        error={errors.roofSize?.message}
+        labelComponent={
+          <div className="flex items-center justify-between">
+            <label htmlFor={`${id}-roofSize`} className="text-base font-medium text-neutral-700">
+              Approx. Roof Size (sq ft)
+            </label>
+            <div className="flex items-center gap-2">
+              <FormCheckbox id={`${id}-roofSizeUnsure`} {...register("isRoofSizeUnsure")} />
+              <label htmlFor={`${id}-roofSizeUnsure`} className="text-sm font-medium text-neutral-600">
+                Not sure
+              </label>
+            </div>
+          </div>
+        }
+      >
+        <FormInput
+          id={`${id}-roofSize`}
+          {...register("roofSize")}
+          placeholder="e.g., 2500"
+          disabled={isRoofSizeUnsure}
+        />
+      </FieldWrapper>
+
+      <FieldWrapper
+        id={`${id}-plans`}
+        label="Do you have architectural plans?"
+        error={(errors.plans?.message as string) || state.errors?.plans?.[0]}
+      >
+        <div className="space-y-3">
+          <YesNoToggle
+            value={hasPlans}
+            onChange={(val) => {
+              setHasPlans(val)
+              if (!val) {
+                setPlanFiles([])
+                setValue("plans", [])
+              }
+            }}
+          />
+          {hasPlans && (
+            <FileUploadButton
+              files={planFiles}
+              onChange={setPlanFiles}
+              accept="image/*,application/pdf"
+              multiple
+              label="Upload Files"
+              isPhotos={false}
+            />
+          )}
+        </div>
+      </FieldWrapper>
+
+      <FieldWrapper
+        id={`${id}-photos`}
+        label="Do you have photos of the roof?"
+        error={(errors.photos?.message as string) || state.errors?.photos?.[0]}
+      >
+        <div className="space-y-3">
+          <YesNoToggle
+            value={hasPhotos}
+            onChange={(val) => {
+              setHasPhotos(val)
+              if (!val) {
+                setPhotoFiles([])
+                setValue("photos", [])
+              }
+            }}
+          />
+          {hasPhotos && (
+            <FileUploadButton
+              files={photoFiles}
+              onChange={setPhotoFiles}
+              accept="image/*"
+              multiple
+              label="Upload Photos"
+              isPhotos={true}
+            />
+          )}
+        </div>
+      </FieldWrapper>
+
+      <FieldWrapper id={`${id}-tileType`} label="Clay Tile Type (if known)">
+        <FormSelect {...register("tileType")}>
+          <option value="">Select an option...</option>
+          <option value="spanish-s">Traditional Spanish / S-Mission</option>
+          <option value="flat">Flat Tile</option>
+          <option value="not-sure">Not sure / Open to recommendations</option>
+        </FormSelect>
+      </FieldWrapper>
+      <FieldWrapper id={`${id}-timeframe`} label="When are you hoping to start?">
+        <FormSelect {...register("timeframe")}>
+          <option value="">Select a timeframe...</option>
+          <option value="asap">ASAP</option>
+          <option value="1-3-months">Within 1-3 months</option>
+          <option value="exploring">Just exploring options</option>
+        </FormSelect>
+      </FieldWrapper>
+      <FieldWrapper id={`${id}-referral`} label="How did you hear about us?">
+        <FormInput id={`${id}-referral`} {...register("referral")} />
+      </FieldWrapper>
+      <FieldWrapper id={`${id}-message`} label="Additional Message">
+        <FormTextarea id={`${id}-message`} {...register("message")} rows={3} />
+      </FieldWrapper>
+      <SubmitButton isPending={isPending}>Submit Full Details</SubmitButton>
+      {!state.success && state.message && <p className="text-center text-sm text-red-600">{state.message}</p>}
+    </form>
+  )
+}
+
+// --- Main Landing Page Component ---
+
+export default function Page() {
+  const [open, setOpen] = useState(false)
+  const [step, setStep] = useState(1)
+  const [airtableRecordId, setAirtableRecordId] = useState<string | null>(null)
+
+  const handleStep1Success = (recordId: string) => {
+    setAirtableRecordId(recordId)
+    setStep(2)
+  }
+
+  const handleStep2Success = () => {
+    setStep(3) // Confirmation step
+  }
+
+  // Reset form when dialog is closed
+  useEffect(() => {
+    if (!open) {
+      setTimeout(() => {
+        setStep(1)
+        setAirtableRecordId(null)
+      }, 200) // Delay to allow dialog to close before state reset
+    }
+  }, [open])
+
+  return (
+    <>
+      <main className="relative h-dvh w-full overflow-hidden bg-black text-white" id="home">
         <div className="absolute inset-0">
           <Image
             src="/images/hero-clay-roof.jpg"
-            alt="Beautiful clay tile roof installation"
+            alt="Terracotta clay tile roof under blue sky"
             fill
-            className="object-cover"
             priority
+            sizes="100vw"
+            className="object-cover"
           />
-          <div className="absolute inset-0 bg-black/40" />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/30 to-black/10" />
         </div>
 
-        <div className="relative z-10 text-center text-white max-w-4xl mx-auto px-4">
-          <h1 className="text-4xl md:text-6xl font-bold mb-6">Premium Clay Tile Roofing in NYC</h1>
-          <p className="text-xl md:text-2xl mb-8 text-gray-200">
-            Expert installation, repair, and maintenance of clay tile roofs. Serving New York City with quality
-            craftsmanship since 2010.
-          </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Dialog open={isQuoteModalOpen} onOpenChange={setIsQuoteModalOpen}>
-              <DialogTrigger asChild>
-                <Button size="lg" className="bg-orange-600 hover:bg-orange-700 text-white px-8 py-3 text-lg">
-                  Get Free Quote
-                </Button>
-              </DialogTrigger>
-            </Dialog>
+        <header className="fixed top-0 left-0 right-0 z-40 flex items-center justify-between px-4 py-2">
+          <Link href="/" className="flex items-center">
+            <Image
+              src="/clay-roofs-ny-logo.png"
+              alt="Clay Roofs NY"
+              width={540}
+              height={180}
+              className="h-32 w-auto drop-shadow-lg"
+            />
+          </Link>
+          <nav className="flex items-center gap-1 sm:gap-2 flex-wrap">
             <Button
-              size="lg"
-              variant="outline"
-              className="border-white text-white hover:bg-white hover:text-gray-900 px-8 py-3 text-lg bg-transparent"
+              asChild
+              variant="ghost"
+              className="text-sm font-medium text-white hover:bg-white/20 hover:text-white drop-shadow-md shadow-black/50"
             >
-              <Link href="/gallery">View Our Work</Link>
+              <a href="tel:2123654386">212-365-4386</a>
             </Button>
-          </div>
-        </div>
-      </section>
+            <Button
+              asChild
+              variant="ghost"
+              className="text-sm font-medium text-white hover:bg-white/20 hover:text-white drop-shadow-md shadow-black/50"
+            >
+              <Link href="/gallery">Gallery</Link>
+            </Button>
+            <Button
+              asChild
+              variant="ghost"
+              className="text-sm font-medium text-white hover:bg-white/20 hover:text-white drop-shadow-md shadow-black/50"
+            >
+              <Link href="/about">About</Link>
+            </Button>
+            <Button
+              asChild
+              variant="ghost"
+              className="text-sm font-medium text-white hover:bg-white/20 hover:text-white drop-shadow-md shadow-black/50"
+            >
+              <Link href="/contact">Contact</Link>
+            </Button>
+            <Button asChild className="bg-orange-600 text-white hover:bg-orange-700 text-sm font-semibold px-4 py-2">
+              <Link href="/request-quote">Request a Quote</Link>
+            </Button>
+          </nav>
+        </header>
 
-      {/* Services Section */}
-      <section className="py-16 bg-gray-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">Our Clay Tile Roofing Services</h2>
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              From new installations to repairs and maintenance, we provide comprehensive clay tile roofing solutions.
+        <section className="relative z-30 flex h-full w-full items-center" id="quote">
+          <div className="mx-auto flex w-full max-w-xl flex-col items-center px-4 text-center">
+            <h1 className="text-balance text-4xl font-extrabold leading-tight sm:text-5xl drop-shadow-lg">
+              Clay Tile Roofing Specialists – NYC
+            </h1>
+            <p className="mt-4 text-pretty text-base font-medium text-white/90 sm:text-lg drop-shadow-md">
+              Serving New York City for over 20 years.
             </p>
-          </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-            <div className="bg-white p-6 rounded-lg shadow-md">
-              <div className="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center mb-4">
-                <svg className="w-6 h-6 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"
-                  />
-                </svg>
-              </div>
-              <h3 className="text-xl font-semibold text-gray-900 mb-2">New Installation</h3>
-              <p className="text-gray-600">
-                Complete clay tile roof installation for new construction and roof replacements.
-              </p>
-            </div>
-
-            <div className="bg-white p-6 rounded-lg shadow-md">
-              <div className="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center mb-4">
-                <svg className="w-6 h-6 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"
-                  />
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-                  />
-                </svg>
-              </div>
-              <h3 className="text-xl font-semibold text-gray-900 mb-2">Repair & Restoration</h3>
-              <p className="text-gray-600">
-                Expert repair services to restore your clay tile roof to its original condition.
-              </p>
-            </div>
-
-            <div className="bg-white p-6 rounded-lg shadow-md">
-              <div className="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center mb-4">
-                <svg className="w-6 h-6 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
-                  />
-                </svg>
-              </div>
-              <h3 className="text-xl font-semibold text-gray-900 mb-2">Maintenance</h3>
-              <p className="text-gray-600">Regular maintenance services to extend the life of your clay tile roof.</p>
-            </div>
-
-            <div className="bg-white p-6 rounded-lg shadow-md">
-              <div className="w-12 h-12 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Star className="w-8 h-8 text-orange-600" />
-              </div>
-              <h3 className="text-xl font-semibold text-gray-900 mb-2">Consultation</h3>
-              <p className="text-gray-600">
-                Professional consultation to help you choose the right clay tile solution.
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Why Choose Us Section */}
-      <section className="py-16 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">Why Choose Clay Roofs NY?</h2>
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              We're NYC's trusted clay tile roofing specialists with over a decade of experience.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div className="text-center">
-              <div className="w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Star className="w-8 h-8 text-orange-600" />
-              </div>
-              <h3 className="text-xl font-semibold text-gray-900 mb-2">Expert Craftsmanship</h3>
-              <p className="text-gray-600">
-                Our skilled craftsmen have years of experience working with clay tiles, ensuring perfect installation
-                every time.
-              </p>
-            </div>
-
-            <div className="text-center">
-              <div className="w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <svg className="w-8 h-8 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"
-                  />
-                </svg>
-              </div>
-              <h3 className="text-xl font-semibold text-gray-900 mb-2">Licensed & Insured</h3>
-              <p className="text-gray-600">
-                Fully licensed and insured for your peace of mind. We stand behind our work with comprehensive
-                warranties.
-              </p>
-            </div>
-
-            <div className="text-center">
-              <div className="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center mx-auto mb-4">
-                <Clock className="w-6 h-6 text-orange-600" />
-              </div>
-              <h3 className="text-xl font-semibold text-gray-900 mb-2">Timely Service</h3>
-              <p className="text-gray-600">
-                We respect your time and complete projects on schedule without compromising on quality.
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Contact Section */}
-      <section className="py-16 bg-gray-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">Ready to Get Started?</h2>
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              Contact us today for a free consultation and quote on your clay tile roofing project.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
-            <div>
-              <div className="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center mx-auto mb-4">
-                <Phone className="w-6 h-6 text-orange-600" />
-              </div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">Call Us</h3>
-              <a href="tel:+12123654386" className="text-orange-600 hover:text-orange-700 font-medium">
-                (212) 365-4386
-              </a>
-            </div>
-
-            <div>
-              <div className="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center mx-auto mb-4">
-                <Mail className="w-6 h-6 text-orange-600" />
-              </div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">Email Us</h3>
-              <a href="mailto:hello@clayroofsny.com" className="text-orange-600 hover:text-orange-700 font-medium">
-                hello@clayroofsny.com
-              </a>
-            </div>
-
-            <div>
-              <div className="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center mx-auto mb-4">
-                <MapPin className="w-6 h-6 text-orange-600" />
-              </div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">Visit Us</h3>
-              <p className="text-gray-600">
-                33-15 127th Pl
-                <br />
-                Corona, NY 11368
-              </p>
-            </div>
-          </div>
-
-          <div className="text-center mt-8">
-            <Dialog open={isQuoteModalOpen} onOpenChange={setIsQuoteModalOpen}>
+            <Dialog open={open} onOpenChange={setOpen}>
               <DialogTrigger asChild>
-                <Button size="lg" className="bg-orange-600 hover:bg-orange-700 text-white px-8 py-3 text-lg">
-                  Get Your Free Quote
+                <Button className="mt-6 h-12 w-full max-w-[260px] rounded-full bg-orange-600 text-white hover:bg-orange-700 hover:shadow-lg transition-all duration-200">
+                  Request a Quote
                 </Button>
               </DialogTrigger>
+              <DialogContent className="sm:max-w-lg overflow-y-auto max-h-[90dvh]">
+                <DialogHeader>
+                  <DialogTitle>
+                    {step === 1 && "Get a Free Roofing Quote"}
+                    {step === 2 && "Provide More Details (Optional)"}
+                  </DialogTitle>
+                  <DialogDescription>
+                    {step === 1 && "Start with the basics. We'll call you back within 24 hours."}
+                    {step === 2 && "Your callback is requested! For a faster quote, add more info below."}
+                  </DialogDescription>
+                </DialogHeader>
+
+                <div className="mt-4">
+                  {step < 3 && (
+                    <div className="mb-4 text-center text-sm font-medium text-neutral-500">Step {step} of 2</div>
+                  )}
+                  {step === 1 && <Step1Form onSuccess={handleStep1Success} />}
+                  {step === 2 && airtableRecordId && (
+                    <Step2Form airtableRecordId={airtableRecordId} onSuccess={handleStep2Success} />
+                  )}
+                  {step === 3 && (
+                    <div className="text-center py-8">
+                      <Check className="mx-auto h-12 w-12 text-green-600 bg-green-100 rounded-full p-2" />
+                      <h2 className="mt-4 text-xl font-semibold text-neutral-800">Thank You!</h2>
+                      <p className="mt-1 text-neutral-600">
+                        Your information has been submitted. We'll be in touch soon.
+                      </p>
+                      <Button variant="outline" className="mt-6 bg-transparent" onClick={() => setOpen(false)}>
+                        Close
+                      </Button>
+                    </div>
+                  )}
+                </div>
+              </DialogContent>
             </Dialog>
           </div>
-        </div>
-      </section>
+        </section>
 
-      {/* Sticky Call Bar */}
-      <StickyCallBar isHidden={isQuoteModalOpen} />
-    </div>
+        <footer className="border-t border-neutral-200 bg-neutral-50">
+          <div className="container mx-auto px-4 py-6 space-y-4">
+            <div className="flex items-center justify-center gap-3 text-sm text-neutral-600">
+              <a
+                href="https://www.laescandella.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-3 hover:opacity-80 transition-opacity"
+              >
+                <Image
+                  src="/la-escandella-logo.webp"
+                  alt="La Escandella"
+                  width={80}
+                  height={40}
+                  className="h-6 w-auto"
+                />
+                <span>Proudly partnered with La Escandella.</span>
+              </a>
+            </div>
+            <div className="text-center text-neutral-500">
+              <p>&copy; {new Date().getFullYear()} Clay Roofs NY. All Rights Reserved.</p>
+            </div>
+          </div>
+        </footer>
+      </main>
+
+      <StickyCallBar isHidden={open} />
+    </>
   )
 }
