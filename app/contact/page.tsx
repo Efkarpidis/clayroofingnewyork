@@ -9,6 +9,7 @@ import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { MapPin, Phone, Mail, Clock, Check, Loader2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { StickyCallBar } from "@/components/sticky-call-bar"
 import { type ContactFormData, contactFormSchema } from "../schemas"
 import { handleContactFormSubmit, type ContactFormState } from "../actions"
 
@@ -108,102 +109,118 @@ function ContactForm() {
 
 export default function ContactPage() {
   return (
-    <div className="bg-white text-neutral-800">
-      <header className="sticky top-0 z-50 border-b border-neutral-200 bg-white/95 shadow-sm">
-        <div className="container mx-auto flex items-center justify-between px-4 py-2">
-          <Link href="/" className="flex items-center">
-            <Image src="/clay-roofs-ny-logo.png" alt="Clay Roofs NY" width={540} height={180} className="h-32 w-auto" />
-          </Link>
-          <nav className="flex items-center gap-1 sm:gap-2 flex-wrap">
-            <Button asChild variant="ghost" className="text-sm font-medium text-neutral-700 hover:bg-neutral-100">
-              <a href="tel:2123654386">212-365-4386</a>
-            </Button>
-            <Button asChild variant="ghost" className="text-sm font-medium text-neutral-700 hover:bg-neutral-100">
-              <Link href="/gallery">Gallery</Link>
-            </Button>
-            <Button asChild variant="ghost" className="text-sm font-medium text-neutral-700 hover:bg-neutral-100">
-              <Link href="/about">About</Link>
-            </Button>
-            <Button asChild variant="ghost" className="text-sm font-medium text-neutral-700 hover:bg-neutral-100">
-              <Link href="/contact">Contact</Link>
-            </Button>
-            <Button asChild className="bg-orange-600 text-white hover:bg-orange-700 text-sm font-semibold">
-              <Link href="/#quote">Request a Quote</Link>
-            </Button>
-          </nav>
-        </div>
-      </header>
+    <>
+      <div className="bg-white text-neutral-800">
+        <header className="sticky top-0 z-50 border-b border-neutral-200 bg-white/95 shadow-sm">
+          <div className="container mx-auto flex items-center justify-between px-4 py-2">
+            <Link href="/" className="flex items-center">
+              <Image
+                src="/clay-roofs-ny-logo.png"
+                alt="Clay Roofs NY"
+                width={540}
+                height={180}
+                className="h-32 w-auto"
+              />
+            </Link>
+            <nav className="flex items-center gap-1 sm:gap-2 flex-wrap">
+              <Button asChild variant="ghost" className="text-sm font-medium text-neutral-700 hover:bg-neutral-100">
+                <a href="tel:2123654386">212-365-4386</a>
+              </Button>
+              <Button asChild variant="ghost" className="text-sm font-medium text-neutral-700 hover:bg-neutral-100">
+                <Link href="/gallery">Gallery</Link>
+              </Button>
+              <Button asChild variant="ghost" className="text-sm font-medium text-neutral-700 hover:bg-neutral-100">
+                <Link href="/about">About</Link>
+              </Button>
+              <Button asChild variant="ghost" className="text-sm font-medium text-neutral-700 hover:bg-neutral-100">
+                <Link href="/contact">Contact</Link>
+              </Button>
+              <Button asChild className="bg-orange-600 text-white hover:bg-orange-700 text-sm font-semibold">
+                <Link href="/#quote">Request a Quote</Link>
+              </Button>
+            </nav>
+          </div>
+        </header>
 
-      <main className="container mx-auto px-4 py-12 sm:py-16">
-        <div className="text-center">
-          <h1 className="text-3xl font-extrabold tracking-tight sm:text-4xl">Contact Us</h1>
-          <p className="mt-2 max-w-2xl mx-auto text-lg text-neutral-600">
-            Have a question or need a quote? We're here to help.
-          </p>
-        </div>
+        <main className="container mx-auto px-4 py-12 sm:py-16 pb-20">
+          <div className="text-center">
+            <h1 className="text-3xl font-extrabold tracking-tight sm:text-4xl">Contact Us</h1>
+            <p className="mt-2 max-w-2xl mx-auto text-lg text-neutral-600">
+              Have a question or need a quote? We're here to help.
+            </p>
+          </div>
 
-        <div className="mt-16 grid grid-cols-1 gap-16 lg:grid-cols-2">
-          <div className="space-y-8">
-            <div>
-              <h2 className="text-2xl font-bold">Get in Touch</h2>
-              <div className="mt-4 space-y-4 text-lg text-neutral-700">
-                <p className="flex items-start gap-3">
-                  <MapPin className="h-6 w-6 flex-shrink-0 text-neutral-500 mt-1" />
-                  <span>33-15 127th Pl, Corona, NY 11368</span>
-                </p>
-                <p className="flex items-center gap-3">
-                  <Phone className="h-6 w-6 text-neutral-500" />
-                  <a href="tel:212-365-4386" className="hover:underline">
-                    (212) 365-4386
-                  </a>
-                </p>
-                <p className="flex items-center gap-3">
-                  <Mail className="h-6 w-6 text-neutral-500" />
-                  <a href="mailto:hello@clayroofsny.com" className="hover:underline">
-                    hello@clayroofsny.com
-                  </a>
-                </p>
+          <div className="mt-16 grid grid-cols-1 gap-16 lg:grid-cols-2">
+            <div className="space-y-8">
+              <div>
+                <h2 className="text-2xl font-bold">Get in Touch</h2>
+                <div className="mt-4 space-y-4 text-lg text-neutral-700">
+                  <p className="flex items-start gap-3">
+                    <MapPin className="h-6 w-6 flex-shrink-0 text-neutral-500 mt-1" />
+                    <span>33-15 127th Pl, Corona, NY 11368</span>
+                  </p>
+                  <p className="flex items-center gap-3">
+                    <Phone className="h-6 w-6 text-neutral-500" />
+                    <a href="tel:212-365-4386" className="hover:underline">
+                      (212) 365-4386
+                    </a>
+                  </p>
+                  <p className="flex items-center gap-3">
+                    <Mail className="h-6 w-6 text-neutral-500" />
+                    <a href="mailto:hello@clayroofsny.com" className="hover:underline">
+                      hello@clayroofsny.com
+                    </a>
+                  </p>
+                </div>
+              </div>
+              <div>
+                <h2 className="text-2xl font-bold">Business Hours</h2>
+                <div className="mt-4 space-y-2 text-lg text-neutral-700">
+                  <p className="flex items-center gap-3">
+                    <Clock className="h-6 w-6 text-neutral-500" />
+                    <span>Monday - Friday: 8:00 AM - 5:00 PM</span>
+                  </p>
+                  <p className="flex items-center gap-3">
+                    <Clock className="h-6 w-6 text-transparent" />
+                    <span>Saturday - Sunday: By Appointment</span>
+                  </p>
+                </div>
               </div>
             </div>
-            <div>
-              <h2 className="text-2xl font-bold">Business Hours</h2>
-              <div className="mt-4 space-y-2 text-lg text-neutral-700">
-                <p className="flex items-center gap-3">
-                  <Clock className="h-6 w-6 text-neutral-500" />
-                  <span>Monday - Friday: 8:00 AM - 5:00 PM</span>
-                </p>
-                <p className="flex items-center gap-3">
-                  <Clock className="h-6 w-6 text-transparent" />
-                  <span>Saturday - Sunday: By Appointment</span>
-                </p>
-              </div>
+
+            <div className="rounded-lg border border-neutral-200 bg-neutral-50 p-6 sm:p-8">
+              <ContactForm />
             </div>
           </div>
+        </main>
 
-          <div className="rounded-lg border border-neutral-200 bg-neutral-50 p-6 sm:p-8">
-            <ContactForm />
+        <footer className="border-t border-neutral-200 bg-neutral-50">
+          <div className="container mx-auto px-4 py-6 space-y-4">
+            <div className="flex items-center justify-center gap-3 text-sm text-neutral-600">
+              <a
+                href="https://www.laescandella.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-3 hover:opacity-80 transition-opacity"
+              >
+                <Image
+                  src="/la-escandella-logo.webp"
+                  alt="La Escandella"
+                  width={80}
+                  height={40}
+                  className="h-6 w-auto"
+                />
+                <span>Proudly partnered with La Escandella.</span>
+              </a>
+            </div>
+            <div className="text-center text-neutral-500">
+              <p>&copy; {new Date().getFullYear()} Clay Roofs NY. All Rights Reserved.</p>
+            </div>
           </div>
-        </div>
-      </main>
+        </footer>
+      </div>
 
-      <footer className="border-t border-neutral-200 bg-neutral-50">
-        <div className="container mx-auto px-4 py-6 space-y-4">
-          <div className="flex items-center justify-center gap-3 text-sm text-neutral-600">
-            <a
-              href="https://www.laescandella.com"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center gap-3 hover:opacity-80 transition-opacity"
-            >
-              <Image src="/la-escandella-logo.webp" alt="La Escandella" width={80} height={40} className="h-6 w-auto" />
-              <span>Proudly partnered with La Escandella.</span>
-            </a>
-          </div>
-          <div className="text-center text-neutral-500">
-            <p>&copy; {new Date().getFullYear()} Clay Roofs NY. All Rights Reserved.</p>
-          </div>
-        </div>
-      </footer>
-    </div>
+      <StickyCallBar />
+    </>
   )
 }

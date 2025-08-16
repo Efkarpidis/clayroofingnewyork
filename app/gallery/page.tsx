@@ -6,6 +6,7 @@ import Link from "next/link"
 import { galleryData, tileTypes, type Photo } from "../gallery-data"
 import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent } from "@/components/ui/dialog"
+import { StickyCallBar } from "@/components/sticky-call-bar"
 
 export default function GalleryPage() {
   const [activeFilter, setActiveFilter] = useState("All")
@@ -47,7 +48,7 @@ export default function GalleryPage() {
           </div>
         </header>
 
-        <main className="container mx-auto px-4 py-8 sm:py-12">
+        <main className="container mx-auto px-4 py-8 sm:py-12 pb-20">
           <div className="text-center">
             <h1 className="text-3xl font-extrabold tracking-tight sm:text-4xl">Project Gallery</h1>
             <p className="mt-2 max-w-2xl mx-auto text-lg text-neutral-600">
@@ -152,6 +153,8 @@ export default function GalleryPage() {
           )}
         </DialogContent>
       </Dialog>
+
+      <StickyCallBar />
     </>
   )
 }

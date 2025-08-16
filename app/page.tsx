@@ -13,6 +13,7 @@ import {
   DialogDescription,
   DialogTrigger,
 } from "@/components/ui/dialog"
+import { StickyCallBar } from "@/components/sticky-call-bar"
 import { useState, useActionState, useEffect, useId } from "react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
@@ -539,135 +540,145 @@ export default function Page() {
   }, [open])
 
   return (
-    <main className="relative h-dvh w-full overflow-hidden bg-black text-white" id="home">
-      <div className="absolute inset-0">
-        <Image
-          src="/images/hero-clay-roof.jpg"
-          alt="Terracotta clay tile roof under blue sky"
-          fill
-          priority
-          sizes="100vw"
-          className="object-cover"
-        />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/30 to-black/10" />
-      </div>
-
-      <header className="fixed top-0 left-0 right-0 z-40 flex items-center justify-between px-4 py-2">
-        <Link href="/" className="flex items-center">
+    <>
+      <main className="relative h-dvh w-full overflow-hidden bg-black text-white" id="home">
+        <div className="absolute inset-0">
           <Image
-            src="/clay-roofs-ny-logo.png"
-            alt="Clay Roofs NY"
-            width={540}
-            height={180}
-            className="h-32 w-auto drop-shadow-lg"
+            src="/images/hero-clay-roof.jpg"
+            alt="Terracotta clay tile roof under blue sky"
+            fill
+            priority
+            sizes="100vw"
+            className="object-cover"
           />
-        </Link>
-        <nav className="flex items-center gap-1 sm:gap-2 flex-wrap">
-          <Button
-            asChild
-            variant="ghost"
-            className="text-sm font-medium text-white hover:bg-white/20 hover:text-white drop-shadow-md shadow-black/50"
-          >
-            <a href="tel:2123654386">212-365-4386</a>
-          </Button>
-          <Button
-            asChild
-            variant="ghost"
-            className="text-sm font-medium text-white hover:bg-white/20 hover:text-white drop-shadow-md shadow-black/50"
-          >
-            <Link href="/gallery">Gallery</Link>
-          </Button>
-          <Button
-            asChild
-            variant="ghost"
-            className="text-sm font-medium text-white hover:bg-white/20 hover:text-white drop-shadow-md shadow-black/50"
-          >
-            <Link href="/about">About</Link>
-          </Button>
-          <Button
-            asChild
-            variant="ghost"
-            className="text-sm font-medium text-white hover:bg-white/20 hover:text-white drop-shadow-md shadow-black/50"
-          >
-            <Link href="/contact">Contact</Link>
-          </Button>
-          <Button asChild className="bg-orange-600 text-white hover:bg-orange-700 text-sm font-semibold px-4 py-2">
-            <Link href="/request-quote">Request a Quote</Link>
-          </Button>
-        </nav>
-      </header>
-
-      <section className="relative z-30 flex h-full w-full items-center" id="quote">
-        <div className="mx-auto flex w-full max-w-xl flex-col items-center px-4 text-center">
-          <h1 className="text-balance text-4xl font-extrabold leading-tight sm:text-5xl drop-shadow-lg">
-            Clay Tile Roofing Specialists – NYC
-          </h1>
-          <p className="mt-4 text-pretty text-base font-medium text-white/90 sm:text-lg drop-shadow-md">
-            Serving New York City for over 20 years.
-          </p>
-
-          <Dialog open={open} onOpenChange={setOpen}>
-            <DialogTrigger asChild>
-              <Button className="mt-6 h-12 w-full max-w-[260px] rounded-full bg-orange-600 text-white hover:bg-orange-700 hover:shadow-lg transition-all duration-200">
-                Request a Quote
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="sm:max-w-lg overflow-y-auto max-h-[90dvh]">
-              <DialogHeader>
-                <DialogTitle>
-                  {step === 1 && "Get a Free Roofing Quote"}
-                  {step === 2 && "Provide More Details (Optional)"}
-                </DialogTitle>
-                <DialogDescription>
-                  {step === 1 && "Start with the basics. We'll call you back within 24 hours."}
-                  {step === 2 && "Your callback is requested! For a faster quote, add more info below."}
-                </DialogDescription>
-              </DialogHeader>
-
-              <div className="mt-4">
-                {step < 3 && (
-                  <div className="mb-4 text-center text-sm font-medium text-neutral-500">Step {step} of 2</div>
-                )}
-                {step === 1 && <Step1Form onSuccess={handleStep1Success} />}
-                {step === 2 && airtableRecordId && (
-                  <Step2Form airtableRecordId={airtableRecordId} onSuccess={handleStep2Success} />
-                )}
-                {step === 3 && (
-                  <div className="text-center py-8">
-                    <Check className="mx-auto h-12 w-12 text-green-600 bg-green-100 rounded-full p-2" />
-                    <h2 className="mt-4 text-xl font-semibold text-neutral-800">Thank You!</h2>
-                    <p className="mt-1 text-neutral-600">
-                      Your information has been submitted. We'll be in touch soon.
-                    </p>
-                    <Button variant="outline" className="mt-6 bg-transparent" onClick={() => setOpen(false)}>
-                      Close
-                    </Button>
-                  </div>
-                )}
-              </div>
-            </DialogContent>
-          </Dialog>
+          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/30 to-black/10" />
         </div>
-      </section>
 
-      <footer className="border-t border-neutral-200 bg-neutral-50">
-        <div className="container mx-auto px-4 py-6 space-y-4">
-          <div className="flex items-center justify-center gap-3 text-sm text-neutral-600">
-            <a
-              href="https://www.laescandella.com"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center gap-3 hover:opacity-80 transition-opacity"
+        <header className="fixed top-0 left-0 right-0 z-40 flex items-center justify-between px-4 py-2">
+          <Link href="/" className="flex items-center">
+            <Image
+              src="/clay-roofs-ny-logo.png"
+              alt="Clay Roofs NY"
+              width={540}
+              height={180}
+              className="h-32 w-auto drop-shadow-lg"
+            />
+          </Link>
+          <nav className="flex items-center gap-1 sm:gap-2 flex-wrap">
+            <Button
+              asChild
+              variant="ghost"
+              className="text-sm font-medium text-white hover:bg-white/20 hover:text-white drop-shadow-md shadow-black/50"
             >
-              <Image src="/la-escandella-logo.webp" alt="La Escandella" width={80} height={40} className="h-6 w-auto" />
-              <span>Proudly partnered with La Escandella.</span>
-            </a>
+              <a href="tel:2123654386">212-365-4386</a>
+            </Button>
+            <Button
+              asChild
+              variant="ghost"
+              className="text-sm font-medium text-white hover:bg-white/20 hover:text-white drop-shadow-md shadow-black/50"
+            >
+              <Link href="/gallery">Gallery</Link>
+            </Button>
+            <Button
+              asChild
+              variant="ghost"
+              className="text-sm font-medium text-white hover:bg-white/20 hover:text-white drop-shadow-md shadow-black/50"
+            >
+              <Link href="/about">About</Link>
+            </Button>
+            <Button
+              asChild
+              variant="ghost"
+              className="text-sm font-medium text-white hover:bg-white/20 hover:text-white drop-shadow-md shadow-black/50"
+            >
+              <Link href="/contact">Contact</Link>
+            </Button>
+            <Button asChild className="bg-orange-600 text-white hover:bg-orange-700 text-sm font-semibold px-4 py-2">
+              <Link href="/request-quote">Request a Quote</Link>
+            </Button>
+          </nav>
+        </header>
+
+        <section className="relative z-30 flex h-full w-full items-center" id="quote">
+          <div className="mx-auto flex w-full max-w-xl flex-col items-center px-4 text-center">
+            <h1 className="text-balance text-4xl font-extrabold leading-tight sm:text-5xl drop-shadow-lg">
+              Clay Tile Roofing Specialists – NYC
+            </h1>
+            <p className="mt-4 text-pretty text-base font-medium text-white/90 sm:text-lg drop-shadow-md">
+              Serving New York City for over 20 years.
+            </p>
+
+            <Dialog open={open} onOpenChange={setOpen}>
+              <DialogTrigger asChild>
+                <Button className="mt-6 h-12 w-full max-w-[260px] rounded-full bg-orange-600 text-white hover:bg-orange-700 hover:shadow-lg transition-all duration-200">
+                  Request a Quote
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="sm:max-w-lg overflow-y-auto max-h-[90dvh]">
+                <DialogHeader>
+                  <DialogTitle>
+                    {step === 1 && "Get a Free Roofing Quote"}
+                    {step === 2 && "Provide More Details (Optional)"}
+                  </DialogTitle>
+                  <DialogDescription>
+                    {step === 1 && "Start with the basics. We'll call you back within 24 hours."}
+                    {step === 2 && "Your callback is requested! For a faster quote, add more info below."}
+                  </DialogDescription>
+                </DialogHeader>
+
+                <div className="mt-4">
+                  {step < 3 && (
+                    <div className="mb-4 text-center text-sm font-medium text-neutral-500">Step {step} of 2</div>
+                  )}
+                  {step === 1 && <Step1Form onSuccess={handleStep1Success} />}
+                  {step === 2 && airtableRecordId && (
+                    <Step2Form airtableRecordId={airtableRecordId} onSuccess={handleStep2Success} />
+                  )}
+                  {step === 3 && (
+                    <div className="text-center py-8">
+                      <Check className="mx-auto h-12 w-12 text-green-600 bg-green-100 rounded-full p-2" />
+                      <h2 className="mt-4 text-xl font-semibold text-neutral-800">Thank You!</h2>
+                      <p className="mt-1 text-neutral-600">
+                        Your information has been submitted. We'll be in touch soon.
+                      </p>
+                      <Button variant="outline" className="mt-6 bg-transparent" onClick={() => setOpen(false)}>
+                        Close
+                      </Button>
+                    </div>
+                  )}
+                </div>
+              </DialogContent>
+            </Dialog>
           </div>
-          <div className="text-center text-neutral-500">
-            <p>&copy; {new Date().getFullYear()} Clay Roofs NY. All Rights Reserved.</p>
+        </section>
+
+        <footer className="border-t border-neutral-200 bg-neutral-50">
+          <div className="container mx-auto px-4 py-6 space-y-4">
+            <div className="flex items-center justify-center gap-3 text-sm text-neutral-600">
+              <a
+                href="https://www.laescandella.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-3 hover:opacity-80 transition-opacity"
+              >
+                <Image
+                  src="/la-escandella-logo.webp"
+                  alt="La Escandella"
+                  width={80}
+                  height={40}
+                  className="h-6 w-auto"
+                />
+                <span>Proudly partnered with La Escandella.</span>
+              </a>
+            </div>
+            <div className="text-center text-neutral-500">
+              <p>&copy; {new Date().getFullYear()} Clay Roofs NY. All Rights Reserved.</p>
+            </div>
           </div>
-        </div>
-      </footer>
-    </main>
+        </footer>
+      </main>
+
+      <StickyCallBar isHidden={open} />
+    </>
   )
 }
