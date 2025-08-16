@@ -50,6 +50,27 @@ export const contactFormSchema = z.object({
   message: z.string().min(10, { message: "Your message must be at least 10 characters long." }),
 })
 
+export const quoteRequestSchema = z.object({
+  firstName: z.string().min(2, { message: "Please enter your first name." }),
+  lastName: z.string().min(2, { message: "Please enter your last name." }),
+  email: z.string().email({ message: "Please enter a valid email address." }),
+  phone: z
+    .string()
+    .transform((val) => val.replace(/\D/g, ""))
+    .pipe(z.string().min(10, { message: "Please enter a complete phone number." })),
+  address: z.string().min(5, { message: "Please enter the property address." }),
+  projectType: z.enum(["new-installation", "replacement", "repair", "maintenance"], {
+    errorMap: () => ({ message: "Please select a project type." }),
+  }),
+  tileType: z.string().optional(),
+  timeline: z.enum(["asap", "1-3-months", "3-6-months", "6-months-plus"], {
+    errorMap: () => ({ message: "Please select a timeline." }),
+  }),
+  budget: z.string().optional(),
+  description: z.string().optional(),
+})
+
 export type Step1Data = z.infer<typeof step1Schema>
 export type Step2Data = z.infer<typeof step2Schema>
 export type ContactFormData = z.infer<typeof contactFormSchema>
+export type QuoteRequestData = z.infer<typeof quoteRequestSchema>

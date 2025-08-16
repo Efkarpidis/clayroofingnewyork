@@ -1,8 +1,7 @@
 "use client"
 
 import type React from "react"
-
-import { useState } from "react"
+import { useState, useActionState, useEffect } from "react"
 import Image from "next/image"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
@@ -13,14 +12,35 @@ import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
-import { Menu, Phone, Mail, MapPin, Clock, Star, Upload, Camera, X } from "lucide-react"
+import { Menu, Phone, Mail, MapPin, Clock, Star, Upload, Camera, X, Check, Loader2 } from "lucide-react"
 import { StickyCallBar } from "@/components/sticky-call-bar"
-import { submitQuoteRequest } from "./actions"
+import { submitQuoteRequest, type QuoteRequestState } from "./actions"
 
 export default function HomePage() {
   const [isQuoteModalOpen, setIsQuoteModalOpen] = useState(false)
   const [planFiles, setPlanFiles] = useState<File[]>([])
   const [photoFiles, setPhotoFiles] = useState<File[]>([])
+  const [state, formAction, isPending] = useActionState<QuoteRequestState, FormData>(submitQuoteRequest, {
+    message: "",
+    success: false,
+  })
+
+  // Reset form when modal closes
+  useEffect(() => {
+    if (!isQuoteModalOpen) {
+      setPlanFiles([])
+      setPhotoFiles([])
+    }
+  }, [isQuoteModalOpen])
+
+  // Close modal on successful submission
+  useEffect(() => {
+    if (state.success) {
+      setTimeout(() => {
+        setIsQuoteModalOpen(false)
+      }, 2000)
+    }
+  }, [state.success])
 
   const handleFileUpload = (files: FileList | null, type: "plans" | "photos") => {
     if (!files) return
@@ -114,6 +134,16 @@ export default function HomePage() {
     )
   }
 
+  if (state.success) {
+    return (
+      <div className="flex flex-col items-center justify-center p-8 text-center">
+        <Check className="h-12 w-12 text-green-600 bg-green-100 rounded-full p-2 mb-4" />
+        <h3 className="text-xl font-semibold text-gray-900 mb-2">Quote Request Submitted!</h3>
+        <p className="text-gray-600">Thank you for your request. We'll contact you within 24 hours.</p>
+      </div>
+    )
+  }
+
   return (
     <div className="min-h-screen bg-white pb-20">
       {/* Header */}
@@ -152,7 +182,7 @@ export default function HomePage() {
                   <DialogHeader>
                     <DialogTitle>Get Your Free Quote</DialogTitle>
                   </DialogHeader>
-                  <form action={submitQuoteRequest} className="space-y-6">
+                  <form action={formAction} className="space-y-6">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div>
                         <Label htmlFor="firstName">First Name *</Label>
@@ -299,7 +329,14 @@ export default function HomePage() {
                     </div>
 
                     <Button type="submit" className="w-full bg-orange-600 hover:bg-orange-700">
-                      Submit
+                      {isPending ? (
+                        <div className="flex items-center justify-center">
+                          <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                          Submitting...
+                        </div>
+                      ) : (
+                        "Submit"
+                      )}
                     </Button>
                   </form>
                 </DialogContent>
@@ -448,15 +485,8 @@ export default function HomePage() {
             </div>
 
             <div className="bg-white p-6 rounded-lg shadow-md">
-              <div className="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center mb-4">
-                <svg className="w-6 h-6 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                  />
-                </svg>
+              <div className="w-12 h-12 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Star className="w-8 h-8 text-orange-600" />
               </div>
               <h3 className="text-xl font-semibold text-gray-900 mb-2">Consultation</h3>
               <p className="text-gray-600">
@@ -508,8 +538,8 @@ export default function HomePage() {
             </div>
 
             <div className="text-center">
-              <div className="w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Clock className="w-8 h-8 text-orange-600" />
+              <div className="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center mx-auto mb-4">
+                <Clock className="w-6 h-6 text-orange-600" />
               </div>
               <h3 className="text-xl font-semibold text-gray-900 mb-2">Timely Service</h3>
               <p className="text-gray-600">
