@@ -653,6 +653,48 @@ export default function Page() {
           </div>
         </section>
 
+        {/* Why Choose Us Section */}
+        <section className="py-16 bg-neutral-50">
+          <div className="container mx-auto px-4 space-y-8">
+            <h2 className="text-center text-3xl font-extrabold leading-tight sm:text-4xl drop-shadow-lg">
+              Why Choose Us?
+            </h2>
+            <div className="grid grid-cols-1 gap-8 sm:grid-cols-2">
+              {/* Card 1 */}
+              <div className="bg-white rounded-lg p-6 shadow-lg">
+                <h3 className="text-xl font-semibold text-neutral-800">Experience</h3>
+                <p className="mt-4 text-neutral-600">
+                  With over 20 years of experience, we have the knowledge and skills to handle any roofing project.
+                </p>
+              </div>
+
+              {/* Card 2 */}
+              <div className="bg-white rounded-lg p-6 shadow-lg">
+                <h3 className="text-xl font-semibold text-neutral-800">Quality</h3>
+                <p className="mt-4 text-neutral-600">
+                  We use only the highest quality clay tiles and materials to ensure your roof lasts for years.
+                </p>
+              </div>
+
+              {/* Card 3 */}
+              <div className="bg-white rounded-lg p-6 shadow-lg">
+                <h3 className="text-xl font-semibold text-neutral-800">Service</h3>
+                <p className="mt-4 text-neutral-600">
+                  Our friendly and professional team is always ready to assist you with any questions or concerns.
+                </p>
+              </div>
+
+              {/* Card 4 */}
+              <div className="bg-white rounded-lg p-6 shadow-lg">
+                <h3 className="text-xl font-semibold text-neutral-800">Affordability</h3>
+                <p className="mt-4 text-neutral-600">
+                  We offer competitive pricing without compromising on quality or service.
+                </p>
+              </div>
+            </div>
+          </div>
+        </section>
+
         <footer className="border-t border-neutral-200 bg-neutral-50">
           <div className="container mx-auto px-4 py-6 space-y-4">
             <div className="flex items-center justify-center gap-3 text-sm text-neutral-600">
