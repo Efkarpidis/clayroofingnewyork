@@ -119,7 +119,7 @@ export default function ContactPage() {
                 alt="Clay Roofs NY"
                 width={540}
                 height={180}
-                className="h-12 w-auto sm:h-14 md:h-16"
+                className="h-20 w-auto sm:h-24 md:h-32"
               />
             </Link>
 
