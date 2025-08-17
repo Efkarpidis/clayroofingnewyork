@@ -1,17 +1,107 @@
 "use client"
 
 import type React from "react"
-import { useActionState } from "react"
+
+import { useActionState, useEffect, useId, useState } from "react"
 import Link from "next/link"
 import Image from "next/image"
-import { Button } from "@/components/ui/button"
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
-import { StickyCallBar } from "@/components/sticky-call-bar"
-import { MapPin, Phone, Mail, Clock, Check, Loader2, Menu } from "lucide-react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
+import {
+  MapPin,
+  Phone,
+  Mail,
+  Clock,
+  Check,
+  Loader2,
+  Menu,
+  X,
+  Home,
+  Building2,
+  MessageSquare,
+  FileText,
+  FileCheck,
+} from "lucide-react"
+import { Button } from "@/components/ui/button"
 import { type ContactFormData, contactFormSchema } from "../schemas"
-import { handleContactFormSubmit } from "../actions"
+import { handleContactFormSubmit, type ContactFormState } from "../actions"
+
+// Mobile Menu Component
+const MobileMenu = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) => {
+  if (!isOpen) return null
+
+  return (
+    <div className="fixed inset-0 z-50 lg:hidden">
+      {/* Backdrop */}
+      <div className="fixed inset-0 bg-black/50" onClick={onClose} />
+
+      {/* Menu Panel */}
+      <div className="fixed right-0 top-0 h-full w-80 bg-white shadow-xl">
+        <div className="flex items-center justify-between p-6 border-b border-neutral-200">
+          <h2 className="text-lg font-semibold text-neutral-800">Menu</h2>
+          <button onClick={onClose} className="p-2 rounded-lg hover:bg-neutral-100 transition-colors">
+            <X className="h-5 w-5 text-neutral-600" />
+          </button>
+        </div>
+
+        <nav className="p-6">
+          <div className="space-y-2">
+            <Link
+              href="/"
+              onClick={onClose}
+              className="flex items-center gap-3 px-4 py-3 text-base font-medium text-neutral-700 hover:bg-neutral-50 hover:text-orange-600 rounded-lg transition-colors"
+            >
+              <Home className="h-5 w-5" />
+              Home
+            </Link>
+
+            <div className="h-px bg-neutral-200 my-2" />
+
+            <Link
+              href="/gallery"
+              onClick={onClose}
+              className="flex items-center gap-3 px-4 py-3 text-base font-medium text-neutral-700 hover:bg-neutral-50 hover:text-orange-600 rounded-lg transition-colors"
+            >
+              <Building2 className="h-5 w-5" />
+              Projects
+            </Link>
+
+            <Link
+              href="/about"
+              onClick={onClose}
+              className="flex items-center gap-3 px-4 py-3 text-base font-medium text-neutral-700 hover:bg-neutral-50 hover:text-orange-600 rounded-lg transition-colors"
+            >
+              <FileText className="h-5 w-5" />
+              About
+            </Link>
+
+            <Link
+              href="/contact"
+              onClick={onClose}
+              className="flex items-center gap-3 px-4 py-3 text-base font-medium text-orange-600 bg-orange-50 rounded-lg"
+            >
+              <MessageSquare className="h-5 w-5" />
+              Contact
+            </Link>
+
+            <div className="h-px bg-neutral-200 my-4" />
+
+            <Button
+              asChild
+              className="w-full bg-orange-600 text-white hover:bg-orange-700 text-base font-semibold py-3 h-auto justify-start gap-3"
+              onClick={onClose}
+            >
+              <Link href="/#quote">
+                <FileCheck className="h-5 w-5" />
+                Request a Quote
+              </Link>
+            </Button>
+          </div>
+        </nav>
+      </div>
+    </div>
+  )
+}
 
 // Reusable form components from the main page
 const FieldWrapper = ({
@@ -50,17 +140,13 @@ const SubmitButton = ({ children, isPending }: { children: React.ReactNode; isPe
     className="flex w-full items-center justify-center gap-2 rounded-lg bg-neutral-900 px-6 py-3 text-base font-semibold text-white shadow-sm transition-colors hover:bg-neutral-800 disabled:bg-neutral-400"
   >
     {isPending ? <Loader2 className="h-5 w-5 animate-spin" /> : children}
+    {!isPending && children}
   </button>
 )
 
-type ContactFormState = {
-  message: string
-  success: boolean
-}
-
 function ContactForm() {
-  const id = "contact-form"
-  const [state, formAction, isPending] = useActionState<ContactFormState, ContactFormData>(handleContactFormSubmit, {
+  const id = useId()
+  const [state, formAction, isPending] = useActionState<ContactFormState, FormData>(handleContactFormSubmit, {
     message: "",
     success: false,
   })
@@ -71,6 +157,12 @@ function ContactForm() {
   } = useForm<ContactFormData>({
     resolver: zodResolver(contactFormSchema),
   })
+
+  useEffect(() => {
+    if (state.success) {
+      reset()
+    }
+  }, [state, reset])
 
   if (state.success) {
     return (
@@ -100,125 +192,93 @@ function ContactForm() {
       <FieldWrapper id={`${id}-message`} label="Message" error={errors.message?.message || state.errors?.message?.[0]}>
         <FormTextarea {...register("message")} rows={5} placeholder="How can we help you?" />
       </FieldWrapper>
-      <SubmitButton isPending={isPending}>Submit</SubmitButton>
+      <SubmitButton isPending={isPending}>Send Message</SubmitButton>
       {!state.success && state.message && <p className="text-center text-sm text-red-600">{state.message}</p>}
     </form>
   )
 }
 
 export default function ContactPage() {
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+
   return (
     <div className="bg-white text-neutral-800">
-      <header className="bg-white shadow-sm sticky top-0 z-30">
+      {/* Header */}
+      <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-sm shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-20 md:h-24">
-            {/* Logo */}
+          <div className="flex items-center justify-between h-24 lg:h-28">
+            {/* Logo - Doubled in size */}
             <Link href="/" className="flex items-center flex-shrink-0">
               <Image
                 src="/clay-roofs-ny-logo.png"
                 alt="Clay Roofs NY"
-                width={540}
-                height={180}
-                className="h-16 w-auto sm:h-20 md:h-24"
+                width={1080}
+                height={360}
+                className="h-20 w-auto sm:h-24 lg:h-28"
               />
             </Link>
 
-            {/* Mobile: Phone + Burger Menu */}
-            <div className="flex items-center gap-3 md:hidden">
+            {/* Desktop Navigation */}
+            <div className="hidden lg:flex items-center space-x-8">
+              {/* Phone Number - Always visible */}
+              <a
+                href="tel:2123654386"
+                className="flex items-center gap-2 px-4 py-2 text-base font-medium text-neutral-700 hover:text-orange-600 transition-colors rounded-lg hover:bg-neutral-50"
+              >
+                <Phone className="w-5 h-5" />
+                (212) 365-4386
+              </a>
+
+              <Link
+                href="/gallery"
+                className="px-4 py-2 text-base font-medium text-neutral-700 hover:text-orange-600 transition-colors rounded-lg hover:bg-neutral-50"
+              >
+                Projects
+              </Link>
+              <Link
+                href="/about"
+                className="px-4 py-2 text-base font-medium text-neutral-700 hover:text-orange-600 transition-colors rounded-lg hover:bg-neutral-50"
+              >
+                About
+              </Link>
+              <Link
+                href="/contact"
+                className="px-4 py-2 text-base font-medium text-orange-600 border-b-2 border-orange-600"
+              >
+                Contact
+              </Link>
+              <Button asChild className="bg-orange-600 text-white hover:bg-orange-700 text-base font-semibold px-6">
+                <Link href="/#quote">Request a Quote</Link>
+              </Button>
+            </div>
+
+            {/* Mobile: Phone + Menu */}
+            <div className="flex items-center gap-3 lg:hidden">
               <a
                 href="tel:2123654386"
                 className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-neutral-700 hover:text-orange-600 transition-colors"
               >
                 <Phone className="w-4 h-4" />
-                <span className="hidden sm:inline">212-365-4386</span>
+                <span className="hidden sm:inline">(212) 365-4386</span>
               </a>
-              <Sheet>
-                <SheetTrigger asChild>
-                  <Button variant="ghost" size="icon" className="text-neutral-700 hover:bg-neutral-100">
-                    <Menu className="h-5 w-5" />
-                    <span className="sr-only">Toggle menu</span>
-                  </Button>
-                </SheetTrigger>
-                <SheetContent side="right" className="w-[300px] sm:w-[400px]">
-                  <nav className="flex flex-col space-y-4 mt-8">
-                    <Link
-                      href="/"
-                      className="flex items-center justify-center py-3 px-4 text-lg font-medium text-neutral-700 hover:bg-neutral-100 rounded-lg transition-colors"
-                    >
-                      Home
-                    </Link>
-                    <Link
-                      href="/gallery"
-                      className="flex items-center justify-center py-3 px-4 text-lg font-medium text-neutral-700 hover:bg-neutral-100 rounded-lg transition-colors"
-                    >
-                      Projects
-                    </Link>
-                    <Link
-                      href="/about"
-                      className="flex items-center justify-center py-3 px-4 text-lg font-medium text-neutral-700 hover:bg-neutral-100 rounded-lg transition-colors"
-                    >
-                      About
-                    </Link>
-                    <Link
-                      href="/contact"
-                      className="flex items-center justify-center py-3 px-4 text-lg font-medium text-orange-600 bg-orange-50 rounded-lg"
-                    >
-                      Contact
-                    </Link>
-                    <Button
-                      asChild
-                      className="bg-orange-600 text-white hover:bg-orange-700 text-lg font-semibold py-3 px-6 h-auto"
-                    >
-                      <Link href="/#quote">Request a Quote</Link>
-                    </Button>
-                  </nav>
-                </SheetContent>
-              </Sheet>
+              <button
+                onClick={() => setMobileMenuOpen(true)}
+                className="p-2 rounded-lg text-neutral-700 hover:bg-neutral-100 transition-colors"
+              >
+                <Menu className="h-6 w-6" />
+                <span className="sr-only">Open menu</span>
+              </button>
             </div>
-
-            {/* Desktop: Centered Navigation */}
-            <div className="hidden md:flex items-center justify-center flex-1">
-              <nav className="flex items-center space-x-8">
-                <a
-                  href="tel:2123654386"
-                  className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-neutral-700 hover:text-orange-600 transition-colors"
-                >
-                  <Phone className="w-4 h-4" />
-                  212-365-4386
-                </a>
-                <Link
-                  href="/gallery"
-                  className="px-3 py-2 text-sm font-medium text-neutral-700 hover:text-orange-600 transition-colors"
-                >
-                  Projects
-                </Link>
-                <Link
-                  href="/about"
-                  className="px-3 py-2 text-sm font-medium text-neutral-700 hover:text-orange-600 transition-colors"
-                >
-                  About
-                </Link>
-                <Link
-                  href="/contact"
-                  className="px-3 py-2 text-sm font-medium text-orange-600 border-b-2 border-orange-600"
-                >
-                  Contact
-                </Link>
-                <Button asChild className="bg-orange-600 text-white hover:bg-orange-700 text-sm font-semibold">
-                  <Link href="/#quote">Request a Quote</Link>
-                </Button>
-              </nav>
-            </div>
-
-            {/* Desktop: Spacer for centering */}
-            <div className="hidden md:block w-32"></div>
           </div>
         </div>
       </header>
 
+      {/* Mobile Menu */}
+      <MobileMenu isOpen={mobileMenuOpen} onClose={() => setMobileMenuOpen(false)} />
+
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-        <div className="text-center mb-12">
-          <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight sm:text-4xl">Contact Us</h1>
+        <div className="text-center">
+          <h1 className="text-3xl font-extrabold tracking-tight sm:text-4xl">Contact Us</h1>
           <p className="mt-2 max-w-2xl mx-auto text-lg text-neutral-600">
             Have a question or need a quote? We're here to help.
           </p>
@@ -252,13 +312,22 @@ export default function ContactPage() {
               <div className="mt-4 space-y-2 text-lg text-neutral-700">
                 <p className="flex items-center gap-3">
                   <Clock className="h-6 w-6 text-neutral-500" />
-                  <span>Monday - Friday: 8:00 AM - 5:00 PM</span>
+                  <span>Monday – Saturday: 8:00 AM – 5:00 PM</span>
                 </p>
                 <p className="flex items-center gap-3">
                   <Clock className="h-6 w-6 text-transparent" />
-                  <span>Saturday - Sunday: By Appointment</span>
+                  <span>Sunday: Closed</span>
                 </p>
               </div>
+            </div>
+            <div className="aspect-[4/3] w-full overflow-hidden rounded-lg">
+              <Image
+                src="/placeholder.svg?width=800&height=600"
+                alt="Map showing business location"
+                width={800}
+                height={600}
+                className="w-full h-full object-cover"
+              />
             </div>
           </div>
 
@@ -269,25 +338,31 @@ export default function ContactPage() {
       </main>
 
       <footer className="border-t border-neutral-200 bg-neutral-50">
-        <div className="max-w-7xl mx-auto px-4 py-6 space-y-4">
-          <div className="flex items-center justify-center gap-3 text-sm text-neutral-600">
-            <a
-              href="https://www.laescandella.com"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center gap-3 hover:opacity-80 transition-opacity"
-            >
-              <Image src="/la-escandella-logo.webp" alt="La Escandella" width={80} height={40} className="h-6 w-auto" />
-              <span>Proudly partnered with La Escandella.</span>
-            </a>
-          </div>
-          <div className="text-center text-neutral-500">
-            <p>&copy; {new Date().getFullYear()} Clay Roofs NY. All Rights Reserved.</p>
+        <div className="max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
+          <div className="flex flex-col items-center space-y-4">
+            <div className="flex items-center gap-3 text-sm text-neutral-600">
+              <a
+                href="https://www.laescandella.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-3 hover:opacity-80 transition-opacity"
+              >
+                <Image
+                  src="/la-escandella-logo.webp"
+                  alt="La Escandella"
+                  width={80}
+                  height={40}
+                  className="h-6 w-auto"
+                />
+                <span>Proudly partnered with La Escandella.</span>
+              </a>
+            </div>
+            <div className="text-center text-neutral-500">
+              <p>&copy; {new Date().getFullYear()} Clay Roofs NY. All Rights Reserved.</p>
+            </div>
           </div>
         </div>
       </footer>
-
-      <StickyCallBar />
     </div>
   )
 }
