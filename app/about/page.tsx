@@ -11,7 +11,7 @@ export default function AboutPage() {
       <div className="bg-white text-neutral-800">
         <header className="bg-white shadow-sm sticky top-0 z-30">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="flex items-center justify-between h-24 md:h-36">
+            <div className="flex items-center justify-between h-16 md:h-20">
               {/* Logo */}
               <Link href="/" className="flex items-center flex-shrink-0">
                 <Image
@@ -19,7 +19,7 @@ export default function AboutPage() {
                   alt="Clay Roofs NY"
                   width={540}
                   height={180}
-                  className="h-20 w-auto sm:h-24 md:h-32"
+                  className="h-12 w-auto sm:h-14 md:h-16"
                 />
               </Link>
 
