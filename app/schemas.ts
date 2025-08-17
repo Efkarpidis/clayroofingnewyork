@@ -43,17 +43,6 @@ export const step2Schema = z.object({
   message: z.string().optional(),
 })
 
-export const quoteFormSchema = z.object({
-  name: z.string().min(2, { message: "Please enter your full name." }),
-  email: z.string().email({ message: "Please enter a valid email address." }),
-  phone: z.string().min(10, { message: "Please enter a valid phone number." }),
-  projectType: z.string().min(1, { message: "Please select a project type." }),
-  address: z.string().min(5, { message: "Please enter a valid address." }),
-  description: z.string().min(10, { message: "Please provide a project description (at least 10 characters)." }),
-  plans: z.string().optional(),
-  photos: z.string().optional(),
-})
-
 export const contactFormSchema = z.object({
   name: z.string().min(2, { message: "Please enter your name." }),
   email: z.string().email({ message: "Please enter a valid email address." }),
@@ -63,5 +52,4 @@ export const contactFormSchema = z.object({
 
 export type Step1Data = z.infer<typeof step1Schema>
 export type Step2Data = z.infer<typeof step2Schema>
-export type QuoteFormData = z.infer<typeof quoteFormSchema>
 export type ContactFormData = z.infer<typeof contactFormSchema>
