@@ -1,6 +1,6 @@
 "use server"
 
-import { step1Schema, step2Schema, contactFormSchema } from "./schemas"
+import { step1Schema, step2Schema, contactFormSchema, quoteFormSchema } from "./schemas"
 import type { z } from "zod"
 
 // --- STATE TYPES FOR useActionState ---
@@ -21,6 +21,21 @@ export type Step2State = {
   errors?: {
     projectAddress?: string[]
     roofSize?: string[]
+    plans?: string[]
+    photos?: string[]
+  }
+  success: boolean
+}
+
+export type QuoteFormState = {
+  message: string
+  errors?: {
+    name?: string[]
+    email?: string[]
+    phone?: string[]
+    projectType?: string[]
+    address?: string[]
+    description?: string[]
     plans?: string[]
     photos?: string[]
   }
@@ -58,6 +73,12 @@ async function updateAirtableRecord(recordId: string, data: Omit<z.infer<typeof 
   if (data.photos && data.photos.length > 0) {
     data.photos.forEach((photo) => console.log(`Simulating upload for photo: ${photo.name}`))
   }
+}
+
+async function submitQuoteRequest(data: z.infer<typeof quoteFormSchema>) {
+  console.log("Quote Form: Submitting quote request:", data)
+  await new Promise((resolve) => setTimeout(resolve, 1000))
+  console.log("Quote Form: Quote request submitted successfully.")
 }
 
 async function submitContactMessage(data: z.infer<typeof contactFormSchema>) {
@@ -132,6 +153,41 @@ export async function handleStep2Submit(prevState: Step2State, formData: FormDat
     }
   } catch (error) {
     console.error("Error in Step 2:", error)
+    return {
+      message: "An unexpected error occurred. Please try again.",
+      success: false,
+    }
+  }
+}
+
+export async function handleQuoteFormSubmit(prevState: QuoteFormState, formData: FormData): Promise<QuoteFormState> {
+  const validatedFields = quoteFormSchema.safeParse({
+    name: formData.get("name"),
+    email: formData.get("email"),
+    phone: formData.get("phone"),
+    projectType: formData.get("projectType"),
+    address: formData.get("address"),
+    description: formData.get("description"),
+    plans: formData.get("plans"),
+    photos: formData.get("photos"),
+  })
+
+  if (!validatedFields.success) {
+    return {
+      message: "Please fix the errors below.",
+      errors: validatedFields.error.flatten().fieldErrors,
+      success: false,
+    }
+  }
+
+  try {
+    await submitQuoteRequest(validatedFields.data)
+    return {
+      message: "Quote request submitted successfully!",
+      success: true,
+    }
+  } catch (error) {
+    console.error("Error in Quote Form:", error)
     return {
       message: "An unexpected error occurred. Please try again.",
       success: false,
