@@ -1,6 +1,4 @@
 "use client"
-
-import { useState } from "react"
 import Link from "next/link"
 import Image from "next/image"
 import { Button } from "@/components/ui/button"
@@ -8,53 +6,7 @@ import { Phone, Menu } from "lucide-react"
 import { galleryImages } from "../gallery-data"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 
-// Mobile Menu Component
-const MobileMenu = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) => {
-  if (!isOpen) return null
-
-  return (
-    <Sheet open={isOpen} onOpenChange={onClose}>
-      <SheetContent side="right" className="w-[300px] sm:w-[400px]">
-        <nav className="flex flex-col space-y-4 mt-8">
-          <Link
-            href="/"
-            className="flex items-center justify-center py-4 px-6 text-lg font-medium text-neutral-700 hover:bg-neutral-100 rounded-lg transition-colors border-b border-neutral-200"
-          >
-            Home
-          </Link>
-          <Link
-            href="/gallery"
-            className="flex items-center justify-center py-4 px-6 text-lg font-medium text-orange-600 bg-orange-50 rounded-lg border-b border-neutral-200"
-          >
-            Projects
-          </Link>
-          <Link
-            href="/about"
-            className="flex items-center justify-center py-4 px-6 text-lg font-medium text-neutral-700 hover:bg-neutral-100 rounded-lg transition-colors border-b border-neutral-200"
-          >
-            About
-          </Link>
-          <Link
-            href="/contact"
-            className="flex items-center justify-center py-4 px-6 text-lg font-medium text-neutral-700 hover:bg-neutral-100 rounded-lg transition-colors border-b border-neutral-200"
-          >
-            Contact
-          </Link>
-          <Button
-            asChild
-            className="bg-orange-600 text-white hover:bg-orange-700 text-lg font-semibold py-4 px-6 h-auto mt-4"
-          >
-            <Link href="/#quote">Request a Quote</Link>
-          </Button>
-        </nav>
-      </SheetContent>
-    </Sheet>
-  )
-}
-
 export default function GalleryPage() {
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
-
   return (
     <div className="bg-white text-neutral-800">
       {/* Header */}
@@ -115,22 +67,52 @@ export default function GalleryPage() {
                 <Phone className="w-4 h-4" />
                 <span className="hidden sm:inline">(212) 365-4386</span>
               </a>
-              <SheetTrigger asChild>
-                <button
-                  onClick={() => setMobileMenuOpen(true)}
-                  className="p-2 rounded-lg text-neutral-700 hover:bg-neutral-100 transition-colors"
-                >
-                  <Menu className="h-6 w-6" />
-                  <span className="sr-only">Open menu</span>
-                </button>
-              </SheetTrigger>
+              <Sheet>
+                <SheetTrigger asChild>
+                  <button className="p-2 rounded-lg text-neutral-700 hover:bg-neutral-100 transition-colors">
+                    <Menu className="h-6 w-6" />
+                    <span className="sr-only">Open menu</span>
+                  </button>
+                </SheetTrigger>
+                <SheetContent side="right" className="w-[300px] sm:w-[400px]">
+                  <nav className="flex flex-col space-y-4 mt-8">
+                    <Link
+                      href="/"
+                      className="flex items-center justify-center py-4 px-6 text-lg font-medium text-neutral-700 hover:bg-neutral-100 rounded-lg transition-colors border-b border-neutral-200"
+                    >
+                      Home
+                    </Link>
+                    <Link
+                      href="/gallery"
+                      className="flex items-center justify-center py-4 px-6 text-lg font-medium text-orange-600 bg-orange-50 rounded-lg border-b border-neutral-200"
+                    >
+                      Projects
+                    </Link>
+                    <Link
+                      href="/about"
+                      className="flex items-center justify-center py-4 px-6 text-lg font-medium text-neutral-700 hover:bg-neutral-100 rounded-lg transition-colors border-b border-neutral-200"
+                    >
+                      About
+                    </Link>
+                    <Link
+                      href="/contact"
+                      className="flex items-center justify-center py-4 px-6 text-lg font-medium text-neutral-700 hover:bg-neutral-100 rounded-lg transition-colors border-b border-neutral-200"
+                    >
+                      Contact
+                    </Link>
+                    <Button
+                      asChild
+                      className="bg-orange-600 text-white hover:bg-orange-700 text-lg font-semibold py-4 px-6 h-auto mt-4"
+                    >
+                      <Link href="/#quote">Request a Quote</Link>
+                    </Button>
+                  </nav>
+                </SheetContent>
+              </Sheet>
             </div>
           </div>
         </div>
       </header>
-
-      {/* Mobile Menu */}
-      <MobileMenu isOpen={mobileMenuOpen} onClose={() => setMobileMenuOpen(false)} />
 
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
