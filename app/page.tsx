@@ -13,50 +13,6 @@ import { type QuoteFormData, quoteFormSchema } from "./schemas"
 import { handleQuoteFormSubmit, type QuoteFormState } from "./actions"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 
-// Mobile Menu Component
-const MobileMenu = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) => {
-  if (!isOpen) return null
-
-  return (
-    <Sheet open={isOpen} onOpenChange={onClose}>
-      <SheetContent side="right" className="w-[300px] sm:w-[400px]">
-        <nav className="flex flex-col space-y-4 mt-8">
-          <Link
-            href="/"
-            className="flex items-center justify-center py-4 px-6 text-lg font-medium text-neutral-700 hover:bg-neutral-100 rounded-lg transition-colors border-b border-neutral-200"
-          >
-            Home
-          </Link>
-          <Link
-            href="/gallery"
-            className="flex items-center justify-center py-4 px-6 text-lg font-medium text-neutral-700 hover:bg-neutral-100 rounded-lg transition-colors border-b border-neutral-200"
-          >
-            Projects
-          </Link>
-          <Link
-            href="/about"
-            className="flex items-center justify-center py-4 px-6 text-lg font-medium text-neutral-700 hover:bg-neutral-100 rounded-lg transition-colors border-b border-neutral-200"
-          >
-            About
-          </Link>
-          <Link
-            href="/contact"
-            className="flex items-center justify-center py-4 px-6 text-lg font-medium text-neutral-700 hover:bg-neutral-100 rounded-lg transition-colors border-b border-neutral-200"
-          >
-            Contact
-          </Link>
-          <Button
-            asChild
-            className="bg-orange-600 text-white hover:bg-orange-700 text-lg font-semibold py-4 px-6 h-auto mt-4"
-          >
-            <Link href="#quote">Request a Quote</Link>
-          </Button>
-        </nav>
-      </SheetContent>
-    </Sheet>
-  )
-}
-
 // File Upload Component
 const FileUploadField = ({
   label,
@@ -289,8 +245,6 @@ function QuoteForm() {
 }
 
 export default function HomePage() {
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
-
   return (
     <div className="bg-white text-neutral-800">
       {/* Header */}
@@ -352,22 +306,55 @@ export default function HomePage() {
                 <Phone className="w-4 h-4" />
                 <span className="hidden sm:inline">(212) 365-4386</span>
               </a>
-              <SheetTrigger asChild>
-                <button
-                  onClick={() => setMobileMenuOpen(true)}
-                  className="p-2 rounded-lg text-neutral-700 hover:bg-neutral-100 transition-colors"
-                >
-                  <Menu className="h-6 w-6" />
-                  <span className="sr-only">Open menu</span>
-                </button>
-              </SheetTrigger>
+              <Sheet>
+                <SheetTrigger asChild>
+                  <Button variant="ghost" size="icon" className="text-neutral-700 hover:bg-neutral-100">
+                    <Menu className="h-5 w-5" />
+                    <span className="sr-only">Toggle menu</span>
+                  </Button>
+                </SheetTrigger>
+                <SheetContent side="right" className="w-[300px] sm:w-[400px]">
+                  <nav className="flex flex-col space-y-4 mt-8">
+                    <Link
+                      href="/"
+                      className="flex items-center justify-center py-4 px-6 text-lg font-medium text-neutral-700 hover:bg-neutral-100 rounded-lg transition-colors border-b border-neutral-200"
+                    >
+                      Home
+                    </Link>
+                    <Link
+                      href="/gallery"
+                      className="flex items-center justify-center py-4 px-6 text-lg font-medium text-neutral-700 hover:bg-neutral-100 rounded-lg transition-colors border-b border-neutral-200"
+                    >
+                      Projects
+                    </Link>
+                    <Link
+                      href="/about"
+                      className="flex items-center justify-center py-4 px-6 text-lg font-medium text-neutral-700 hover:bg-neutral-100 rounded-lg transition-colors border-b border-neutral-200"
+                    >
+                      About
+                    </Link>
+                    <Link
+                      href="/contact"
+                      className="flex items-center justify-center py-4 px-6 text-lg font-medium text-neutral-700 hover:bg-neutral-100 rounded-lg transition-colors border-b border-neutral-200"
+                    >
+                      Contact
+                    </Link>
+                    <Button
+                      asChild
+                      className="bg-orange-600 text-white hover:bg-orange-700 text-lg font-semibold py-4 px-6 h-auto mt-4"
+                    >
+                      <Link href="#quote">Request a Quote</Link>
+                    </Button>
+                  </nav>
+                </SheetContent>
+              </Sheet>
             </div>
+
+            {/* Desktop: Spacer for centering */}
+            <div className="hidden md:block w-32"></div>
           </div>
         </div>
       </header>
-
-      {/* Mobile Menu */}
-      <MobileMenu isOpen={mobileMenuOpen} onClose={() => setMobileMenuOpen(false)} />
 
       {/* Hero Section */}
       <section className="relative bg-gradient-to-br from-neutral-50 to-neutral-100 py-16 sm:py-20 lg:py-24">
