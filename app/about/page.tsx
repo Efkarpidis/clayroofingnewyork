@@ -1,6 +1,7 @@
 import Link from "next/link"
 import Image from "next/image"
 import { Button } from "@/components/ui/button"
+import { Menu } from "@/components/ui/menu"
 
 export default function AboutPage() {
   return (
@@ -8,11 +9,20 @@ export default function AboutPage() {
       <header className="sticky top-0 z-50 border-b border-neutral-200 bg-white/95 shadow-sm">
         <div className="container mx-auto flex items-center justify-between px-4 py-2">
           <Link href="/" className="flex items-center">
-            <Image src="/terraclay-logo.png" alt="Terra Clay" width={540} height={180} className="h-32 w-auto" />
+            <Image
+              src="/clay-roofs-ny-logo.png"
+              alt="Clay Roofs NY"
+              width={1080}
+              height={360}
+              className="h-48 w-auto"
+            />
           </Link>
-          <nav className="flex items-center gap-1 sm:gap-2 flex-wrap">
+          <nav className="hidden sm:flex items-center gap-1 sm:gap-2 flex-wrap justify-center">
             <Button asChild variant="ghost" className="text-sm font-medium text-neutral-700 hover:bg-neutral-100">
-              <a href="tel:2123654386">212-365-4386</a>
+              <a href="tel:2123654386">
+                <Image src="/phone-icon.png" alt="Phone" width={24} height={24} className="inline-block mr-2" />
+                212-365-4386
+              </a>
             </Button>
             <Button asChild variant="ghost" className="text-sm font-medium text-neutral-700 hover:bg-neutral-100">
               <Link href="/gallery">Gallery</Link>
@@ -27,14 +37,15 @@ export default function AboutPage() {
               <Link href="/#quote">Request a Quote</Link>
             </Button>
           </nav>
+          <Menu />
         </div>
       </header>
 
       <main className="container mx-auto px-4 py-16 sm:py-24">
         <div className="flex flex-col items-center text-center">
           <Image
-            src="/terraclay-logo.png"
-            alt="Terra Clay Logo"
+            src="/clay-roofs-ny-logo.png"
+            alt="Clay Roofs NY Logo"
             width={900}
             height={300}
             className="mb-6 h-64 w-auto sm:h-80"

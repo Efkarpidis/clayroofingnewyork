@@ -3,7 +3,7 @@
 import React from "react"
 import Image from "next/image"
 import Link from "next/link"
-import { ArrowRight, Check, Loader2 } from "lucide-react"
+import { ArrowRight, Check, Loader2, FileText, ImageIcon, Menu, Phone, Mail } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import {
   Dialog,
@@ -14,10 +14,11 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog"
 import { useState, useActionState, useEffect, useId } from "react"
-import { useForm, Controller } from "react-hook-form"
+import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { type Step1Data, step1Schema, type Step2Data, step2Schema } from "./schemas"
 import { handleStep1Submit, handleStep2Submit, type Step1State, type Step2State } from "./actions"
+import { Controller } from "react-hook-form"
 
 // --- Self-Contained Form UI Components ---
 
@@ -388,6 +389,7 @@ export default function Page() {
   const [open, setOpen] = useState(false)
   const [step, setStep] = useState(1)
   const [airtableRecordId, setAirtableRecordId] = useState<string | null>(null)
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
 
   const handleStep1Success = (recordId: string) => {
     setAirtableRecordId(recordId)
@@ -425,14 +427,14 @@ export default function Page() {
       <header className="fixed top-0 left-0 right-0 z-40 flex items-center justify-between px-4 py-2">
         <Link href="/" className="flex items-center">
           <Image
-            src="/terraclay-logo.png"
-            alt="Terra Clay"
+            src="/clay-roofs-ny-logo.png"
+            alt="Clay Roofs NY"
             width={540}
             height={180}
-            className="h-32 w-auto drop-shadow-lg"
+            className="h-16 w-auto sm:h-20 md:h-24 drop-shadow-lg"
           />
         </Link>
-        <nav className="flex items-center gap-1 sm:gap-2 flex-wrap">
+        <nav className="hidden items-center gap-1 sm:gap-2 flex-wrap sm:flex">
           <Button
             asChild
             variant="ghost"
@@ -445,7 +447,7 @@ export default function Page() {
             variant="ghost"
             className="text-sm font-medium text-white hover:bg-white/20 hover:text-white drop-shadow-md shadow-black/50"
           >
-            <Link href="/gallery">Gallery</Link>
+            <Link href="/gallery">Projects</Link>
           </Button>
           <Button
             asChild
@@ -462,9 +464,76 @@ export default function Page() {
             <Link href="/contact">Contact</Link>
           </Button>
           <Button asChild className="bg-orange-600 text-white hover:bg-orange-700 text-sm font-semibold px-4 py-2">
-            <Link href="/request-quote">Request a Quote</Link>
+            <Link href="/#quote">Request a Quote</Link>
           </Button>
         </nav>
+        <div className="sm:hidden">
+          <Button
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            className="bg-orange-600 text-white hover:bg-orange-700 text-sm font-semibold px-4 py-2"
+          >
+            <Menu className="mr-2 h-4 w-4" />
+            Menu
+          </Button>
+
+          {mobileMenuOpen && (
+            <div className="absolute top-full left-0 right-0 bg-black/95 backdrop-blur-sm border-t border-white/20 z-50">
+              <nav className="flex flex-col p-4 space-y-2">
+                <Button
+                  asChild
+                  variant="ghost"
+                  className="text-sm font-medium text-white hover:bg-white/20 hover:text-white justify-start"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  <a href="tel:2123654386">
+                    <Phone className="mr-2 h-4 w-4" />
+                    212-365-4386
+                  </a>
+                </Button>
+                <Button
+                  asChild
+                  variant="ghost"
+                  className="text-sm font-medium text-white hover:bg-white/20 hover:text-white justify-start"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  <Link href="/gallery">
+                    <ImageIcon className="mr-2 h-4 w-4" />
+                    Projects
+                  </Link>
+                </Button>
+                <Button
+                  asChild
+                  variant="ghost"
+                  className="text-sm font-medium text-white hover:bg-white/20 hover:text-white justify-start"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  <Link href="/about">
+                    <FileText className="mr-2 h-4 w-4" />
+                    About
+                  </Link>
+                </Button>
+                <Button
+                  asChild
+                  variant="ghost"
+                  className="text-sm font-medium text-white hover:bg-white/20 hover:text-white justify-start"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  <Link href="/contact">
+                    <Mail className="mr-2 h-4 w-4" />
+                    Contact
+                  </Link>
+                </Button>
+                <Button
+                  asChild
+                  className="bg-orange-600 text-white hover:bg-orange-700 text-sm font-semibold mt-2"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  <Link href="/#quote">Request a Quote</Link>
+                </Button>
+              </nav>
+            </div>
+          )}
+        </div>
       </header>
 
       <section className="relative z-30 flex h-full w-full items-center" id="quote">
@@ -507,7 +576,7 @@ export default function Page() {
                     <Check className="mx-auto h-12 w-12 text-green-600 bg-green-100 rounded-full p-2" />
                     <h2 className="mt-4 text-xl font-semibold text-neutral-800">Thank You!</h2>
                     <p className="mt-1 text-neutral-600">
-                      Your information has been submitted. We’ll be in touch soon.
+                      Your information has been submitted. We'll be in touch soon.
                     </p>
                     <Button variant="outline" className="mt-6 bg-transparent" onClick={() => setOpen(false)}>
                       Close
@@ -534,7 +603,7 @@ export default function Page() {
             </a>
           </div>
           <div className="text-center text-neutral-500">
-            <p>&copy; {new Date().getFullYear()} Terra Clay. All Rights Reserved.</p>
+            <p>&copy; {new Date().getFullYear()} Clay Roofs NY. All Rights Reserved.</p>
           </div>
         </div>
       </footer>
