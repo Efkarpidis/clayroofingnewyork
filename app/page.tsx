@@ -7,11 +7,12 @@ import Link from "next/link"
 import Image from "next/image"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { MapPin, Phone, Clock, Check, Loader2, Menu, Upload, Camera, FileText, Building2 } from "lucide-react"
+import { Phone, Menu, Upload, Camera, FileText, Check, Loader2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { type QuoteFormData, quoteFormSchema } from "./schemas"
 import { handleQuoteFormSubmit, type QuoteFormState } from "./actions"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 
 // File Upload Component
 const FileUploadField = ({
@@ -246,7 +247,7 @@ function QuoteForm() {
 
 export default function HomePage() {
   return (
-    <div className="bg-white text-neutral-800">
+    <div className="min-h-screen bg-white text-neutral-800">
       {/* Header */}
       <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-sm shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -291,9 +292,6 @@ export default function HomePage() {
                 >
                   Contact
                 </Link>
-                <Button asChild className="bg-orange-600 text-white hover:bg-orange-700 text-sm font-semibold">
-                  <Link href="#quote">Request a Quote</Link>
-                </Button>
               </nav>
             </div>
 
@@ -339,12 +337,6 @@ export default function HomePage() {
                     >
                       Contact
                     </Link>
-                    <Button
-                      asChild
-                      className="bg-orange-600 text-white hover:bg-orange-700 text-lg font-semibold py-4 px-6 h-auto mt-4"
-                    >
-                      <Link href="#quote">Request a Quote</Link>
-                    </Button>
                   </nav>
                 </SheetContent>
               </Sheet>
@@ -356,184 +348,50 @@ export default function HomePage() {
         </div>
       </header>
 
-      {/* Hero Section */}
-      <section className="relative bg-gradient-to-br from-neutral-50 to-neutral-100 py-16 sm:py-20 lg:py-24">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 gap-12 lg:grid-cols-2 lg:gap-16 items-center">
-            <div className="text-center lg:text-left">
-              <h1 className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-extrabold tracking-tight text-neutral-900 leading-tight">
-                Premium Clay Roof
-                <span className="block text-orange-600">Installation & Repair</span>
-              </h1>
-              <p className="mt-6 text-lg sm:text-xl text-neutral-600 leading-relaxed max-w-2xl mx-auto lg:mx-0">
-                Transform your home with authentic clay tile roofing. Expert craftsmanship, premium materials, and
-                unmatched durability for New York homes.
-              </p>
-              <div className="mt-8 flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
-                <Button
-                  asChild
-                  size="lg"
-                  className="bg-orange-600 text-white hover:bg-orange-700 text-lg font-semibold px-8 py-4 h-auto"
-                >
-                  <Link href="#quote">Get Free Quote</Link>
-                </Button>
-                <Button
-                  asChild
-                  variant="outline"
-                  size="lg"
-                  className="border-neutral-300 text-neutral-700 hover:bg-neutral-50 text-lg font-semibold px-8 py-4 h-auto bg-transparent"
-                >
-                  <Link href="/gallery">View Our Work</Link>
-                </Button>
-              </div>
-            </div>
-            <div className="relative">
-              <Image
-                src="/images/hero-clay-roof.jpg"
-                alt="Beautiful clay tile roof installation"
-                width={600}
-                height={400}
-                className="rounded-lg shadow-xl w-full h-auto"
-                priority
-              />
-            </div>
-          </div>
+      {/* Main Hero Section - Full Screen with Background Image */}
+      <main className="relative min-h-screen flex items-center justify-center">
+        {/* Background Image */}
+        <div className="absolute inset-0 z-0">
+          <Image
+            src="/images/hero-clay-roof.jpg"
+            alt="Beautiful clay tile roof installation"
+            fill
+            className="object-cover"
+            priority
+          />
+          <div className="absolute inset-0 bg-black/40"></div>
         </div>
-      </section>
 
-      {/* Features Section */}
-      <section className="py-16 sm:py-20 lg:py-24 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl sm:text-4xl font-extrabold text-neutral-900">Why Choose Clay Roofs NY?</h2>
-            <p className="mt-4 text-lg text-neutral-600 max-w-2xl mx-auto">
-              We specialize in premium clay tile roofing with decades of experience serving New York homeowners.
-            </p>
-          </div>
+        {/* Content Overlay */}
+        <div className="relative z-10 text-center px-4 sm:px-6 lg:px-8">
+          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-white mb-8 drop-shadow-lg">
+            Premium Clay Roof Installation
+          </h1>
+          <p className="text-xl sm:text-2xl text-white mb-12 drop-shadow-lg max-w-2xl mx-auto">
+            Expert craftsmanship for New York homes
+          </p>
 
-          <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3">
-            <div className="text-center p-6 rounded-lg border border-neutral-200 hover:shadow-lg transition-shadow">
-              <div className="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center mx-auto mb-4">
-                <Building2 className="h-6 w-6 text-orange-600" />
-              </div>
-              <h3 className="text-xl font-semibold text-neutral-900 mb-2">Expert Installation</h3>
-              <p className="text-neutral-600">
-                Professional installation by certified craftsmen with 20+ years of experience.
-              </p>
-            </div>
-
-            <div className="text-center p-6 rounded-lg border border-neutral-200 hover:shadow-lg transition-shadow">
-              <div className="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center mx-auto mb-4">
-                <Check className="h-6 w-6 text-orange-600" />
-              </div>
-              <h3 className="text-xl font-semibold text-neutral-900 mb-2">Premium Materials</h3>
-              <p className="text-neutral-600">
-                Only the finest clay tiles from trusted manufacturers for lasting beauty and durability.
-              </p>
-            </div>
-
-            <div className="text-center p-6 rounded-lg border border-neutral-200 hover:shadow-lg transition-shadow">
-              <div className="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center mx-auto mb-4">
-                <Phone className="h-6 w-6 text-orange-600" />
-              </div>
-              <h3 className="text-xl font-semibold text-neutral-900 mb-2">Local Service</h3>
-              <p className="text-neutral-600">
-                Proudly serving New York with personalized service and local expertise.
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Quote Form Section */}
-      <section id="quote" className="py-16 sm:py-20 lg:py-24 bg-neutral-50">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl sm:text-4xl font-extrabold text-neutral-900">Request Your Free Quote</h2>
-            <p className="mt-4 text-lg text-neutral-600">
-              Get a detailed estimate for your clay roof project. We'll respond within 24 hours.
-            </p>
-          </div>
-
-          <div className="bg-white rounded-lg shadow-lg p-6 sm:p-8 lg:p-10">
-            <QuoteForm />
-          </div>
-        </div>
-      </section>
-
-      {/* Contact Info Section */}
-      <section className="py-16 sm:py-20 lg:py-24 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl sm:text-4xl font-extrabold text-neutral-900">Get in Touch</h2>
-            <p className="mt-4 text-lg text-neutral-600">Ready to start your clay roof project? Contact us today.</p>
-          </div>
-
-          <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3">
-            <div className="text-center p-6">
-              <div className="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center mx-auto mb-4">
-                <MapPin className="h-6 w-6 text-orange-600" />
-              </div>
-              <h3 className="text-lg font-semibold text-neutral-900 mb-2">Address</h3>
-              <p className="text-neutral-600">
-                33-15 127th Pl
-                <br />
-                Corona, NY 11368
-              </p>
-            </div>
-
-            <div className="text-center p-6">
-              <div className="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center mx-auto mb-4">
-                <Phone className="h-6 w-6 text-orange-600" />
-              </div>
-              <h3 className="text-lg font-semibold text-neutral-900 mb-2">Phone</h3>
-              <a href="tel:2123654386" className="text-neutral-600 hover:text-orange-600 transition-colors">
-                (212) 365-4386
-              </a>
-            </div>
-
-            <div className="text-center p-6">
-              <div className="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center mx-auto mb-4">
-                <Clock className="h-6 w-6 text-orange-600" />
-              </div>
-              <h3 className="text-lg font-semibold text-neutral-900 mb-2">Business Hours</h3>
-              <p className="text-neutral-600">
-                Monday – Saturday: 8:00 AM – 5:00 PM
-                <br />
-                Sunday: Closed
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Footer */}
-      <footer className="border-t border-neutral-200 bg-neutral-50">
-        <div className="max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
-          <div className="flex flex-col items-center space-y-4">
-            <div className="flex items-center gap-3 text-sm text-neutral-600">
-              <a
-                href="https://www.laescandella.com"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center gap-3 hover:opacity-80 transition-opacity"
+          {/* Request Quote Dialog */}
+          <Dialog>
+            <DialogTrigger asChild>
+              <Button
+                size="lg"
+                className="bg-orange-600 text-white hover:bg-orange-700 text-xl font-bold px-12 py-6 h-auto shadow-2xl"
               >
-                <Image
-                  src="/la-escandella-logo.webp"
-                  alt="La Escandella"
-                  width={80}
-                  height={40}
-                  className="h-6 w-auto"
-                />
-                <span>Proudly partnered with La Escandella.</span>
-              </a>
-            </div>
-            <div className="text-center text-neutral-500">
-              <p>&copy; {new Date().getFullYear()} Clay Roofs NY. All Rights Reserved.</p>
-            </div>
-          </div>
+                Request a Quote
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+              <DialogHeader>
+                <DialogTitle className="text-2xl font-bold text-center">Request Your Free Quote</DialogTitle>
+              </DialogHeader>
+              <div className="mt-6">
+                <QuoteForm />
+              </div>
+            </DialogContent>
+          </Dialog>
         </div>
-      </footer>
+      </main>
     </div>
   )
 }
