@@ -1,7 +1,6 @@
 "use client"
 
 import { useState } from "react"
-
 import Image from "next/image"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
@@ -23,75 +22,107 @@ export default function GalleryPage() {
         {/* Header */}
         <header className="bg-white shadow-sm sticky top-0 z-30">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="flex justify-between items-center h-16">
-              <div className="flex items-center">
+            <div className="flex items-center justify-between h-16 md:h-20">
+              {/* Logo */}
+              <Link href="/" className="flex items-center flex-shrink-0">
                 <Image
                   src="/clay-roofs-ny-logo.png"
                   alt="Clay Roofs NY"
                   width={540}
                   height={180}
-                  className="h-32 w-auto"
+                  className="h-12 w-auto sm:h-14 md:h-16"
                 />
-              </div>
+              </Link>
 
-              {/* Desktop Navigation */}
-              <nav className="hidden md:flex space-x-8">
-                <Link href="/" className="text-gray-700 hover:text-orange-600">
-                  Home
-                </Link>
-                <Link href="/gallery" className="text-gray-900 hover:text-orange-600 font-medium">
-                  Projects
-                </Link>
-                <Link href="/about" className="text-gray-700 hover:text-orange-600">
-                  About
-                </Link>
-                <Link href="/contact" className="text-gray-700 hover:text-orange-600">
-                  Contact
-                </Link>
-              </nav>
-
-              <div className="hidden md:flex items-center space-x-4">
-                <a href="tel:+12123654386" className="text-orange-600 hover:text-orange-700">
-                  <Phone className="w-5 h-5" />
+              {/* Mobile: Phone + Burger Menu */}
+              <div className="flex items-center gap-3 md:hidden">
+                <a
+                  href="tel:2123654386"
+                  className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-neutral-700 hover:text-orange-600 transition-colors"
+                >
+                  <Phone className="w-4 h-4" />
+                  <span className="hidden sm:inline">212-365-4386</span>
                 </a>
-                <Button className="bg-orange-600 hover:bg-orange-700 text-white">
-                  <Link href="/">Get Quote</Link>
-                </Button>
+                <Sheet>
+                  <SheetTrigger asChild>
+                    <Button variant="ghost" size="icon" className="text-neutral-700 hover:bg-neutral-100">
+                      <Menu className="h-5 w-5" />
+                      <span className="sr-only">Toggle menu</span>
+                    </Button>
+                  </SheetTrigger>
+                  <SheetContent side="right" className="w-[300px] sm:w-[400px]">
+                    <nav className="flex flex-col space-y-4 mt-8">
+                      <Link
+                        href="/"
+                        className="flex items-center justify-center py-3 px-4 text-lg font-medium text-neutral-700 hover:bg-neutral-100 rounded-lg transition-colors"
+                      >
+                        Home
+                      </Link>
+                      <Link
+                        href="/gallery"
+                        className="flex items-center justify-center py-3 px-4 text-lg font-medium text-orange-600 bg-orange-50 rounded-lg"
+                      >
+                        Projects
+                      </Link>
+                      <Link
+                        href="/about"
+                        className="flex items-center justify-center py-3 px-4 text-lg font-medium text-neutral-700 hover:bg-neutral-100 rounded-lg transition-colors"
+                      >
+                        About
+                      </Link>
+                      <Link
+                        href="/contact"
+                        className="flex items-center justify-center py-3 px-4 text-lg font-medium text-neutral-700 hover:bg-neutral-100 rounded-lg transition-colors"
+                      >
+                        Contact
+                      </Link>
+                      <Button
+                        asChild
+                        className="bg-orange-600 text-white hover:bg-orange-700 text-lg font-semibold py-3 px-6 h-auto"
+                      >
+                        <Link href="/#quote">Request a Quote</Link>
+                      </Button>
+                    </nav>
+                  </SheetContent>
+                </Sheet>
               </div>
 
-              {/* Mobile menu button */}
-              <Sheet>
-                <SheetTrigger asChild>
-                  <Button variant="ghost" size="icon" className="md:hidden">
-                    <Menu className="h-6 w-6" />
+              {/* Desktop: Centered Navigation */}
+              <div className="hidden md:flex items-center justify-center flex-1">
+                <nav className="flex items-center space-x-8">
+                  <a
+                    href="tel:2123654386"
+                    className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-neutral-700 hover:text-orange-600 transition-colors"
+                  >
+                    <Phone className="w-4 h-4" />
+                    212-365-4386
+                  </a>
+                  <Link
+                    href="/gallery"
+                    className="px-3 py-2 text-sm font-medium text-orange-600 border-b-2 border-orange-600"
+                  >
+                    Projects
+                  </Link>
+                  <Link
+                    href="/about"
+                    className="px-3 py-2 text-sm font-medium text-neutral-700 hover:text-orange-600 transition-colors"
+                  >
+                    About
+                  </Link>
+                  <Link
+                    href="/contact"
+                    className="px-3 py-2 text-sm font-medium text-neutral-700 hover:text-orange-600 transition-colors"
+                  >
+                    Contact
+                  </Link>
+                  <Button asChild className="bg-orange-600 text-white hover:bg-orange-700 text-sm font-semibold">
+                    <Link href="/#quote">Request a Quote</Link>
                   </Button>
-                </SheetTrigger>
-                <SheetContent>
-                  <nav className="flex flex-col space-y-4 mt-8">
-                    <Link href="/" className="text-gray-700 hover:text-orange-600">
-                      Home
-                    </Link>
-                    <Link href="/gallery" className="text-gray-900 hover:text-orange-600 font-medium">
-                      Projects
-                    </Link>
-                    <Link href="/about" className="text-gray-700 hover:text-orange-600">
-                      About
-                    </Link>
-                    <Link href="/contact" className="text-gray-700 hover:text-orange-600">
-                      Contact
-                    </Link>
-                    <div className="pt-4 border-t">
-                      <a
-                        href="tel:+12123654386"
-                        className="flex items-center space-x-2 text-orange-600 hover:text-orange-700"
-                      >
-                        <Phone className="w-5 h-5" />
-                        <span>(212) 365-4386</span>
-                      </a>
-                    </div>
-                  </nav>
-                </SheetContent>
-              </Sheet>
+                </nav>
+              </div>
+
+              {/* Desktop: Spacer for centering */}
+              <div className="hidden md:block w-32"></div>
             </div>
           </div>
         </header>
@@ -183,7 +214,7 @@ export default function GalleryPage() {
                 variant="outline"
                 className="border-white text-white hover:bg-white hover:text-orange-600 px-8 py-3 text-lg bg-transparent"
               >
-                <Link href="/">Get Free Quote</Link>
+                <Link href="/#quote">Get Free Quote</Link>
               </Button>
               <Button
                 size="lg"

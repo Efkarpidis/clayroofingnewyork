@@ -5,8 +5,9 @@ import { useActionState } from "react"
 import Link from "next/link"
 import Image from "next/image"
 import { Button } from "@/components/ui/button"
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 import { StickyCallBar } from "@/components/sticky-call-bar"
-import { MapPin, Phone, Mail, Clock, Check, Loader2 } from "lucide-react"
+import { MapPin, Phone, Mail, Clock, Check, Loader2, Menu } from "lucide-react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { type ContactFormData, contactFormSchema } from "../schemas"
@@ -108,28 +109,110 @@ function ContactForm() {
 export default function ContactPage() {
   return (
     <div className="bg-white text-neutral-800">
-      <header className="sticky top-0 z-50 border-b border-neutral-200 bg-white/95 shadow-sm">
-        <div className="max-w-7xl mx-auto flex items-center justify-between px-4 sm:px-6 lg:px-8">
-          <Link href="/" className="flex items-center">
-            <Image src="/clay-roofs-ny-logo.png" alt="Clay Roofs NY" width={540} height={180} className="h-32 w-auto" />
-          </Link>
-          <nav className="flex items-center gap-1 sm:gap-2 flex-wrap">
-            <Button asChild variant="ghost" className="text-sm font-medium text-neutral-700 hover:bg-neutral-100">
-              <a href="tel:2123654386">212-365-4386</a>
-            </Button>
-            <Button asChild variant="ghost" className="text-sm font-medium text-neutral-700 hover:bg-neutral-100">
-              <Link href="/gallery">Projects</Link>
-            </Button>
-            <Button asChild variant="ghost" className="text-sm font-medium text-neutral-700 hover:bg-neutral-100">
-              <Link href="/about">About</Link>
-            </Button>
-            <Button asChild variant="ghost" className="text-sm font-medium text-neutral-700 hover:bg-neutral-100">
-              <Link href="/contact">Contact</Link>
-            </Button>
-            <Button asChild className="bg-orange-600 text-white hover:bg-orange-700 text-sm font-semibold">
-              <Link href="/#quote">Request a Quote</Link>
-            </Button>
-          </nav>
+      <header className="bg-white shadow-sm sticky top-0 z-30">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between h-16 md:h-20">
+            {/* Logo */}
+            <Link href="/" className="flex items-center flex-shrink-0">
+              <Image
+                src="/clay-roofs-ny-logo.png"
+                alt="Clay Roofs NY"
+                width={540}
+                height={180}
+                className="h-12 w-auto sm:h-14 md:h-16"
+              />
+            </Link>
+
+            {/* Mobile: Phone + Burger Menu */}
+            <div className="flex items-center gap-3 md:hidden">
+              <a
+                href="tel:2123654386"
+                className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-neutral-700 hover:text-orange-600 transition-colors"
+              >
+                <Phone className="w-4 h-4" />
+                <span className="hidden sm:inline">212-365-4386</span>
+              </a>
+              <Sheet>
+                <SheetTrigger asChild>
+                  <Button variant="ghost" size="icon" className="text-neutral-700 hover:bg-neutral-100">
+                    <Menu className="h-5 w-5" />
+                    <span className="sr-only">Toggle menu</span>
+                  </Button>
+                </SheetTrigger>
+                <SheetContent side="right" className="w-[300px] sm:w-[400px]">
+                  <nav className="flex flex-col space-y-4 mt-8">
+                    <Link
+                      href="/"
+                      className="flex items-center justify-center py-3 px-4 text-lg font-medium text-neutral-700 hover:bg-neutral-100 rounded-lg transition-colors"
+                    >
+                      Home
+                    </Link>
+                    <Link
+                      href="/gallery"
+                      className="flex items-center justify-center py-3 px-4 text-lg font-medium text-neutral-700 hover:bg-neutral-100 rounded-lg transition-colors"
+                    >
+                      Projects
+                    </Link>
+                    <Link
+                      href="/about"
+                      className="flex items-center justify-center py-3 px-4 text-lg font-medium text-neutral-700 hover:bg-neutral-100 rounded-lg transition-colors"
+                    >
+                      About
+                    </Link>
+                    <Link
+                      href="/contact"
+                      className="flex items-center justify-center py-3 px-4 text-lg font-medium text-orange-600 bg-orange-50 rounded-lg"
+                    >
+                      Contact
+                    </Link>
+                    <Button
+                      asChild
+                      className="bg-orange-600 text-white hover:bg-orange-700 text-lg font-semibold py-3 px-6 h-auto"
+                    >
+                      <Link href="/#quote">Request a Quote</Link>
+                    </Button>
+                  </nav>
+                </SheetContent>
+              </Sheet>
+            </div>
+
+            {/* Desktop: Centered Navigation */}
+            <div className="hidden md:flex items-center justify-center flex-1">
+              <nav className="flex items-center space-x-8">
+                <a
+                  href="tel:2123654386"
+                  className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-neutral-700 hover:text-orange-600 transition-colors"
+                >
+                  <Phone className="w-4 h-4" />
+                  212-365-4386
+                </a>
+                <Link
+                  href="/gallery"
+                  className="px-3 py-2 text-sm font-medium text-neutral-700 hover:text-orange-600 transition-colors"
+                >
+                  Projects
+                </Link>
+                <Link
+                  href="/about"
+                  className="px-3 py-2 text-sm font-medium text-neutral-700 hover:text-orange-600 transition-colors"
+                >
+                  About
+                </Link>
+                <Link
+                  href="/contact"
+                  className="px-3 py-2 text-sm font-medium text-orange-600 border-b-2 border-orange-600"
+                >
+                  Contact
+                </Link>
+                <Button asChild className="bg-orange-600 text-white hover:bg-orange-700 text-sm font-semibold">
+                  <Link href="/#quote">Request a Quote</Link>
+                </Button>
+              </nav>
+            </div>
+
+            {/* Desktop: Spacer for centering */}
+            <div className="hidden md:block w-32"></div>
+          </div>
         </div>
       </header>
 
