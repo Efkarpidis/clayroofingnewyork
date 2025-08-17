@@ -20,9 +20,9 @@ export default function GalleryPage() {
     <>
       <div className="min-h-screen bg-white pb-20">
         {/* Header */}
-        <header className="bg-white shadow-sm sticky top-0 z-30">
+        <header className="bg-white shadow-sm sticky top-0 z-30 h-20 md:h-24">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="flex items-center justify-between h-16 md:h-20">
+            <div className="flex items-center justify-between h-full md:h-full">
               {/* Logo */}
               <Link href="/" className="flex items-center flex-shrink-0">
                 <Image
@@ -30,7 +30,7 @@ export default function GalleryPage() {
                   alt="Clay Roofs NY"
                   width={540}
                   height={180}
-                  className="h-12 w-auto sm:h-14 md:h-16"
+                  className="h-16 w-auto sm:h-20 md:h-24"
                 />
               </Link>
 
