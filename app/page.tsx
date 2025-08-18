@@ -557,7 +557,7 @@ export default function Page() {
 
         <header className="fixed top-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-sm shadow-sm">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="flex items-center justify-between h-32 md:h-36">
+            <div className="flex items-center justify-between h-20 sm:h-24 md:h-28">
               {/* Logo */}
               <Link href="/" className="flex items-center flex-shrink-0 -ml-2 sm:-ml-4">
                 <Image
@@ -565,7 +565,7 @@ export default function Page() {
                   alt="Clay Roofs New York - Specializing in Clay and Ceramic Roofing"
                   width={500}
                   height={150}
-                  className="h-40 w-auto sm:h-48 md:h-56 lg:h-64"
+                  className="h-16 w-auto sm:h-20 md:h-24 lg:h-28"
                 />
               </Link>
 
@@ -625,8 +625,8 @@ export default function Page() {
           </div>
         </header>
 
-        <section className="relative z-30 flex h-full w-full items-center" id="quote">
-          <div className="mx-auto flex w-full max-w-xl flex-col items-center px-4 text-center">
+        <section className="relative z-30 flex h-full w-full items-center justify-center" id="quote">
+          <div className="flex w-full max-w-xl flex-col items-center px-4 text-center">
             <h1 className="text-balance text-2xl font-extrabold leading-tight sm:text-3xl md:text-4xl lg:text-5xl drop-shadow-lg">
               Clay Tile Roofing Specialists – NYC
             </h1>
