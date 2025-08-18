@@ -19,7 +19,7 @@ export default function AboutPage() {
                   alt="Clay Roofs New York - Specializing in Clay and Ceramic Roofing"
                   width={500}
                   height={150}
-                  className="h-12 w-auto sm:h-16 md:h-20"
+                  className="h-24 w-auto sm:h-32 md:h-40"
                 />
               </Link>
 
@@ -94,7 +94,7 @@ export default function AboutPage() {
               alt="Clay Roofs New York Logo"
               width={800}
               height={240}
-              className="mb-6 h-32 w-auto sm:h-40 md:h-48"
+              className="mb-6 h-64 w-auto sm:h-80 md:h-96"
             />
             <h1 className="text-3xl font-extrabold tracking-tight sm:text-4xl">About Clay Roofs New York</h1>
             <p className="mt-4 max-w-2xl text-lg text-neutral-600 sm:text-xl">

@@ -119,7 +119,7 @@ export default function ContactPage() {
                 alt="Clay Roofs New York - Specializing in Clay and Ceramic Roofing"
                 width={500}
                 height={150}
-                className="h-12 w-auto sm:h-16 md:h-20"
+                className="h-24 w-auto sm:h-32 md:h-40"
               />
             </Link>
 
