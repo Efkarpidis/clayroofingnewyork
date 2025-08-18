@@ -15,11 +15,11 @@ export default function AboutPage() {
               {/* Logo */}
               <Link href="/" className="flex items-center flex-shrink-0 -ml-2 sm:-ml-4">
                 <Image
-                  src="/clay-roofs-ny-logo.png"
-                  alt="Clay Roofs NY"
-                  width={540}
-                  height={180}
-                  className="h-20 w-auto sm:h-24 md:h-32"
+                  src="/clay-roofs-new-york-logo.png"
+                  alt="Clay Roofs New York - Specializing in Clay and Ceramic Roofing"
+                  width={400}
+                  height={120}
+                  className="h-16 w-auto sm:h-20 md:h-24"
                 />
               </Link>
 
@@ -90,16 +90,16 @@ export default function AboutPage() {
         <main className="container mx-auto px-4 py-16 sm:py-24 pb-20">
           <div className="flex flex-col items-center text-center">
             <Image
-              src="/clay-roofs-ny-logo.png"
-              alt="Clay Roofs NY Logo"
-              width={900}
-              height={300}
-              className="mb-6 h-80 w-auto sm:h-96"
+              src="/clay-roofs-new-york-logo.png"
+              alt="Clay Roofs New York Logo"
+              width={600}
+              height={180}
+              className="mb-6 h-48 w-auto sm:h-64"
             />
-            <h1 className="text-3xl font-extrabold tracking-tight sm:text-4xl">About Clay Roofs NY</h1>
+            <h1 className="text-3xl font-extrabold tracking-tight sm:text-4xl">About Clay Roofs New York</h1>
             <p className="mt-4 max-w-2xl text-lg text-neutral-600 sm:text-xl">
-              Clay Roofs NY specializes in premium Spanish clay tile roofing for high-end homes in New York. For over 20
-              years, we've delivered quality, durability, and craftsmanship to every project.
+              Clay Roofs New York specializes in premium Spanish clay tile roofing for high-end homes in New York. For
+              over 20 years, we've delivered quality, durability, and craftsmanship to every project.
             </p>
           </div>
         </main>
@@ -124,7 +124,7 @@ export default function AboutPage() {
               </a>
             </div>
             <div className="text-center text-neutral-500">
-              <p>&copy; {new Date().getFullYear()} Clay Roofs NY. All Rights Reserved.</p>
+              <p>&copy; {new Date().getFullYear()} Clay Roofs New York. All Rights Reserved.</p>
             </div>
           </div>
         </footer>

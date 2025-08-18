@@ -26,11 +26,11 @@ export default function GalleryPage() {
               {/* Logo */}
               <Link href="/" className="flex items-center flex-shrink-0 -ml-2 sm:-ml-4">
                 <Image
-                  src="/clay-roofs-ny-logo.png"
-                  alt="Clay Roofs NY"
-                  width={540}
-                  height={180}
-                  className="h-20 w-auto sm:h-24 md:h-32"
+                  src="/clay-roofs-new-york-logo.png"
+                  alt="Clay Roofs New York - Specializing in Clay and Ceramic Roofing"
+                  width={400}
+                  height={120}
+                  className="h-16 w-auto sm:h-20 md:h-24"
                 />
               </Link>
 
@@ -219,7 +219,7 @@ export default function GalleryPage() {
               </a>
             </div>
             <div className="text-center text-neutral-500">
-              <p>&copy; {new Date().getFullYear()} Clay Roofs NY. All Rights Reserved.</p>
+              <p>&copy; {new Date().getFullYear()} Clay Roofs New York. All Rights Reserved.</p>
             </div>
           </div>
         </footer>
