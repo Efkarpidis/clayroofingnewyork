@@ -115,11 +115,11 @@ export default function ContactPage() {
             {/* Logo */}
             <Link href="/" className="flex items-center flex-shrink-0 -ml-2 sm:-ml-4">
               <Image
-                src="/clay-roofs-new-york-logo.png"
+                src="/clay-roofs-new-york-logo-final.png"
                 alt="Clay Roofs New York - Specializing in Clay and Ceramic Roofing"
-                width={400}
-                height={120}
-                className="h-16 w-auto sm:h-20 md:h-24"
+                width={500}
+                height={150}
+                className="h-12 w-auto sm:h-16 md:h-20"
               />
             </Link>
 

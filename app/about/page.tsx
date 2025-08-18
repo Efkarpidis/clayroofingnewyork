@@ -15,11 +15,11 @@ export default function AboutPage() {
               {/* Logo */}
               <Link href="/" className="flex items-center flex-shrink-0 -ml-2 sm:-ml-4">
                 <Image
-                  src="/clay-roofs-new-york-logo.png"
+                  src="/clay-roofs-new-york-logo-final.png"
                   alt="Clay Roofs New York - Specializing in Clay and Ceramic Roofing"
-                  width={400}
-                  height={120}
-                  className="h-16 w-auto sm:h-20 md:h-24"
+                  width={500}
+                  height={150}
+                  className="h-12 w-auto sm:h-16 md:h-20"
                 />
               </Link>
 
@@ -90,11 +90,11 @@ export default function AboutPage() {
         <main className="container mx-auto px-4 py-16 sm:py-24 pb-20">
           <div className="flex flex-col items-center text-center">
             <Image
-              src="/clay-roofs-new-york-logo.png"
+              src="/clay-roofs-new-york-logo-final.png"
               alt="Clay Roofs New York Logo"
-              width={600}
-              height={180}
-              className="mb-6 h-48 w-auto sm:h-64"
+              width={800}
+              height={240}
+              className="mb-6 h-32 w-auto sm:h-40 md:h-48"
             />
             <h1 className="text-3xl font-extrabold tracking-tight sm:text-4xl">About Clay Roofs New York</h1>
             <p className="mt-4 max-w-2xl text-lg text-neutral-600 sm:text-xl">
