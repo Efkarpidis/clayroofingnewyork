@@ -11,7 +11,7 @@ export default function AboutPage() {
       <div className="bg-white text-neutral-800">
         <header className="bg-white shadow-sm sticky top-0 z-30">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="flex items-center justify-between h-20 md:h-24">
+            <div className="flex items-center justify-between h-24 md:h-28">
               {/* Logo */}
               <Link href="/" className="flex items-center flex-shrink-0 -ml-2 sm:-ml-4">
                 <Image
@@ -19,7 +19,7 @@ export default function AboutPage() {
                   alt="Clay Roofs New York - Specializing in Clay and Ceramic Roofing"
                   width={500}
                   height={150}
-                  className="h-28 w-auto sm:h-36 md:h-44"
+                  className="h-32 w-auto sm:h-40 md:h-48"
                 />
               </Link>
 
@@ -94,7 +94,7 @@ export default function AboutPage() {
               alt="Clay Roofs New York Logo"
               width={800}
               height={240}
-              className="mb-6 h-72 w-auto sm:h-96 md:h-[28rem]"
+              className="mb-6 h-80 w-auto sm:h-[28rem] md:h-[32rem]"
             />
             <h1 className="text-3xl font-extrabold tracking-tight sm:text-4xl">About Clay Roofs New York</h1>
             <p className="mt-4 max-w-2xl text-lg text-neutral-600 sm:text-xl">
