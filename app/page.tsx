@@ -520,6 +520,7 @@ export default function Page() {
   const [open, setOpen] = useState(false)
   const [step, setStep] = useState(1)
   const [airtableRecordId, setAirtableRecordId] = useState<string | null>(null)
+  const [isScrolled, setIsScrolled] = useState(false)
 
   const handleStep1Success = (recordId: string) => {
     setAirtableRecordId(recordId)
@@ -540,6 +541,16 @@ export default function Page() {
     }
   }, [open])
 
+  // Handle scroll for sticky header
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 100)
+    }
+
+    window.addEventListener("scroll", handleScroll)
+    return () => window.removeEventListener("scroll", handleScroll)
+  }, [])
+
   return (
     <>
       <main className="relative h-dvh w-full overflow-hidden bg-black text-white" id="home">
@@ -555,107 +566,98 @@ export default function Page() {
           <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/30 to-black/10" />
         </div>
 
-        <header className="fixed top-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-sm shadow-sm">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="flex items-center justify-between h-24 sm:h-28 md:h-32 lg:h-36">
-              {/* Logo */}
-              <Link href="/" className="flex items-center flex-shrink-0 -ml-2 sm:-ml-4">
-                <Image
-                  src="/clay-roofs-new-york-logo-final.png"
-                  alt="Clay Roofs New York - Specializing in Clay and Ceramic Roofing"
-                  width={500}
-                  height={150}
-                  className="h-20 w-auto sm:h-24 md:h-28 lg:h-32 xl:h-36"
-                />
-              </Link>
+        {/* Initial Header - Centered Company Name */}
+        <header
+          className={`fixed top-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-sm shadow-sm transition-all duration-300 ${
+            isScrolled ? "h-16" : "h-24 sm:h-28 md:h-32"
+          }`}
+        >
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-full">
+            {!isScrolled ? (
+              // Initial state - centered company name
+              <div className="flex flex-col items-center justify-center h-full">
+                <h1 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold text-neutral-800 tracking-wide">
+                  CLAY ROOFS NEW YORK
+                </h1>
+                <div className="w-32 sm:w-40 md:w-48 h-0.5 bg-orange-600 mt-2"></div>
 
-              {/* Mobile Menu */}
-              <div className="md:hidden">
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" size="icon" className="text-neutral-700 hover:bg-neutral-100">
-                      <Menu className="h-6 w-6" />
-                      <span className="sr-only">Toggle menu</span>
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end" className="w-56">
-                    <DropdownMenuItem asChild>
-                      <a
-                        href="tel:2123654386"
-                        className="flex items-center gap-2 px-2 py-2 text-sm font-medium text-neutral-700 hover:text-orange-600 transition-colors cursor-pointer"
-                      >
-                        <Phone className="w-4 h-4" />
-                        212-365-4386
-                      </a>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem asChild>
-                      <Link
-                        href="/gallery"
-                        className="px-2 py-2 text-sm font-medium text-neutral-700 hover:text-orange-600 transition-colors cursor-pointer"
-                      >
-                        Projects
-                      </Link>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem asChild>
-                      <Link
-                        href="/about"
-                        className="px-2 py-2 text-sm font-medium text-neutral-700 hover:text-orange-600 transition-colors cursor-pointer"
-                      >
-                        About
-                      </Link>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem asChild>
-                      <Link
-                        href="/contact"
-                        className="px-2 py-2 text-sm font-medium text-neutral-700 hover:text-orange-600 transition-colors cursor-pointer"
-                      >
-                        Contact
-                      </Link>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem asChild>
-                      <Link
-                        href="#quote"
-                        className="px-2 py-2 text-sm font-medium bg-orange-600 text-white hover:bg-orange-700 transition-colors cursor-pointer rounded-md"
-                      >
-                        Request a Quote
-                      </Link>
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
+                {/* Navigation below company name */}
+                <nav className="flex items-center justify-center mt-4 space-x-4 sm:space-x-6 md:space-x-8">
+                  <a
+                    href="tel:2123654386"
+                    className="flex items-center gap-2 px-2 py-1 text-xs sm:text-sm font-medium text-neutral-700 hover:text-orange-600 transition-colors"
+                  >
+                    <Phone className="w-3 h-3 sm:w-4 sm:h-4" />
+                    <span className="hidden sm:inline">212-365-4386</span>
+                  </a>
+                  <Link
+                    href="/gallery"
+                    className="px-2 py-1 text-xs sm:text-sm font-medium text-neutral-700 hover:text-orange-600 transition-colors"
+                  >
+                    Projects
+                  </Link>
+                  <Link
+                    href="/about"
+                    className="px-2 py-1 text-xs sm:text-sm font-medium text-neutral-700 hover:text-orange-600 transition-colors"
+                  >
+                    About
+                  </Link>
+                  <Link
+                    href="/contact"
+                    className="px-2 py-1 text-xs sm:text-sm font-medium text-neutral-700 hover:text-orange-600 transition-colors"
+                  >
+                    Contact
+                  </Link>
+
+                  {/* Mobile Menu */}
+                  <div className="md:hidden">
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" size="icon" className="text-neutral-700 hover:bg-neutral-100 h-8 w-8">
+                          <Menu className="h-4 w-4" />
+                          <span className="sr-only">Toggle menu</span>
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end" className="w-56">
+                        <DropdownMenuItem asChild>
+                          <Link
+                            href="#quote"
+                            className="px-2 py-2 text-sm font-medium bg-orange-600 text-white hover:bg-orange-700 transition-colors cursor-pointer rounded-md"
+                          >
+                            Request a Quote
+                          </Link>
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </div>
+
+                  {/* Desktop Quote Button */}
+                  <Button
+                    asChild
+                    className="hidden md:inline-flex bg-orange-600 text-white hover:bg-orange-700 text-xs sm:text-sm font-semibold h-8 px-3"
+                  >
+                    <Link href="#quote">Request a Quote</Link>
+                  </Button>
+                </nav>
               </div>
+            ) : (
+              // Scrolled state - logo left, quote button right
+              <div className="flex items-center justify-between h-full">
+                <Link href="/" className="flex items-center">
+                  <Image
+                    src="/clay-roofs-new-york-logo-final.png"
+                    alt="Clay Roofs New York"
+                    width={200}
+                    height={60}
+                    className="h-10 w-auto"
+                  />
+                </Link>
 
-              {/* Desktop Navigation */}
-              <nav className="hidden md:flex items-center space-x-6 lg:space-x-8">
-                <a
-                  href="tel:2123654386"
-                  className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-neutral-700 hover:text-orange-600 transition-colors"
-                >
-                  <Phone className="w-4 h-4" />
-                  212-365-4386
-                </a>
-                <Link
-                  href="/gallery"
-                  className="px-3 py-2 text-sm font-medium text-neutral-700 hover:text-orange-600 transition-colors"
-                >
-                  Projects
-                </Link>
-                <Link
-                  href="/about"
-                  className="px-3 py-2 text-sm font-medium text-neutral-700 hover:text-orange-600 transition-colors"
-                >
-                  About
-                </Link>
-                <Link
-                  href="/contact"
-                  className="px-3 py-2 text-sm font-medium text-neutral-700 hover:text-orange-600 transition-colors"
-                >
-                  Contact
-                </Link>
                 <Button asChild className="bg-orange-600 text-white hover:bg-orange-700 text-sm font-semibold">
                   <Link href="#quote">Request a Quote</Link>
                 </Button>
-              </nav>
-            </div>
+              </div>
+            )}
           </div>
         </header>
 
