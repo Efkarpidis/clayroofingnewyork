@@ -557,7 +557,7 @@ export default function Page() {
 
         <header className="fixed top-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-sm shadow-sm">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="flex items-center justify-between h-20 sm:h-24 md:h-28 lg:h-32">
+            <div className="flex items-center justify-between h-24 sm:h-28 md:h-32 lg:h-36">
               {/* Logo */}
               <Link href="/" className="flex items-center flex-shrink-0 -ml-2 sm:-ml-4">
                 <Image
@@ -565,7 +565,7 @@ export default function Page() {
                   alt="Clay Roofs New York - Specializing in Clay and Ceramic Roofing"
                   width={500}
                   height={150}
-                  className="h-16 w-auto sm:h-20 md:h-24 lg:h-28 xl:h-32"
+                  className="h-20 w-auto sm:h-24 md:h-28 lg:h-32 xl:h-36"
                 />
               </Link>
 
