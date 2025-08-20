@@ -1,100 +1,21 @@
-import Link from "next/link"
 import Image from "next/image"
-import { Button } from "@/components/ui/button"
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
-import { Menu, Phone } from "lucide-react"
 import { StickyCallBar } from "@/components/sticky-call-bar"
+import { ScrollHeader } from "@/components/scroll-header"
 
 export default function AboutPage() {
   return (
     <>
       <div className="bg-white text-neutral-800">
-        <header className="bg-white shadow-sm sticky top-0 z-30">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="flex items-center justify-between h-32 md:h-36">
-              {/* Logo */}
-              <Link href="/" className="flex items-center flex-shrink-0 -ml-2 sm:-ml-4">
-                <Image
-                  src="/clay-roofs-new-york-logo-final.png"
-                  alt="Clay Roofs New York - Specializing in Clay and Ceramic Roofing"
-                  width={500}
-                  height={150}
-                  className="h-40 w-auto sm:h-48 md:h-56 lg:h-64"
-                />
-              </Link>
+        <ScrollHeader currentPage="about" />
 
-              {/* Burger Menu */}
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" size="icon" className="text-neutral-700 hover:bg-neutral-100">
-                    <Menu className="h-6 w-6" />
-                    <span className="sr-only">Toggle menu</span>
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-56">
-                  <DropdownMenuItem asChild>
-                    <a
-                      href="tel:2123654386"
-                      className="flex items-center gap-2 px-2 py-2 text-sm font-medium text-neutral-700 hover:text-orange-600 transition-colors cursor-pointer"
-                    >
-                      <Phone className="w-4 h-4" />
-                      212-365-4386
-                    </a>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem asChild>
-                    <Link
-                      href="/"
-                      className="px-2 py-2 text-sm font-medium text-neutral-700 hover:text-orange-600 transition-colors cursor-pointer"
-                    >
-                      Home
-                    </Link>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem asChild>
-                    <Link
-                      href="/gallery"
-                      className="px-2 py-2 text-sm font-medium text-neutral-700 hover:text-orange-600 transition-colors cursor-pointer"
-                    >
-                      Projects
-                    </Link>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem asChild>
-                    <Link
-                      href="/about"
-                      className="px-2 py-2 text-sm font-medium text-orange-600 bg-orange-50 hover:bg-orange-100 transition-colors cursor-pointer rounded-md"
-                    >
-                      About
-                    </Link>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem asChild>
-                    <Link
-                      href="/contact"
-                      className="px-2 py-2 text-sm font-medium text-neutral-700 hover:text-orange-600 transition-colors cursor-pointer"
-                    >
-                      Contact
-                    </Link>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem asChild>
-                    <Link
-                      href="/#quote"
-                      className="px-2 py-2 text-sm font-medium bg-orange-600 text-white hover:bg-orange-700 transition-colors cursor-pointer rounded-md"
-                    >
-                      Request a Quote
-                    </Link>
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </div>
-          </div>
-        </header>
-
-        <main className="container mx-auto px-4 py-16 sm:py-24 pb-20">
+        <main className="container mx-auto px-4 py-16 sm:py-24 pb-20 pt-32">
           <div className="flex flex-col items-center text-center">
             <Image
               src="/clay-roofs-new-york-logo-final.png"
               alt="Clay Roofs New York Logo"
               width={800}
               height={240}
-              className="mb-6 h-96 w-auto sm:h-[32rem] md:h-[40rem] lg:h-[48rem]"
+              className="mb-6 h-96 w-auto sm:h-[32rem] md:h-[40rem] lg:h-[48rem] object-contain"
             />
             <h1 className="text-3xl font-extrabold tracking-tight sm:text-4xl">About Clay Roofs New York</h1>
             <p className="mt-4 max-w-2xl text-lg text-neutral-600 sm:text-xl">

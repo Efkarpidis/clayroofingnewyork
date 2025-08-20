@@ -2,16 +2,14 @@
 
 import type React from "react"
 import { useActionState } from "react"
-import Link from "next/link"
-import Image from "next/image"
-import { Button } from "@/components/ui/button"
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { StickyCallBar } from "@/components/sticky-call-bar"
-import { MapPin, Phone, Mail, Clock, Check, Loader2, Menu } from "lucide-react"
+import { ScrollHeader } from "@/components/scroll-header"
+import { MapPin, Phone, Mail, Clock, Check, Loader2 } from "lucide-react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { type ContactFormData, contactFormSchema } from "../schemas"
 import { handleContactFormSubmit } from "../actions"
+import Image from "next/image"
 
 // Reusable form components from the main page
 const FieldWrapper = ({
@@ -109,85 +107,9 @@ function ContactForm() {
 export default function ContactPage() {
   return (
     <div className="bg-white text-neutral-800">
-      <header className="bg-white shadow-sm sticky top-0 z-30">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-32 md:h-36">
-            {/* Logo */}
-            <Link href="/" className="flex items-center flex-shrink-0 -ml-2 sm:-ml-4">
-              <Image
-                src="/clay-roofs-new-york-logo-final.png"
-                alt="Clay Roofs New York - Specializing in Clay and Ceramic Roofing"
-                width={500}
-                height={150}
-                className="h-40 w-auto sm:h-48 md:h-56 lg:h-64"
-              />
-            </Link>
+      <ScrollHeader currentPage="contact" />
 
-            {/* Burger Menu */}
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon" className="text-neutral-700 hover:bg-neutral-100">
-                  <Menu className="h-6 w-6" />
-                  <span className="sr-only">Toggle menu</span>
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-56">
-                <DropdownMenuItem asChild>
-                  <a
-                    href="tel:2123654386"
-                    className="flex items-center gap-2 px-2 py-2 text-sm font-medium text-neutral-700 hover:text-orange-600 transition-colors cursor-pointer"
-                  >
-                    <Phone className="w-4 h-4" />
-                    212-365-4386
-                  </a>
-                </DropdownMenuItem>
-                <DropdownMenuItem asChild>
-                  <Link
-                    href="/"
-                    className="px-2 py-2 text-sm font-medium text-neutral-700 hover:text-orange-600 transition-colors cursor-pointer"
-                  >
-                    Home
-                  </Link>
-                </DropdownMenuItem>
-                <DropdownMenuItem asChild>
-                  <Link
-                    href="/gallery"
-                    className="px-2 py-2 text-sm font-medium text-neutral-700 hover:text-orange-600 transition-colors cursor-pointer"
-                  >
-                    Projects
-                  </Link>
-                </DropdownMenuItem>
-                <DropdownMenuItem asChild>
-                  <Link
-                    href="/about"
-                    className="px-2 py-2 text-sm font-medium text-neutral-700 hover:text-orange-600 transition-colors cursor-pointer"
-                  >
-                    About
-                  </Link>
-                </DropdownMenuItem>
-                <DropdownMenuItem asChild>
-                  <Link
-                    href="/contact"
-                    className="px-2 py-2 text-sm font-medium text-orange-600 bg-orange-50 hover:bg-orange-100 transition-colors cursor-pointer rounded-md"
-                  >
-                    Contact
-                  </Link>
-                </DropdownMenuItem>
-                <DropdownMenuItem asChild>
-                  <Link
-                    href="/#quote"
-                    className="px-2 py-2 text-sm font-medium bg-orange-600 text-white hover:bg-orange-700 transition-colors cursor-pointer rounded-md"
-                  >
-                    Request a Quote
-                  </Link>
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </div>
-        </div>
-      </header>
-
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 pt-32">
         <div className="text-center mb-12">
           <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight sm:text-4xl">Contact Us</h1>
           <p className="mt-2 max-w-2xl mx-auto text-lg text-neutral-600">

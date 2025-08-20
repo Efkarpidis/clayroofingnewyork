@@ -5,9 +5,9 @@ import Image from "next/image"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent } from "@/components/ui/dialog"
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
-import { Menu, Phone, ArrowLeft } from "lucide-react"
+import { ArrowLeft } from "lucide-react"
 import { StickyCallBar } from "@/components/sticky-call-bar"
+import { ScrollHeader } from "@/components/scroll-header"
 import { galleryData, tileTypes, type Photo } from "../gallery-data"
 
 export default function GalleryPage() {
@@ -19,87 +19,10 @@ export default function GalleryPage() {
   return (
     <>
       <div className="min-h-screen bg-white pb-20">
-        {/* Header */}
-        <header className="bg-white shadow-sm sticky top-0 z-30 h-32 md:h-36">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="flex items-center justify-between h-32 md:h-36">
-              {/* Logo */}
-              <Link href="/" className="flex items-center flex-shrink-0 -ml-2 sm:-ml-4">
-                <Image
-                  src="/clay-roofs-new-york-logo-final.png"
-                  alt="Clay Roofs New York - Specializing in Clay and Ceramic Roofing"
-                  width={500}
-                  height={150}
-                  className="h-40 w-auto sm:h-48 md:h-56 lg:h-64"
-                />
-              </Link>
-
-              {/* Burger Menu */}
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" size="icon" className="text-neutral-700 hover:bg-neutral-100">
-                    <Menu className="h-6 w-6" />
-                    <span className="sr-only">Toggle menu</span>
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-56">
-                  <DropdownMenuItem asChild>
-                    <a
-                      href="tel:2123654386"
-                      className="flex items-center gap-2 px-2 py-2 text-sm font-medium text-neutral-700 hover:text-orange-600 transition-colors cursor-pointer"
-                    >
-                      <Phone className="w-4 h-4" />
-                      212-365-4386
-                    </a>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem asChild>
-                    <Link
-                      href="/"
-                      className="px-2 py-2 text-sm font-medium text-neutral-700 hover:text-orange-600 transition-colors cursor-pointer"
-                    >
-                      Home
-                    </Link>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem asChild>
-                    <Link
-                      href="/gallery"
-                      className="px-2 py-2 text-sm font-medium text-orange-600 bg-orange-50 hover:bg-orange-100 transition-colors cursor-pointer rounded-md"
-                    >
-                      Projects
-                    </Link>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem asChild>
-                    <Link
-                      href="/about"
-                      className="px-2 py-2 text-sm font-medium text-neutral-700 hover:text-orange-600 transition-colors cursor-pointer"
-                    >
-                      About
-                    </Link>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem asChild>
-                    <Link
-                      href="/contact"
-                      className="px-2 py-2 text-sm font-medium text-neutral-700 hover:text-orange-600 transition-colors cursor-pointer"
-                    >
-                      Contact
-                    </Link>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem asChild>
-                    <Link
-                      href="/#quote"
-                      className="px-2 py-2 text-sm font-medium bg-orange-600 text-white hover:bg-orange-700 transition-colors cursor-pointer rounded-md"
-                    >
-                      Request a Quote
-                    </Link>
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </div>
-          </div>
-        </header>
+        <ScrollHeader currentPage="gallery" />
 
         {/* Hero Section */}
-        <section className="bg-gray-900 text-white py-16">
+        <section className="bg-gray-900 text-white py-16 pt-32">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex items-center mb-6">
               <Link href="/" className="flex items-center text-orange-400 hover:text-orange-300 mr-4">
