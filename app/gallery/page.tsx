@@ -22,7 +22,7 @@ export default function GalleryPage() {
         <ScrollHeader currentPage="gallery" />
 
         {/* Hero Section */}
-        <section className="bg-gray-900 text-white py-16 pt-32">
+        <section className="bg-gray-900 text-white py-16 pt-20">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex items-center mb-6">
               <Link href="/" className="flex items-center text-orange-400 hover:text-orange-300 mr-4">

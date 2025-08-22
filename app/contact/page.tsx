@@ -109,7 +109,7 @@ export default function ContactPage() {
     <div className="bg-white text-neutral-800">
       <ScrollHeader currentPage="contact" />
 
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 pt-32">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 pt-20">
         <div className="text-center mb-12">
           <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight sm:text-4xl">Contact Us</h1>
           <p className="mt-2 max-w-2xl mx-auto text-lg text-neutral-600">
