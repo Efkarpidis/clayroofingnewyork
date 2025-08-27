@@ -12,20 +12,12 @@ export default function AboutPage() {
           <div className="flex flex-col items-center text-center">
             <div className="flex items-center gap-4 mb-8">
               <Image
-                src="/clay-tile-logo.png"
-                alt="Clay Roofs New York - Clay Tile Icon"
-                width={80}
-                height={80}
-                className="h-16 w-16 sm:h-20 sm:w-20 md:h-24 md:w-24 object-contain"
+                src="/clay-roofing-new-york-logo.png"
+                alt="Clay Roofing New York - Specializing in Clay & Ceramic Tile Roofing"
+                width={400}
+                height={85}
+                className="h-16 sm:h-20 md:h-24 w-auto object-contain"
               />
-              <div className="text-left">
-                <h1 className="text-2xl sm:text-3xl md:text-4xl font-extrabold tracking-tight text-neutral-900">
-                  CLAY ROOFS NEW YORK
-                </h1>
-                <p className="text-sm sm:text-base md:text-lg text-neutral-600 font-medium">
-                  Specializing in Clay & Ceramic Roofing
-                </p>
-              </div>
             </div>
             <p className="mt-4 max-w-2xl text-lg text-neutral-600 sm:text-xl">
               Clay Roofs New York specializes in premium Spanish clay tile roofing for high-end homes in New York. For

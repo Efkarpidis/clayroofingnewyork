@@ -8,7 +8,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { Menu, Phone } from "lucide-react"
 
 interface ScrollHeaderProps {
-  currentPage?: "home" | "about" | "contact" | "gallery"
+  currentPage?: "home" | "about" | "contact" | "gallery" | "tile-selection"
 }
 
 export function ScrollHeader({ currentPage = "home" }: ScrollHeaderProps) {
@@ -36,40 +36,32 @@ export function ScrollHeader({ currentPage = "home" }: ScrollHeaderProps) {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div
             className={`flex items-center justify-between transition-all duration-300 ease-in-out ${
-              scrolled ? "h-12 sm:h-14" : "h-16 sm:h-18 md:h-20"
+              scrolled ? "h-16 sm:h-18" : "h-18 sm:h-20 md:h-22"
             }`}
           >
-            {/* Logo */}
-            <Link href="/" className="flex items-center gap-3 flex-shrink-0">
+            {/* Logo - Fully Left Aligned */}
+            <Link href="/" className="flex items-center flex-shrink-0 -ml-2 sm:-ml-3 lg:-ml-4">
               <Image
-                src="/clay-tile-logo.png"
-                alt="Clay Roofs New York - Clay Tile Icon"
-                width={40}
-                height={40}
+                src="/clay-roofing-new-york-logo.png"
+                alt="Clay Roofing New York - Specializing in Clay & Ceramic Tile Roofing"
+                width={320}
+                height={68}
                 className={`object-contain transition-all duration-300 ease-in-out ${
-                  scrolled ? "h-6 w-6 sm:h-8 sm:w-8" : "h-8 w-8 sm:h-10 sm:w-10 md:h-12 md:w-12"
+                  scrolled ? "h-10 sm:h-11 md:h-12 min-h-[40px]" : "h-12 sm:h-13 md:h-14 lg:h-15 min-h-[48px]"
                 }`}
+                priority
               />
-              <div className="flex flex-col">
-                <span
-                  className={`font-bold text-neutral-900 transition-all duration-300 ease-in-out ${
-                    scrolled ? "text-sm sm:text-base" : "text-base sm:text-lg md:text-xl"
-                  }`}
-                >
-                  CLAY ROOFS NEW YORK
-                </span>
-                <span
-                  className={`text-neutral-600 font-medium transition-all duration-300 ease-in-out ${
-                    scrolled ? "text-xs hidden sm:block" : "text-xs sm:text-sm"
-                  }`}
-                >
-                  Specializing in Clay & Ceramic Roofing
-                </span>
-              </div>
             </Link>
 
             {/* Mobile Menu */}
-            <div className="md:hidden">
+            <div className="md:hidden flex items-center">
+              <Button
+                asChild
+                size="sm"
+                className="bg-gradient-to-r from-orange-600 to-orange-700 text-white hover:from-orange-700 hover:to-orange-800 text-xs font-semibold transition-all h-8 mr-3 shadow-md hover:shadow-lg"
+              >
+                <Link href={currentPage === "home" ? "#quote" : "/#quote"}>Request Quote</Link>
+              </Button>
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button
@@ -121,6 +113,18 @@ export function ScrollHeader({ currentPage = "home" }: ScrollHeaderProps) {
                   </DropdownMenuItem>
                   <DropdownMenuItem asChild>
                     <Link
+                      href="/tile-selection"
+                      className={`px-2 py-2 text-sm font-medium transition-colors cursor-pointer ${
+                        currentPage === "tile-selection"
+                          ? "text-orange-600 bg-gradient-to-r from-orange-50 to-orange-100 hover:from-orange-100 hover:to-orange-150 rounded-md"
+                          : "text-neutral-700 hover:text-orange-600 hover:bg-orange-50"
+                      }`}
+                    >
+                      Tile Selection
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link
                       href="/about"
                       className={`px-2 py-2 text-sm font-medium transition-colors cursor-pointer ${
                         currentPage === "about"
@@ -143,34 +147,27 @@ export function ScrollHeader({ currentPage = "home" }: ScrollHeaderProps) {
                       Contact
                     </Link>
                   </DropdownMenuItem>
-                  <DropdownMenuItem asChild>
-                    <Link
-                      href="/#quote"
-                      className="px-2 py-2 text-sm font-medium bg-gradient-to-r from-orange-600 to-orange-700 text-white hover:from-orange-700 hover:to-orange-800 transition-all cursor-pointer rounded-md shadow-sm"
-                    >
-                      Request a Quote
-                    </Link>
-                  </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
             </div>
 
             {/* Desktop Navigation */}
-            <nav className="hidden md:flex items-center space-x-4 lg:space-x-6">
+            <nav className="hidden md:flex items-center space-x-3 lg:space-x-4 xl:space-x-6">
               <a
                 href="tel:2123654386"
-                className={`flex items-center gap-2 px-2 py-1 text-sm font-medium rounded-md transition-colors ${
+                className={`flex items-center gap-2 px-3 py-2 text-sm font-medium rounded-md transition-colors whitespace-nowrap ${
                   scrolled
                     ? "text-neutral-800 hover:text-orange-600 hover:bg-orange-100"
                     : "text-neutral-700 hover:text-orange-600 hover:bg-orange-100/50"
                 }`}
               >
-                <Phone className="w-4 h-4" />
-                212-365-4386
+                <Phone className="w-4 h-4 flex-shrink-0" />
+                <span className="hidden lg:inline">212-365-4386</span>
+                <span className="lg:hidden">Call</span>
               </a>
               <Link
                 href="/gallery"
-                className={`px-2 py-1 text-sm font-medium rounded-md transition-colors ${
+                className={`px-3 py-2 text-sm font-medium rounded-md transition-colors whitespace-nowrap ${
                   currentPage === "gallery"
                     ? "text-orange-600 bg-orange-100"
                     : scrolled
@@ -181,8 +178,20 @@ export function ScrollHeader({ currentPage = "home" }: ScrollHeaderProps) {
                 Projects
               </Link>
               <Link
+                href="/tile-selection"
+                className={`px-3 py-2 text-sm font-medium rounded-md transition-colors whitespace-nowrap ${
+                  currentPage === "tile-selection"
+                    ? "text-orange-600 bg-orange-100"
+                    : scrolled
+                      ? "text-neutral-800 hover:text-orange-600 hover:bg-orange-100"
+                      : "text-neutral-700 hover:text-orange-600 hover:bg-orange-100/50"
+                }`}
+              >
+                Tile Selection
+              </Link>
+              <Link
                 href="/about"
-                className={`px-2 py-1 text-sm font-medium rounded-md transition-colors ${
+                className={`px-3 py-2 text-sm font-medium rounded-md transition-colors whitespace-nowrap ${
                   currentPage === "about"
                     ? "text-orange-600 bg-orange-100"
                     : scrolled
@@ -194,7 +203,7 @@ export function ScrollHeader({ currentPage = "home" }: ScrollHeaderProps) {
               </Link>
               <Link
                 href="/contact"
-                className={`px-2 py-1 text-sm font-medium rounded-md transition-colors ${
+                className={`px-3 py-2 text-sm font-medium rounded-md transition-colors whitespace-nowrap ${
                   currentPage === "contact"
                     ? "text-orange-600 bg-orange-100"
                     : scrolled
@@ -207,7 +216,7 @@ export function ScrollHeader({ currentPage = "home" }: ScrollHeaderProps) {
               <Button
                 asChild
                 size="sm"
-                className={`bg-gradient-to-r from-orange-600 to-orange-700 text-white hover:from-orange-700 hover:to-orange-800 text-xs font-semibold transition-all h-8 ${
+                className={`bg-gradient-to-r from-orange-600 to-orange-700 text-white hover:from-orange-700 hover:to-orange-800 text-xs font-semibold transition-all h-9 px-4 whitespace-nowrap ${
                   scrolled ? "shadow-lg hover:shadow-xl" : "shadow-md hover:shadow-lg"
                 }`}
               >

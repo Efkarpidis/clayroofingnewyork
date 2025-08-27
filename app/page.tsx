@@ -1,8 +1,22 @@
 "use client"
 
-import React from "react"
+import React, { useRef, useState, useEffect } from "react"
 import Image from "next/image"
-import { ArrowRight, Check, Loader2, Upload, X, Camera, FileText, ImageIcon } from "lucide-react"
+import {
+  ArrowRight,
+  Loader2,
+  Upload,
+  X,
+  Camera,
+  FileText,
+  ImageIcon,
+  Briefcase,
+  Home,
+  Grid3X3,
+  DollarSign,
+  ChevronLeft,
+  ChevronRight,
+} from "lucide-react"
 import { Button } from "@/components/ui/button"
 import {
   Dialog,
@@ -14,11 +28,12 @@ import {
 } from "@/components/ui/dialog"
 import { StickyCallBar } from "@/components/sticky-call-bar"
 import { ScrollHeader } from "@/components/scroll-header"
-import { useState, useActionState, useEffect, useId } from "react"
+import { useActionState } from "react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { type Step1Data, step1Schema, type Step2Data, step2Schema } from "./schemas"
 import { handleStep1Submit, handleStep2Submit, type Step1State, type Step2State } from "./actions"
+import { AnimatedCounter } from "@/components/animated-counter"
 
 // --- Self-Contained Form UI Components ---
 
@@ -292,7 +307,7 @@ const SubmitButton = ({ children, isPending }: { children: React.ReactNode; isPe
 // --- Step 1 Form Component ---
 
 function Step1Form({ onSuccess }: { onSuccess: (recordId: string) => void }) {
-  const id = useId()
+  const id = useRef<string>(Math.random().toString(36).substr(2, 9)).current
   const [state, formAction, isPending] = useActionState<Step1State, FormData>(handleStep1Submit, {
     message: "",
     success: false,
@@ -350,7 +365,7 @@ function Step1Form({ onSuccess }: { onSuccess: (recordId: string) => void }) {
 // --- Step 2 Form Component ---
 
 function Step2Form({ airtableRecordId, onSuccess }: { airtableRecordId: string; onSuccess: () => void }) {
-  const id = useId()
+  const id = useRef<string>(Math.random().toString(36).substr(2, 9)).current
   const [state, formAction, isPending] = useActionState<Step2State, FormData>(handleStep2Submit, {
     message: "",
     success: false,
@@ -513,12 +528,137 @@ function Step2Form({ airtableRecordId, onSuccess }: { airtableRecordId: string; 
   )
 }
 
+// --- Gallery Carousel Component ---
+
+function GalleryCarousel() {
+  const [currentSlide, setCurrentSlide] = useState(0)
+
+  const galleryImages = [
+    {
+      src: "/gallery/terracotta-s-tile.jpg",
+      alt: "Classic terracotta Spanish S-tiles installation",
+    },
+    {
+      src: "/gallery/slate-shake-main.jpg",
+      alt: "Custom home with weathered gray slate shake tile roof",
+    },
+    {
+      src: "/gallery/maroon-mission-construction-1.jpg",
+      alt: "Aerial view of deep maroon mission barrel tile roof",
+    },
+    {
+      src: "/gallery/flat-walnut-roof.jpg",
+      alt: "Large home with walnut brown flat profile tiles",
+    },
+    {
+      src: "/gallery/vintage-red-villa.jpg",
+      alt: "Luxury villa with vintage red mission barrel tile roof",
+    },
+  ]
+
+  const nextSlide = () => {
+    setCurrentSlide((prev) => (prev + 1) % galleryImages.length)
+  }
+
+  const prevSlide = () => {
+    setCurrentSlide((prev) => (prev - 1 + galleryImages.length) % galleryImages.length)
+  }
+
+  useEffect(() => {
+    const timer = setInterval(nextSlide, 6500) // Auto-advance every 6.5 seconds
+    return () => clearInterval(timer)
+  }, [])
+
+  return (
+    <div className="relative w-full h-96 md:h-[500px] overflow-hidden rounded-lg bg-neutral-100">
+      {galleryImages.map((image, index) => (
+        <div
+          key={index}
+          className={`absolute inset-0 transition-opacity duration-700 ease-in-out ${
+            index === currentSlide ? "opacity-100" : "opacity-0"
+          }`}
+        >
+          <Image
+            src={image.src || "/placeholder.svg"}
+            alt={image.alt}
+            fill
+            className="object-cover"
+            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 80vw, 70vw"
+          />
+        </div>
+      ))}
+
+      {/* Navigation arrows */}
+      <button
+        onClick={prevSlide}
+        className="absolute left-4 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white text-neutral-800 p-2 rounded-full shadow-lg transition-all"
+        aria-label="Previous image"
+      >
+        <ChevronLeft className="h-5 w-5" />
+      </button>
+      <button
+        onClick={nextSlide}
+        className="absolute right-4 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white text-neutral-800 p-2 rounded-full shadow-lg transition-all"
+        aria-label="Next image"
+      >
+        <ChevronRight className="h-5 w-5" />
+      </button>
+
+      {/* Dots indicator */}
+      <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2">
+        {galleryImages.map((_, index) => (
+          <button
+            key={index}
+            onClick={() => setCurrentSlide(index)}
+            className={`w-2 h-2 rounded-full transition-all ${index === currentSlide ? "bg-white" : "bg-white/50"}`}
+            aria-label={`Go to slide ${index + 1}`}
+          />
+        ))}
+      </div>
+    </div>
+  )
+}
+
 // --- Main Landing Page Component ---
+
+function useIntersectionObserver(options = {}) {
+  const [isVisible, setIsVisible] = useState(false)
+  const [hasBeenVisible, setHasBeenVisible] = useState(false)
+  const elementRef = useRef<HTMLElement>(null)
+
+  useEffect(() => {
+    const element = elementRef.current
+    if (!element) return
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting && !hasBeenVisible) {
+          setIsVisible(true)
+          setHasBeenVisible(true)
+        }
+      },
+      {
+        threshold: 0.3, // Trigger when 30% of the section is visible
+        rootMargin: "0px 0px -50px 0px", // Trigger slightly before fully visible
+        ...options,
+      },
+    )
+
+    observer.observe(element)
+
+    return () => {
+      observer.unobserve(element)
+    }
+  }, [hasBeenVisible])
+
+  return { elementRef, isVisible }
+}
 
 export default function Page() {
   const [open, setOpen] = useState(false)
   const [step, setStep] = useState(1)
   const [airtableRecordId, setAirtableRecordId] = useState<string | null>(null)
+  const { elementRef: statsRef, isVisible: statsVisible } = useIntersectionObserver()
 
   const handleStep1Success = (recordId: string) => {
     setAirtableRecordId(recordId)
@@ -541,36 +681,81 @@ export default function Page() {
 
   return (
     <>
-      <main className="relative h-dvh w-full overflow-hidden bg-black text-white" id="home">
-        <div className="absolute inset-0">
-          <Image
-            src="/images/hero-clay-roof.jpg"
-            alt="Terracotta clay tile roof under blue sky"
-            fill
-            priority
-            sizes="100vw"
-            className="object-cover"
-          />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/30 to-black/10" />
-        </div>
-
+      <main className="bg-white">
         <ScrollHeader currentPage="home" />
 
-        <section className="relative z-30 flex h-full w-full items-center" id="quote">
-          <div className="mx-auto flex w-full max-w-xl flex-col items-center px-4 text-center">
-            <h1 className="text-balance text-2xl font-extrabold leading-tight sm:text-3xl md:text-4xl lg:text-5xl drop-shadow-lg">
-              Clay Tile Roofing Specialists – NYC
-            </h1>
-            <p className="mt-3 text-pretty text-base font-medium text-white/90 sm:text-lg md:text-xl drop-shadow-md">
-              Operating out of Queens, New York — Servicing the Tri-State Area.
-            </p>
-            <p className="mt-2 text-pretty text-sm font-medium text-white/80 sm:text-base md:text-lg drop-shadow-md">
-              Serving New York City for over 20 years.
-            </p>
+        {/* Stats/Credibility Section */}
+        <section ref={statsRef} className="pt-32 sm:pt-36 md:pt-40 pb-20 sm:pb-24 bg-white">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8 text-center">
+              {/* Stat 1 - Years in Business */}
+              <div className="flex flex-col items-center">
+                <div className="w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center mb-4 transition-all duration-300 hover:bg-orange-200 hover:scale-110">
+                  <Briefcase className="h-8 w-8 text-orange-600 stroke-1 transition-colors duration-300 hover:text-orange-700" />
+                </div>
+                <h3 className="text-3xl lg:text-4xl font-bold text-neutral-900 mb-2">
+                  <AnimatedCounter end={30} suffix="+" startAnimation={statsVisible} duration={1200} />
+                </h3>
+                <p className="text-sm lg:text-base text-neutral-600 font-medium">Years in Business</p>
+              </div>
 
+              {/* Stat 2 - Projects Completed */}
+              <div className="flex flex-col items-center">
+                <div className="w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center mb-4 transition-all duration-300 hover:bg-orange-200 hover:scale-110">
+                  <Home className="h-8 w-8 text-orange-600 stroke-1 transition-colors duration-300 hover:text-orange-700" />
+                </div>
+                <h3 className="text-3xl lg:text-4xl font-bold text-neutral-900 mb-2">
+                  <AnimatedCounter end={3000} suffix="+" startAnimation={statsVisible} duration={1800} />
+                </h3>
+                <p className="text-sm lg:text-base text-neutral-600 font-medium">Projects Completed</p>
+              </div>
+
+              {/* Stat 4 - Tiles Installed */}
+              <div className="flex flex-col items-center">
+                <div className="w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center mb-4 transition-all duration-300 hover:bg-orange-200 hover:scale-110">
+                  <Grid3X3 className="h-8 w-8 text-orange-600 stroke-1 transition-colors duration-300 hover:text-orange-700" />
+                </div>
+                <h3 className="text-3xl lg:text-4xl font-bold text-neutral-900 mb-2">
+                  <AnimatedCounter end={10} suffix="M+" startAnimation={statsVisible} duration={2200} />
+                </h3>
+                <p className="text-sm lg:text-base text-neutral-600 font-medium">Tiles Installed</p>
+              </div>
+
+              {/* Stat 5 - Value Delivered */}
+              <div className="flex flex-col items-center">
+                <div className="w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center mb-4 transition-all duration-300 hover:bg-orange-200 hover:scale-110">
+                  <DollarSign className="h-8 w-8 text-orange-600 stroke-1 transition-colors duration-300 hover:text-orange-700" />
+                </div>
+                <h3 className="text-3xl lg:text-4xl font-bold text-neutral-900 mb-2">
+                  $<AnimatedCounter end={200} suffix="M+" startAnimation={statsVisible} duration={2500} />
+                </h3>
+                <p className="text-sm lg:text-base text-neutral-600 font-medium">in Clay Tile Roofing Delivered</p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Gallery Section */}
+        <section className="py-20 sm:py-24 bg-neutral-50 border-t border-neutral-200">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="text-center mb-12">
+              <h2 className="text-3xl font-bold text-neutral-900 sm:text-4xl">Our Recent Projects</h2>
+              <p className="mt-4 text-lg text-neutral-600">See the quality and craftsmanship that sets us apart</p>
+            </div>
+            <GalleryCarousel />
+          </div>
+        </section>
+
+        {/* Call to Action Section */}
+        <section className="py-20 sm:py-24 bg-white border-t border-neutral-100">
+          <div className="max-w-4xl mx-auto text-center px-4 sm:px-6 lg:px-8">
+            <h2 className="text-3xl font-bold text-neutral-900 sm:text-4xl mb-6">Ready to Get Started?</h2>
+            <p className="text-lg text-neutral-600 mb-8">
+              Contact us today for a free consultation and quote on your clay tile roofing project.
+            </p>
             <Dialog open={open} onOpenChange={setOpen}>
               <DialogTrigger asChild>
-                <Button className="mt-6 h-12 w-full max-w-[280px] sm:max-w-[300px] md:max-w-[260px] rounded-full bg-orange-600 text-white hover:bg-orange-700 hover:shadow-lg transition-all duration-200 text-base sm:text-lg md:text-base font-semibold">
+                <Button className="h-14 px-8 text-lg font-semibold bg-orange-600 hover:bg-orange-700 text-white rounded-full shadow-lg hover:shadow-xl transition-all duration-200">
                   Request a Quote
                 </Button>
               </DialogTrigger>
@@ -596,7 +781,9 @@ export default function Page() {
                   )}
                   {step === 3 && (
                     <div className="text-center py-8">
-                      <Check className="mx-auto h-12 w-12 text-green-600 bg-green-100 rounded-full p-2" />
+                      <div className="mx-auto h-12 w-12 text-green-600 bg-green-100 rounded-full p-2 flex items-center justify-center">
+                        ✓
+                      </div>
                       <h2 className="mt-4 text-xl font-semibold text-neutral-800">Thank You!</h2>
                       <p className="mt-1 text-neutral-600">
                         Your information has been submitted. We'll be in touch soon.
@@ -611,58 +798,47 @@ export default function Page() {
             </Dialog>
           </div>
         </section>
+      </main>
 
-        {/* Why Choose Us Section */}
-        <section className="py-8 md:py-16 bg-neutral-50 text-neutral-800">
-          <div className="container mx-auto px-4 space-y-6 md:space-y-8">
-            <h2 className="text-center text-2xl md:text-3xl lg:text-4xl font-extrabold leading-tight">
-              Why Choose Us?
-            </h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 md:gap-8">
-              {/* Card 1 */}
-              <div className="bg-white rounded-lg p-4 md:p-6 shadow-lg">
-                <h3 className="text-lg md:text-xl font-semibold text-neutral-800">Experience</h3>
-                <p className="mt-3 md:mt-4 text-sm md:text-base text-neutral-600">
-                  With over 20 years of experience, we have the knowledge and skills to handle any roofing project.
+      <StickyCallBar isHidden={open} />
+
+      {/* Footer */}
+      <footer className="border-t border-neutral-200 bg-neutral-50 py-16 sm:py-20">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            {/* Contact Info */}
+            <div>
+              <h3 className="text-lg font-semibold text-neutral-900 mb-4">Contact Information</h3>
+              <div className="space-y-2 text-neutral-600">
+                <p>33-15 127th Pl, Corona, NY 11368</p>
+                <p>
+                  Phone:{" "}
+                  <a href="tel:212-365-4386" className="hover:text-orange-600">
+                    (212) 365-4386
+                  </a>
                 </p>
-              </div>
-
-              {/* Card 2 */}
-              <div className="bg-white rounded-lg p-4 md:p-6 shadow-lg">
-                <h3 className="text-lg md:text-xl font-semibold text-neutral-800">Quality</h3>
-                <p className="mt-3 md:mt-4 text-sm md:text-base text-neutral-600">
-                  We use only the highest quality clay tiles and materials to ensure your roof lasts for years.
-                </p>
-              </div>
-
-              {/* Card 3 */}
-              <div className="bg-white rounded-lg p-4 md:p-6 shadow-lg">
-                <h3 className="text-lg md:text-xl font-semibold text-neutral-800">Service</h3>
-                <p className="mt-3 md:mt-4 text-sm md:text-base text-neutral-600">
-                  Our friendly and professional team is always ready to assist you with any questions or concerns.
-                </p>
-              </div>
-
-              {/* Card 4 */}
-              <div className="bg-white rounded-lg p-4 md:p-6 shadow-lg">
-                <h3 className="text-lg md:text-xl font-semibold text-neutral-800">Affordability</h3>
-                <p className="mt-3 md:mt-4 text-sm md:text-base text-neutral-600">
-                  We offer competitive pricing without compromising on quality or service.
+                <p>
+                  Email:{" "}
+                  <a href="mailto:hello@clayroofsny.com" className="hover:text-orange-600">
+                    hello@clayroofsny.com
+                  </a>
                 </p>
               </div>
             </div>
-          </div>
-        </section>
 
-        <footer className="border-t border-neutral-200 bg-neutral-50">
-          <div className="container mx-auto px-4 py-6 space-y-4">
-            <div className="flex items-center justify-center gap-3 text-sm text-neutral-600">
-              <a
-                href="https://www.laescandella.com"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center gap-3 hover:opacity-80 transition-opacity"
-              >
+            {/* Business Hours */}
+            <div>
+              <h3 className="text-lg font-semibold text-neutral-900 mb-4">Business Hours</h3>
+              <div className="space-y-2 text-neutral-600">
+                <p>Monday - Friday: 8:00 AM - 5:00 PM</p>
+                <p>Saturday - Sunday: By Appointment</p>
+              </div>
+            </div>
+          </div>
+
+          <div className="mt-8 pt-8 border-t border-neutral-200">
+            <div className="flex flex-col sm:flex-row justify-between items-center">
+              <div className="flex items-center gap-3 mb-4 sm:mb-0">
                 <Image
                   src="/la-escandella-logo.webp"
                   alt="La Escandella"
@@ -670,17 +846,20 @@ export default function Page() {
                   height={40}
                   className="h-6 w-auto"
                 />
-                <span>Proudly partnered with La Escandella.</span>
-              </a>
-            </div>
-            <div className="text-center text-neutral-500">
-              <p>&copy; {new Date().getFullYear()} Clay Roofs New York. All Rights Reserved.</p>
+                <span className="text-sm text-neutral-600">Proudly partnered with La Escandella</span>
+              </div>
+              <div className="text-center sm:text-right">
+                <p className="text-sm text-neutral-600 mb-1">
+                  Operating out of Queens, New York — Serving the Tri-State Area
+                </p>
+                <p className="text-sm text-neutral-500">
+                  &copy; {new Date().getFullYear()} Clay Roofing New York. All Rights Reserved.
+                </p>
+              </div>
             </div>
           </div>
-        </footer>
-      </main>
-
-      <StickyCallBar isHidden={open} />
+        </div>
+      </footer>
     </>
   )
 }
