@@ -676,11 +676,8 @@ export default function Page() {
       <main className="bg-white">
         <ScrollHeader currentPage="home" />
 
-        {/* Stats/Credibility Section - Updated spacing and z-index */}
-        <section
-          ref={statsRef}
-          className="pt-32 sm:pt-36 md:pt-40 mt-10 sm:mt-12 md:mt-16 pb-20 sm:pb-24 bg-white relative z-10"
-        >
+        {/* Stats/Credibility Section */}
+        <section ref={statsRef} className="py-20 sm:py-24 bg-white relative z-10">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-8 lg:gap-12 text-center">
               {/* Stat 1 - Years in Business */}
@@ -719,7 +716,7 @@ export default function Page() {
 
             {/* CTA Button in Credibility Section */}
             <div className="text-center mt-12">
-              <Link href="/contact#form" className="relative z-20">
+              <Link href="/contact#quote" className="tappable">
                 <Button className="h-12 px-8 text-lg font-semibold bg-orange-600 hover:bg-orange-700 text-white rounded-full shadow-lg hover:shadow-xl transition-all duration-200 cursor-pointer">
                   Request a Quote
                 </Button>
@@ -746,7 +743,7 @@ export default function Page() {
             <p className="text-lg text-neutral-600 mb-8">
               Contact us today for a free consultation and quote on your clay tile roofing project.
             </p>
-            <Link href="/contact#form" className="relative z-20">
+            <Link href="/contact#quote" className="tappable">
               <Button className="h-14 px-8 text-lg font-semibold bg-orange-600 hover:bg-orange-700 text-white rounded-full shadow-lg hover:shadow-xl transition-all duration-200 cursor-pointer">
                 Request a Quote
               </Button>
@@ -811,7 +808,7 @@ export default function Page() {
                   &copy; {new Date().getFullYear()} Clay Roofing New York. All Rights Reserved.
                 </p>
                 <div className="mt-2">
-                  <Link href="/contact#form" className="relative z-20">
+                  <Link href="/contact#quote" className="tappable">
                     <Button
                       variant="outline"
                       size="sm"

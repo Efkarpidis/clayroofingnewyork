@@ -37,6 +37,11 @@
   --sidebar-accent-foreground: oklch(0.205 0 0);
   --sidebar-border: oklch(0.922 0 0);
   --sidebar-ring: oklch(0.708 0 0);
+
+  /* Header height variables for mobile layout */
+  --header-height: 64px;
+  --safe-area-top: env(safe-area-inset-top, 0px);
+  --total-header-height: calc(var(--header-height) + var(--safe-area-top));
 }
 
 .dark {
@@ -120,11 +125,46 @@
   body {
     @apply bg-background text-foreground;
   }
+
+  /* Ensure main content is not hidden under header */
+  main {
+    padding-top: var(--total-header-height);
+  }
+
+  /* Scroll margin for anchor links */
+  [id] {
+    scroll-margin-top: var(--total-header-height);
+  }
 }
 
-/* Support for iOS safe area insets */
+/* Mobile-specific styles */
+@media (max-width: 768px) {
+  :root {
+    --header-height: 56px; /* Smaller on mobile */
+  }
+}
+
+/* Tappable elements must meet 44x44px minimum */
+.tappable {
+  min-width: 44px;
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* iOS Safari safe area support */
 @supports (padding: max(0px)) {
-  .pb-safe {
+  .safe-area-top {
+    padding-top: max(8px, env(safe-area-inset-top));
+  }
+
+  .safe-area-bottom {
     padding-bottom: max(1rem, env(safe-area-inset-bottom));
   }
+}
+
+/* Disable touch callout only where necessary, not on buttons */
+.no-touch-callout {
+  -webkit-touch-callout: none;
 }

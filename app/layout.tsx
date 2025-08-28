@@ -68,6 +68,9 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
+        {/* Proper viewport for mobile with safe area support */}
+        <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+
         {/* Favicon and Icon References */}
         <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16.png" />
         <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png" />

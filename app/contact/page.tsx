@@ -179,7 +179,7 @@ const FileUploadButton = ({
         <button
           type="button"
           onClick={() => fileInputRef.current?.click()}
-          className="flex w-full items-center justify-center gap-3 rounded-lg border-2 border-dashed border-neutral-300 bg-neutral-50 p-4 text-base font-medium text-neutral-700 transition-colors hover:border-orange-400 hover:bg-orange-50"
+          className="flex w-full items-center justify-center gap-3 rounded-lg border-2 border-dashed border-neutral-300 bg-neutral-50 p-4 text-base font-medium text-neutral-700 transition-colors hover:border-orange-400 hover:bg-orange-50 tappable"
         >
           {isPhotos ? <Camera className="h-5 w-5" /> : <Upload className="h-5 w-5" />}
           {file ? file.name : label}
@@ -189,7 +189,7 @@ const FileUploadButton = ({
           <button
             type="button"
             onClick={() => cameraInputRef.current?.click()}
-            className="flex w-full items-center justify-center gap-3 rounded-lg border border-neutral-300 bg-white p-3 text-base font-medium text-neutral-700 transition-colors hover:border-orange-400 hover:bg-orange-50"
+            className="flex w-full items-center justify-center gap-3 rounded-lg border border-neutral-300 bg-white p-3 text-base font-medium text-neutral-700 transition-colors hover:border-orange-400 hover:bg-orange-50 tappable"
           >
             <Camera className="h-4 w-4" />
             Take Photo
@@ -218,7 +218,7 @@ const FileUploadButton = ({
           <button
             type="button"
             onClick={removeFile}
-            className="absolute -right-2 -top-2 flex h-6 w-6 items-center justify-center rounded-full bg-red-500 text-white hover:bg-red-600"
+            className="absolute -right-2 -top-2 flex h-6 w-6 items-center justify-center rounded-full bg-red-500 text-white hover:bg-red-600 tappable"
           >
             <X className="h-4 w-4" />
           </button>
@@ -285,7 +285,7 @@ const MultiFileUploadButton = ({
         <button
           type="button"
           onClick={() => fileInputRef.current?.click()}
-          className="flex w-full items-center justify-center gap-3 rounded-lg border-2 border-dashed border-neutral-300 bg-neutral-50 p-4 text-base font-medium text-neutral-700 transition-colors hover:border-orange-400 hover:bg-orange-50"
+          className="flex w-full items-center justify-center gap-3 rounded-lg border-2 border-dashed border-neutral-300 bg-neutral-50 p-4 text-base font-medium text-neutral-700 transition-colors hover:border-orange-400 hover:bg-orange-50 tappable"
         >
           <Camera className="h-5 w-5" />
           {label}
@@ -295,7 +295,7 @@ const MultiFileUploadButton = ({
           <button
             type="button"
             onClick={() => cameraInputRef.current?.click()}
-            className="flex w-full items-center justify-center gap-3 rounded-lg border border-neutral-300 bg-white p-3 text-base font-medium text-neutral-700 transition-colors hover:border-orange-400 hover:bg-orange-50"
+            className="flex w-full items-center justify-center gap-3 rounded-lg border border-neutral-300 bg-white p-3 text-base font-medium text-neutral-700 transition-colors hover:border-orange-400 hover:bg-orange-50 tappable"
           >
             <Camera className="h-4 w-4" />
             Take Photo
@@ -326,7 +326,7 @@ const MultiFileUploadButton = ({
               <button
                 type="button"
                 onClick={() => removeFile(index)}
-                className="absolute -right-2 -top-2 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-white hover:bg-red-600"
+                className="absolute -right-2 -top-2 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-white hover:bg-red-600 tappable"
               >
                 <X className="h-3 w-3" />
               </button>
@@ -355,6 +355,8 @@ const tileColorOptions = {
     "Light Green",
     "Provence",
     "Red",
+    "Rustic Red",
+    "Slate",
     "Request a Color",
   ],
 }
@@ -397,9 +399,9 @@ function ContactForm() {
 
     // Smooth scroll to form
     const hash = window.location.hash
-    if (hash === "#form") {
+    if (hash === "#quote") {
       setTimeout(() => {
-        const formElement = document.getElementById("form")
+        const formElement = document.getElementById("quote")
         if (formElement) {
           formElement.scrollIntoView({ behavior: "smooth", block: "start" })
         }
@@ -462,7 +464,7 @@ function ContactForm() {
         </div>
       )}
 
-      <form action={formAction} className="space-y-6" id="form">
+      <form action={formAction} className="space-y-6" id="quote">
         <FieldWrapper id="name" label="Full Name" required error={errors.name?.message || state.errors?.name?.[0]}>
           <FormInput {...register("name")} placeholder="John Doe" />
         </FieldWrapper>
@@ -573,7 +575,7 @@ function ContactForm() {
         <button
           type="submit"
           disabled={isPending}
-          className="flex w-full items-center justify-center gap-2 rounded-lg bg-orange-600 px-6 py-3 text-base font-semibold text-white shadow-sm transition-colors hover:bg-orange-700 disabled:bg-orange-400 focus:outline-none focus:ring-2 focus:ring-orange-500"
+          className="flex w-full items-center justify-center gap-2 rounded-lg bg-orange-600 px-6 py-3 text-base font-semibold text-white shadow-sm transition-colors hover:bg-orange-700 disabled:bg-orange-400 focus:outline-none focus:ring-2 focus:ring-orange-500 tappable"
         >
           {isPending ? (
             <>
@@ -596,7 +598,7 @@ function ContactPage() {
     <div className="bg-white text-neutral-800">
       <ScrollHeader currentPage="contact" />
 
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 pt-20 mt-10 sm:mt-12 md:mt-16">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
         <div className="text-center mb-12">
           <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight sm:text-4xl">Contact Us</h1>
           <p className="mt-2 max-w-2xl mx-auto text-lg text-neutral-600">
@@ -645,7 +647,7 @@ function ContactPage() {
                 href="https://maps.google.com/?q=33-15+127th+Pl,+Corona,+NY+11368"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 bg-orange-600 text-white px-4 py-2 rounded-lg hover:bg-orange-700 transition-colors"
+                className="inline-flex items-center gap-2 bg-orange-600 text-white px-4 py-2 rounded-lg hover:bg-orange-700 transition-colors tappable"
               >
                 <MapPin className="h-4 w-4" />
                 Open in Google Maps
