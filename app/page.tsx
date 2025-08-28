@@ -2,6 +2,7 @@
 
 import React, { useRef, useState, useEffect } from "react"
 import Image from "next/image"
+import Link from "next/link"
 import {
   ArrowRight,
   Loader2,
@@ -13,19 +14,10 @@ import {
   Briefcase,
   Home,
   Grid3X3,
-  DollarSign,
   ChevronLeft,
   ChevronRight,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-  DialogTrigger,
-} from "@/components/ui/dialog"
 import { StickyCallBar } from "@/components/sticky-call-bar"
 import { ScrollHeader } from "@/components/scroll-header"
 import { useActionState } from "react"
@@ -591,21 +583,21 @@ function GalleryCarousel() {
       {/* Navigation arrows */}
       <button
         onClick={prevSlide}
-        className="absolute left-4 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white text-neutral-800 p-2 rounded-full shadow-lg transition-all"
+        className="absolute left-4 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white text-neutral-800 p-2 rounded-full shadow-lg transition-all z-10"
         aria-label="Previous image"
       >
         <ChevronLeft className="h-5 w-5" />
       </button>
       <button
         onClick={nextSlide}
-        className="absolute right-4 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white text-neutral-800 p-2 rounded-full shadow-lg transition-all"
+        className="absolute right-4 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white text-neutral-800 p-2 rounded-full shadow-lg transition-all z-10"
         aria-label="Next image"
       >
         <ChevronRight className="h-5 w-5" />
       </button>
 
       {/* Dots indicator */}
-      <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2">
+      <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2 z-10">
         {galleryImages.map((_, index) => (
           <button
             key={index}
@@ -684,19 +676,22 @@ export default function Page() {
       <main className="bg-white">
         <ScrollHeader currentPage="home" />
 
-        {/* Stats/Credibility Section */}
-        <section ref={statsRef} className="pt-32 sm:pt-36 md:pt-40 pb-20 sm:pb-24 bg-white">
+        {/* Stats/Credibility Section - Updated spacing and z-index */}
+        <section
+          ref={statsRef}
+          className="pt-32 sm:pt-36 md:pt-40 mt-10 sm:mt-12 md:mt-16 pb-20 sm:pb-24 bg-white relative z-10"
+        >
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8 text-center">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-8 lg:gap-12 text-center">
               {/* Stat 1 - Years in Business */}
               <div className="flex flex-col items-center">
                 <div className="w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center mb-4 transition-all duration-300 hover:bg-orange-200 hover:scale-110">
                   <Briefcase className="h-8 w-8 text-orange-600 stroke-1 transition-colors duration-300 hover:text-orange-700" />
                 </div>
-                <h3 className="text-3xl lg:text-4xl font-bold text-neutral-900 mb-2">
+                <h3 className="text-4xl font-bold text-neutral-900 mb-2">
                   <AnimatedCounter end={30} suffix="+" startAnimation={statsVisible} duration={1200} />
                 </h3>
-                <p className="text-sm lg:text-base text-neutral-600 font-medium">Years in Business</p>
+                <p className="text-lg text-neutral-600 font-medium">Years in Business</p>
               </div>
 
               {/* Stat 2 - Projects Completed */}
@@ -704,39 +699,37 @@ export default function Page() {
                 <div className="w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center mb-4 transition-all duration-300 hover:bg-orange-200 hover:scale-110">
                   <Home className="h-8 w-8 text-orange-600 stroke-1 transition-colors duration-300 hover:text-orange-700" />
                 </div>
-                <h3 className="text-3xl lg:text-4xl font-bold text-neutral-900 mb-2">
-                  <AnimatedCounter end={3000} suffix="+" startAnimation={statsVisible} duration={1800} />
+                <h3 className="text-4xl font-bold text-neutral-900 mb-2">
+                  <AnimatedCounter end={3000} suffix="+" startAnimation={statsVisible} duration={1200} />
                 </h3>
-                <p className="text-sm lg:text-base text-neutral-600 font-medium">Projects Completed</p>
+                <p className="text-lg text-neutral-600 font-medium">Projects Completed</p>
               </div>
 
-              {/* Stat 4 - Tiles Installed */}
+              {/* Stat 3 - Tiles Installed */}
               <div className="flex flex-col items-center">
                 <div className="w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center mb-4 transition-all duration-300 hover:bg-orange-200 hover:scale-110">
                   <Grid3X3 className="h-8 w-8 text-orange-600 stroke-1 transition-colors duration-300 hover:text-orange-700" />
                 </div>
-                <h3 className="text-3xl lg:text-4xl font-bold text-neutral-900 mb-2">
-                  <AnimatedCounter end={10} suffix="M+" startAnimation={statsVisible} duration={2200} />
+                <h3 className="text-4xl font-bold text-neutral-900 mb-2">
+                  <AnimatedCounter end={10} suffix="M+" startAnimation={statsVisible} duration={1200} />
                 </h3>
-                <p className="text-sm lg:text-base text-neutral-600 font-medium">Tiles Installed</p>
+                <p className="text-lg text-neutral-600 font-medium">Tiles Installed</p>
               </div>
+            </div>
 
-              {/* Stat 5 - Value Delivered */}
-              <div className="flex flex-col items-center">
-                <div className="w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center mb-4 transition-all duration-300 hover:bg-orange-200 hover:scale-110">
-                  <DollarSign className="h-8 w-8 text-orange-600 stroke-1 transition-colors duration-300 hover:text-orange-700" />
-                </div>
-                <h3 className="text-3xl lg:text-4xl font-bold text-neutral-900 mb-2">
-                  $<AnimatedCounter end={200} suffix="M+" startAnimation={statsVisible} duration={2500} />
-                </h3>
-                <p className="text-sm lg:text-base text-neutral-600 font-medium">in Clay Tile Roofing Delivered</p>
-              </div>
+            {/* CTA Button in Credibility Section */}
+            <div className="text-center mt-12">
+              <Link href="/contact#form" className="relative z-20">
+                <Button className="h-12 px-8 text-lg font-semibold bg-orange-600 hover:bg-orange-700 text-white rounded-full shadow-lg hover:shadow-xl transition-all duration-200 cursor-pointer">
+                  Request a Quote
+                </Button>
+              </Link>
             </div>
           </div>
         </section>
 
         {/* Gallery Section */}
-        <section className="py-20 sm:py-24 bg-neutral-50 border-t border-neutral-200">
+        <section className="py-20 sm:py-24 bg-neutral-50 border-t border-neutral-200 relative z-10">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-12">
               <h2 className="text-3xl font-bold text-neutral-900 sm:text-4xl">Our Recent Projects</h2>
@@ -747,55 +740,17 @@ export default function Page() {
         </section>
 
         {/* Call to Action Section */}
-        <section className="py-20 sm:py-24 bg-white border-t border-neutral-100">
+        <section className="py-20 sm:py-24 bg-white border-t border-neutral-100 relative z-10">
           <div className="max-w-4xl mx-auto text-center px-4 sm:px-6 lg:px-8">
             <h2 className="text-3xl font-bold text-neutral-900 sm:text-4xl mb-6">Ready to Get Started?</h2>
             <p className="text-lg text-neutral-600 mb-8">
               Contact us today for a free consultation and quote on your clay tile roofing project.
             </p>
-            <Dialog open={open} onOpenChange={setOpen}>
-              <DialogTrigger asChild>
-                <Button className="h-14 px-8 text-lg font-semibold bg-orange-600 hover:bg-orange-700 text-white rounded-full shadow-lg hover:shadow-xl transition-all duration-200">
-                  Request a Quote
-                </Button>
-              </DialogTrigger>
-              <DialogContent className="sm:max-w-lg overflow-y-auto max-h-[90dvh]">
-                <DialogHeader>
-                  <DialogTitle>
-                    {step === 1 && "Get a Free Roofing Quote"}
-                    {step === 2 && "Provide More Details (Optional)"}
-                  </DialogTitle>
-                  <DialogDescription>
-                    {step === 1 && "Start with the basics. We'll call you back within 24 hours."}
-                    {step === 2 && "Your callback is requested! For a faster quote, add more info below."}
-                  </DialogDescription>
-                </DialogHeader>
-
-                <div className="mt-4">
-                  {step < 3 && (
-                    <div className="mb-4 text-center text-sm font-medium text-neutral-500">Step {step} of 2</div>
-                  )}
-                  {step === 1 && <Step1Form onSuccess={handleStep1Success} />}
-                  {step === 2 && airtableRecordId && (
-                    <Step2Form airtableRecordId={airtableRecordId} onSuccess={handleStep2Success} />
-                  )}
-                  {step === 3 && (
-                    <div className="text-center py-8">
-                      <div className="mx-auto h-12 w-12 text-green-600 bg-green-100 rounded-full p-2 flex items-center justify-center">
-                        ✓
-                      </div>
-                      <h2 className="mt-4 text-xl font-semibold text-neutral-800">Thank You!</h2>
-                      <p className="mt-1 text-neutral-600">
-                        Your information has been submitted. We'll be in touch soon.
-                      </p>
-                      <Button variant="outline" className="mt-6 bg-transparent" onClick={() => setOpen(false)}>
-                        Close
-                      </Button>
-                    </div>
-                  )}
-                </div>
-              </DialogContent>
-            </Dialog>
+            <Link href="/contact#form" className="relative z-20">
+              <Button className="h-14 px-8 text-lg font-semibold bg-orange-600 hover:bg-orange-700 text-white rounded-full shadow-lg hover:shadow-xl transition-all duration-200 cursor-pointer">
+                Request a Quote
+              </Button>
+            </Link>
           </div>
         </section>
       </main>
@@ -803,7 +758,7 @@ export default function Page() {
       <StickyCallBar isHidden={open} />
 
       {/* Footer */}
-      <footer className="border-t border-neutral-200 bg-neutral-50 py-16 sm:py-20">
+      <footer className="border-t border-neutral-200 bg-neutral-50 py-16 sm:py-20 relative z-10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             {/* Contact Info */}
@@ -819,8 +774,8 @@ export default function Page() {
                 </p>
                 <p>
                   Email:{" "}
-                  <a href="mailto:hello@clayroofsny.com" className="hover:text-orange-600">
-                    hello@clayroofsny.com
+                  <a href="mailto:chris@clayroofingnewyork.com" className="hover:text-orange-600">
+                    chris@clayroofingnewyork.com
                   </a>
                 </p>
               </div>
@@ -855,6 +810,17 @@ export default function Page() {
                 <p className="text-sm text-neutral-500">
                   &copy; {new Date().getFullYear()} Clay Roofing New York. All Rights Reserved.
                 </p>
+                <div className="mt-2">
+                  <Link href="/contact#form" className="relative z-20">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="border-orange-600 text-orange-600 hover:bg-orange-600 hover:text-white cursor-pointer bg-transparent"
+                    >
+                      Request a Quote
+                    </Button>
+                  </Link>
+                </div>
               </div>
             </div>
           </div>

@@ -25,7 +25,7 @@ export function ScrollHeader({ currentPage = "home" }: ScrollHeaderProps) {
   }, [])
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-40 transition-all duration-300 ease-in-out">
+    <header className="fixed top-0 left-0 right-0 z-50 transition-all duration-300 ease-in-out">
       <div
         className={`transition-all duration-300 ease-in-out ${
           scrolled
@@ -55,13 +55,14 @@ export function ScrollHeader({ currentPage = "home" }: ScrollHeaderProps) {
 
             {/* Mobile Menu */}
             <div className="md:hidden flex items-center">
-              <Button
-                asChild
-                size="sm"
-                className="bg-gradient-to-r from-orange-600 to-orange-700 text-white hover:from-orange-700 hover:to-orange-800 text-xs font-semibold transition-all h-8 mr-3 shadow-md hover:shadow-lg"
-              >
-                <Link href={currentPage === "home" ? "#quote" : "/#quote"}>Request Quote</Link>
-              </Button>
+              <Link href="/contact#form" className="relative z-20">
+                <Button
+                  size="sm"
+                  className="bg-gradient-to-r from-orange-600 to-orange-700 text-white hover:from-orange-700 hover:to-orange-800 text-xs font-semibold transition-all h-8 mr-3 shadow-md hover:shadow-lg cursor-pointer"
+                >
+                  Request Quote
+                </Button>
+              </Link>
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button
@@ -213,15 +214,16 @@ export function ScrollHeader({ currentPage = "home" }: ScrollHeaderProps) {
               >
                 Contact
               </Link>
-              <Button
-                asChild
-                size="sm"
-                className={`bg-gradient-to-r from-orange-600 to-orange-700 text-white hover:from-orange-700 hover:to-orange-800 text-xs font-semibold transition-all h-9 px-4 whitespace-nowrap ${
-                  scrolled ? "shadow-lg hover:shadow-xl" : "shadow-md hover:shadow-lg"
-                }`}
-              >
-                <Link href={currentPage === "home" ? "#quote" : "/#quote"}>Request Quote</Link>
-              </Button>
+              <Link href="/contact#form" className="relative z-20">
+                <Button
+                  size="sm"
+                  className={`bg-gradient-to-r from-orange-600 to-orange-700 text-white hover:from-orange-700 hover:to-orange-800 text-xs font-semibold transition-all h-9 px-4 whitespace-nowrap cursor-pointer ${
+                    scrolled ? "shadow-lg hover:shadow-xl" : "shadow-md hover:shadow-lg"
+                  }`}
+                >
+                  Request Quote
+                </Button>
+              </Link>
             </nav>
           </div>
         </div>

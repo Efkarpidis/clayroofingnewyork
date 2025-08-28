@@ -12,7 +12,7 @@ interface AnimatedCounterProps {
 
 export function AnimatedCounter({
   end,
-  duration = 1500,
+  duration = 1200,
   suffix = "",
   className = "",
   startAnimation = false,
@@ -57,9 +57,19 @@ export function AnimatedCounter({
     }
   }, [end, duration, startAnimation, hasAnimated])
 
+  // Format numbers for display (short format)
+  const formatNumber = (num: number) => {
+    if (num >= 1000000) {
+      return Math.floor(num / 1000000).toString() + "M"
+    } else if (num >= 1000) {
+      return Math.floor(num / 1000).toString() + "K"
+    }
+    return num.toString()
+  }
+
   return (
     <span ref={counterRef} className={className}>
-      {count.toLocaleString()}
+      {formatNumber(count)}
       {suffix}
     </span>
   )
