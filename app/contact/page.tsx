@@ -4,7 +4,7 @@ import React, { useEffect } from "react"
 import { useActionState, useState } from "react"
 import { StickyCallBar } from "@/components/sticky-call-bar"
 import { ScrollHeader } from "@/components/scroll-header"
-import { MapPin, Phone, Mail, Upload, Camera, FileText, X, Check } from "lucide-react"
+import { MapPin, Phone, Mail, Upload, Camera, FileText, X, Check, Shield } from "lucide-react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
@@ -16,7 +16,7 @@ const contactFormSchema = z.object({
   email: z.string().email({ message: "Please enter a valid email address." }),
   phone: z.string().optional(),
   company: z.string().optional(),
-  contactType: z.enum(["general-contractor", "architect", "homeowner", "other"], {
+  contactType: z.enum(["general-contractor", "architect", "homeowner", "other", "previous-client"], {
     errorMap: () => ({ message: "Please select your contact type." }),
   }),
   tileFamily: z.string().optional(),
@@ -27,6 +27,7 @@ const contactFormSchema = z.object({
   privacyAccepted: z.boolean().refine((val) => val === true, {
     message: "You must accept the Privacy Policy to continue.",
   }),
+  previousProjectReference: z.string().optional(),
 })
 
 type ContactFormData = z.infer<typeof contactFormSchema>
@@ -51,6 +52,7 @@ async function handleContactFormSubmit(
     file: formData.get("file"),
     photos: formData.getAll("photos"),
     privacyAccepted: formData.get("privacyAccepted") === "on",
+    previousProjectReference: formData.get("previousProjectReference"),
   }
 
   const validatedFields = contactFormSchema.safeParse({
@@ -378,6 +380,7 @@ function ContactForm() {
   const [file, setFile] = useState<File | null>(null)
   const [photos, setPhotos] = useState<File[]>([])
   const [selectedTileFamily, setSelectedTileFamily] = useState<string>("")
+  const [selectedContactType, setSelectedContactType] = useState<string>("")
   const [showToast, setShowToast] = useState(false)
 
   const {
@@ -391,6 +394,7 @@ function ContactForm() {
   })
 
   const watchedTileFamily = watch("tileFamily")
+  const watchedContactType = watch("contactType")
 
   // Handle URL parameters for prefilled tile data
   useEffect(() => {
@@ -427,6 +431,13 @@ function ContactForm() {
     }
   }, [watchedTileFamily, setValue])
 
+  // Update selected contact type when form value changes
+  useEffect(() => {
+    if (watchedContactType) {
+      setSelectedContactType(watchedContactType)
+    }
+  }, [watchedContactType])
+
   React.useEffect(() => {
     setValue("file", file)
   }, [file, setValue])
@@ -443,6 +454,7 @@ function ContactForm() {
       setFile(null)
       setPhotos([])
       setSelectedTileFamily("")
+      setSelectedContactType("")
 
       // Hide toast after 5 seconds
       setTimeout(() => {
@@ -496,7 +508,13 @@ function ContactForm() {
           required
           error={errors.contactType?.message || state.errors?.contactType?.[0]}
         >
-          <FormSelect {...register("contactType")}>
+          <FormSelect
+            {...register("contactType")}
+            onChange={(e) => {
+              register("contactType").onChange(e)
+              setSelectedContactType(e.target.value)
+            }}
+          >
             <option value="" className="text-neutral-400">
               Select...
             </option>
@@ -504,8 +522,22 @@ function ContactForm() {
             <option value="architect">Architect</option>
             <option value="homeowner">Homeowner</option>
             <option value="other">Other</option>
+            <option value="previous-client">Previous Client (Warranty or Service Request)</option>
           </FormSelect>
+          {selectedContactType === "previous-client" && (
+            <div className="mt-2 text-sm text-neutral-600 italic">Warranty & service support for past projects.</div>
+          )}
         </FieldWrapper>
+
+        {selectedContactType === "previous-client" && (
+          <FieldWrapper
+            id="previousProjectReference"
+            label="Project Address or Year of Installation (if known)"
+            error={errors.previousProjectReference?.message || state.errors?.previousProjectReference?.[0]}
+          >
+            <FormInput {...register("previousProjectReference")} placeholder="e.g., 123 Main St, Brooklyn or 2019" />
+          </FieldWrapper>
+        )}
 
         <FieldWrapper
           id="tileFamily"
@@ -585,6 +617,19 @@ function ContactForm() {
           )}
         </div>
 
+        {/* Supportive note for previous clients */}
+        {selectedContactType === "previous-client" && (
+          <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+            <p className="text-sm text-blue-800 flex items-start gap-2">
+              <Shield className="h-4 w-4 text-blue-600 mt-0.5 flex-shrink-0" />
+              <span>
+                If you are an existing client with a warranty or service need, please include your project address and
+                details so we can assist you quickly.
+              </span>
+            </p>
+          </div>
+        )}
+
         <button
           type="submit"
           disabled={isPending}
@@ -616,6 +661,9 @@ function ContactPage() {
           <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight sm:text-4xl">Contact Us</h1>
           <p className="mt-2 max-w-2xl mx-auto text-lg text-neutral-600">
             Have a question or need a quote? We're here to help.
+          </p>
+          <p className="mt-1 text-sm text-neutral-500 italic">
+            We proudly back our installations with warranties up to 100 years.
           </p>
         </div>
 

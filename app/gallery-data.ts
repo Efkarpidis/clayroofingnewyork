@@ -103,6 +103,61 @@ export const galleryPhotos: ProjectPhoto[] = [
     src: "/gallery/project-18.jpg",
     alt: "Elegant stone mansion with rich brown clay tile roofing and classical details",
   },
+  {
+    id: "project-19",
+    src: "/gallery/project-19.jpg",
+    alt: "Luxury home with light stone exterior and dark charcoal slate clay tile roofing",
+  },
+  {
+    id: "project-20",
+    src: "/gallery/project-20.jpg",
+    alt: "Large brick home under construction with warm brown clay tile roof installation",
+  },
+  {
+    id: "project-21",
+    src: "/gallery/project-21.jpg",
+    alt: "Large brick home under construction with sophisticated gray charcoal clay tile roofing",
+  },
+  {
+    id: "project-22",
+    src: "/gallery/project-22.jpg",
+    alt: "Elegant brick home construction featuring modern gray clay tiles and decorative brickwork",
+  },
+  {
+    id: "project-23",
+    src: "/gallery/project-23.jpg",
+    alt: "Large two-story home with light brick exterior and warm brown S-shaped clay tile roof",
+  },
+  {
+    id: "project-24",
+    src: "/gallery/project-24.jpg",
+    alt: "Elegant brick mansion with classical columns and brown cognac clay tile roofing",
+  },
+  {
+    id: "project-25",
+    src: "/gallery/project-25.jpg",
+    alt: "Complex rooftop installation featuring natural gray flat tiles with decorative stone chimneys",
+  },
+  {
+    id: "project-26",
+    src: "/gallery/project-26.jpg",
+    alt: "Aerial view of luxury home with extensive warm brown S-shaped clay tile roofing and multiple dormers",
+  },
+  {
+    id: "project-27",
+    src: "/gallery/project-27.jpg",
+    alt: "Mediterranean-style luxury mansion with natural stone exterior and rich burgundy S-shaped clay tile roofing",
+  },
+  {
+    id: "project-28",
+    src: "/gallery/project-28.jpg",
+    alt: "Contemporary luxury home with sophisticated dark charcoal S-shaped clay tile roofing and curved architectural elements",
+  },
+  {
+    id: "project-29",
+    src: "/gallery/project-29.jpg",
+    alt: "Mediterranean-style home with vibrant golden yellow exterior and classic reddish-brown terracotta S-shaped clay tile roofing",
+  },
   // Existing gallery images
   {
     id: "terracotta-s-tile",

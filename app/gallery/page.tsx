@@ -1,14 +1,117 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import Image from "next/image"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent } from "@/components/ui/dialog"
-import { ArrowLeft, Grid3X3, Camera } from "lucide-react"
+import { ArrowLeft, ChevronLeft, ChevronRight, Camera } from "lucide-react"
 import { StickyCallBar } from "@/components/sticky-call-bar"
 import { ScrollHeader } from "@/components/scroll-header"
 import { galleryPhotos, type ProjectPhoto } from "../gallery-data"
+
+// Hero carousel photos - select the best 5 for showcase
+const heroPhotos: ProjectPhoto[] = [
+  {
+    id: "hero-1",
+    src: "/gallery/project-02.jpg",
+    alt: "Mediterranean-style mansion with red clay tile roof",
+  },
+  {
+    id: "hero-2",
+    src: "/gallery/project-11.jpg",
+    alt: "Stone mansion with brown clay tile roof and landscaped grounds",
+  },
+  {
+    id: "hero-3",
+    src: "/gallery/project-27.jpg",
+    alt: "Mediterranean-style luxury mansion with natural stone exterior and rich burgundy S-shaped clay tile roofing",
+  },
+  {
+    id: "hero-4",
+    src: "/gallery/project-29.jpg",
+    alt: "Mediterranean-style home with vibrant golden yellow exterior and classic reddish-brown terracotta S-shaped clay tile roofing",
+  },
+  {
+    id: "hero-5",
+    src: "/gallery/project-16.jpg",
+    alt: "Contemporary home with sophisticated gray slate clay tile roofing and modern architecture",
+  },
+]
+
+// All other photos for the grid (excluding hero photos)
+const gridPhotos = galleryPhotos.filter((photo) => !heroPhotos.some((heroPhoto) => heroPhoto.src === photo.src))
+
+function HeroCarousel() {
+  const [currentSlide, setCurrentSlide] = useState(0)
+
+  const nextSlide = () => {
+    setCurrentSlide((prev) => (prev + 1) % heroPhotos.length)
+  }
+
+  const prevSlide = () => {
+    setCurrentSlide((prev) => (prev - 1 + heroPhotos.length) % heroPhotos.length)
+  }
+
+  useEffect(() => {
+    const timer = setInterval(nextSlide, 5000) // Auto-advance every 5 seconds
+    return () => clearInterval(timer)
+  }, [])
+
+  return (
+    <div className="relative w-full h-96 md:h-[500px] lg:h-[600px] overflow-hidden rounded-2xl bg-neutral-100 shadow-2xl">
+      {heroPhotos.map((photo, index) => (
+        <div
+          key={photo.id}
+          className={`absolute inset-0 transition-opacity duration-1000 ease-in-out ${
+            index === currentSlide ? "opacity-100" : "opacity-0"
+          }`}
+        >
+          <Image
+            src={photo.src || "/placeholder.svg"}
+            alt={photo.alt}
+            fill
+            className="object-cover"
+            sizes="100vw"
+            priority={index === 0}
+          />
+          {/* Subtle gradient overlay */}
+          <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent" />
+        </div>
+      ))}
+
+      {/* Navigation arrows */}
+      <button
+        onClick={prevSlide}
+        className="absolute left-4 top-1/2 -translate-y-1/2 bg-white/90 hover:bg-white text-charcoal-gray p-3 rounded-full shadow-lg transition-all z-10 hover:scale-110"
+        aria-label="Previous image"
+      >
+        <ChevronLeft className="h-6 w-6" />
+      </button>
+      <button
+        onClick={nextSlide}
+        className="absolute right-4 top-1/2 -translate-y-1/2 bg-white/90 hover:bg-white text-charcoal-gray p-3 rounded-full shadow-lg transition-all z-10 hover:scale-110"
+        aria-label="Next image"
+      >
+        <ChevronRight className="h-6 w-6" />
+      </button>
+
+      {/* Dots indicator */}
+      <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-3 z-10">
+        {heroPhotos.map((_, index) => (
+          <button
+            key={index}
+            onClick={() => setCurrentSlide(index)}
+            className={`w-3 h-3 rounded-full transition-all duration-300 ${
+              index === currentSlide ? "bg-clay-red scale-110" : "bg-white/60 hover:bg-white/80"
+            }`}
+            aria-label={`Go to slide ${index + 1}`}
+          />
+        ))}
+      </div>
+    </div>
+  )
+}
 
 export default function GalleryPage() {
   const [selectedPhoto, setSelectedPhoto] = useState<ProjectPhoto | null>(null)
@@ -19,7 +122,7 @@ export default function GalleryPage() {
         <ScrollHeader currentPage="gallery" />
 
         {/* Hero Section */}
-        <section className="bg-gradient-to-r from-neutral-900 via-neutral-800 to-neutral-700 text-white py-16 pt-20">
+        <section className="bg-gradient-to-r from-charcoal-gray via-neutral-800 to-charcoal-gray text-white py-16 pt-20">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex items-center mb-6">
               <Link href="/" className="flex items-center text-white/80 hover:text-white mr-4">
@@ -28,7 +131,7 @@ export default function GalleryPage() {
               </Link>
             </div>
 
-            <div className="text-center max-w-4xl mx-auto">
+            <div className="text-center max-w-5xl mx-auto">
               <div className="flex items-center justify-center gap-3 mb-6">
                 <div className="premium-badge">
                   <Camera className="w-3 h-3 mr-1" />
@@ -36,36 +139,39 @@ export default function GalleryPage() {
                 </div>
               </div>
 
-              <h1 className="luxury-title text-4xl md:text-5xl mb-4">Our Clay Tile Roofing Projects</h1>
-              <p className="text-xl text-neutral-300 max-w-3xl mx-auto leading-relaxed">
-                Explore our portfolio of premium clay tile roofing installations across New York City and surrounding
-                areas.
+              <h1 className="luxury-title text-4xl md:text-5xl mb-6 text-white">Our Clay Tile Roofing Projects</h1>
+              <p className="text-lg md:text-xl text-neutral-300 max-w-4xl mx-auto leading-relaxed">
+                From the number one clay tile manufacturer in the world, proudly installed by Clay Roofs New York. Over
+                30+ years of experience. 10M+ tiles installed. 3K+ projects completed.
               </p>
-
-              <div className="flex items-center justify-center gap-4 mt-8 text-neutral-400">
-                <div className="flex items-center gap-2">
-                  <Grid3X3 className="w-4 h-4" />
-                  <span className="text-sm">{galleryPhotos.length} Projects</span>
-                </div>
-                <span className="w-1 h-1 bg-neutral-400 rounded-full"></span>
-                <span className="text-sm">Premium Clay Tiles</span>
-                <span className="w-1 h-1 bg-neutral-400 rounded-full"></span>
-                <span className="text-sm">30+ Years Experience</span>
-              </div>
             </div>
           </div>
         </section>
 
-        {/* Gallery Grid */}
-        <section className="py-16">
+        {/* Hero Carousel */}
+        <section className="py-16 bg-white">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <HeroCarousel />
+          </div>
+        </section>
+
+        {/* Gallery Grid */}
+        <section className="py-16 bg-neutral-50">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="text-center mb-12">
+              <h2 className="text-3xl font-bold text-charcoal-gray mb-4">Complete Project Portfolio</h2>
+              <p className="text-lg text-neutral-600">
+                Showcasing our expertise across diverse architectural styles and premium clay tile installations
+              </p>
+            </div>
+
             {/* Responsive Grid: 1 column mobile, 2 columns tablet, 3 columns desktop */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
-              {galleryPhotos.map((photo) => (
+              {gridPhotos.map((photo) => (
                 <button
                   key={photo.id}
                   onClick={() => setSelectedPhoto(photo)}
-                  className="group relative block w-full overflow-hidden rounded-xl bg-neutral-100 transition-all duration-300 hover:shadow-xl hover:scale-[1.02] cursor-pointer"
+                  className="group relative block w-full overflow-hidden rounded-xl bg-neutral-100 transition-all duration-300 hover:shadow-xl cursor-pointer"
                 >
                   {/* Consistent aspect ratio container */}
                   <div className="aspect-[4/3] relative">
@@ -73,40 +179,23 @@ export default function GalleryPage() {
                       src={photo.src || "/placeholder.svg"}
                       alt={photo.alt}
                       fill
-                      className="object-cover transition-transform duration-500 group-hover:scale-105"
+                      className="object-cover transition-transform duration-500 group-hover:scale-110"
                       sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
                       loading="lazy"
                     />
 
-                    {/* Subtle hover overlay */}
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                    {/* Hover overlay with Clay Red accent */}
+                    <div className="absolute inset-0 bg-gradient-to-t from-clay-red/30 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
 
-                    {/* Future-proof overlay for project info */}
-                    <div className="absolute bottom-0 left-0 right-0 p-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                      {/* Space reserved for future project details */}
-                      <div className="text-white">
-                        <div className="w-2 h-2 bg-white/60 rounded-full mx-auto"></div>
+                    {/* Hover indicator */}
+                    <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                      <div className="bg-white/90 text-charcoal-gray px-4 py-2 rounded-full font-semibold text-sm shadow-lg">
+                        View Full Size
                       </div>
                     </div>
                   </div>
                 </button>
               ))}
-            </div>
-
-            {/* Future projects placeholder */}
-            <div className="mt-12 text-center">
-              <div className="bg-neutral-50 rounded-xl p-8 border-2 border-dashed border-neutral-200">
-                <Camera className="h-12 w-12 text-neutral-400 mx-auto mb-4" />
-                <h3 className="text-lg font-semibold text-neutral-700 mb-2">More Projects Coming Soon</h3>
-                <p className="text-neutral-500 mb-4">
-                  We're continuously adding new project photos to showcase our latest clay tile installations.
-                </p>
-                <Link href="/contact#quote">
-                  <Button className="bg-clay-red hover:bg-clay-red text-white font-semibold cursor-pointer">
-                    Start Your Project
-                  </Button>
-                </Link>
-              </div>
             </div>
           </div>
         </section>
@@ -181,14 +270,6 @@ export default function GalleryPage() {
                   sizes="90vw"
                   priority
                 />
-              </div>
-
-              {/* Future-proof space for project details */}
-              <div className="mt-4 text-center">
-                <div className="text-white/60 text-sm">
-                  {/* Space reserved for future project information */}
-                  <div className="w-2 h-2 bg-white/20 rounded-full mx-auto"></div>
-                </div>
               </div>
             </div>
           )}
