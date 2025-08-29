@@ -102,7 +102,7 @@ const FieldWrapper = ({
 const FormInput = (props: React.ComponentProps<"input">) => (
   <input
     {...props}
-    className="block w-full rounded-md border-neutral-300 bg-white p-3 text-base shadow-sm focus:border-orange-500 focus:ring-orange-500 focus:outline-none focus:ring-2"
+    className="block w-full h-11 rounded-xl border border-neutral-200 bg-white px-3 py-2 text-base text-neutral-900 shadow-sm focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20 focus:outline-none hover:border-neutral-300 transition-colors placeholder:text-neutral-400"
   />
 )
 
@@ -113,13 +113,22 @@ const FormTextarea = (props: React.ComponentProps<"textarea">) => (
   />
 )
 
-const FormSelect = (props: React.ComponentProps<"select">) => (
-  <select
-    {...props}
-    className="block w-full rounded-md border-neutral-300 bg-white p-3 text-base shadow-sm focus:border-orange-500 focus:ring-orange-500 focus:outline-none focus:ring-2"
-  >
-    {props.children}
-  </select>
+const FormSelect = ({ children, ...props }: React.ComponentProps<"select">) => (
+  <div className="relative">
+    <select
+      {...props}
+      className="block w-full h-11 rounded-xl border border-neutral-200 bg-white px-3 py-2 text-base text-neutral-900 shadow-sm appearance-none focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20 focus:outline-none hover:border-neutral-300 transition-colors cursor-pointer"
+      style={{
+        backgroundImage: `url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' strokeLinecap='round' strokeLinejoin='round' strokeWidth='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e")`,
+        backgroundPosition: "right 12px center",
+        backgroundRepeat: "no-repeat",
+        backgroundSize: "16px",
+        paddingRight: "40px",
+      }}
+    >
+      {children}
+    </select>
+  </div>
 )
 
 const FileUploadButton = ({
@@ -466,15 +475,15 @@ function ContactForm() {
 
       <form action={formAction} className="space-y-6" id="quote">
         <FieldWrapper id="name" label="Full Name" required error={errors.name?.message || state.errors?.name?.[0]}>
-          <FormInput {...register("name")} placeholder="John Doe" />
+          <FormInput {...register("name")} placeholder="Cocoa Clay" />
         </FieldWrapper>
 
         <FieldWrapper id="email" label="Email" required error={errors.email?.message || state.errors?.email?.[0]}>
-          <FormInput {...register("email")} type="email" placeholder="you@example.com" />
+          <FormInput {...register("email")} type="email" placeholder="cocoa@example.com" />
         </FieldWrapper>
 
         <FieldWrapper id="phone" label="Phone" error={errors.phone?.message || state.errors?.phone?.[0]}>
-          <FormInput {...register("phone")} type="tel" placeholder="(555) 123-4567" />
+          <FormInput {...register("phone")} type="tel" placeholder="(212) 555-0134" />
         </FieldWrapper>
 
         <FieldWrapper id="company" label="Company" error={errors.company?.message || state.errors?.company?.[0]}>
@@ -488,7 +497,9 @@ function ContactForm() {
           error={errors.contactType?.message || state.errors?.contactType?.[0]}
         >
           <FormSelect {...register("contactType")}>
-            <option value="">Select...</option>
+            <option value="" className="text-neutral-400">
+              Select...
+            </option>
             <option value="general-contractor">General Contractor</option>
             <option value="architect">Architect</option>
             <option value="homeowner">Homeowner</option>
@@ -502,7 +513,9 @@ function ContactForm() {
           error={errors.tileFamily?.message || state.errors?.tileFamily?.[0]}
         >
           <FormSelect {...register("tileFamily")}>
-            <option value="">Select...</option>
+            <option value="" className="text-neutral-400">
+              Select...
+            </option>
             <option value="Vienna">Vienna</option>
             <option value="S-Mixed">S-Mixed</option>
             <option value="Selectum">Selectum</option>

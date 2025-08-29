@@ -611,6 +611,141 @@ function GalleryCarousel() {
   )
 }
 
+// --- Featured Tile Carousel Component ---
+
+function FeaturedTileCarousel() {
+  const [currentSlide, setCurrentSlide] = useState(0)
+
+  // Featured tile slides data
+  const featuredTiles = [
+    {
+      id: "red",
+      name: "Classic Red",
+      subtitle: "Our Most Popular Choice",
+      description:
+        "The timeless beauty of classic red clay tiles brings warmth and elegance to any home. Premium Selectum quality with consistent coloring.",
+      roofImage: "/tiles/selectum/selectum-red-tiles-roof.png",
+      singleTileImage: "/tiles/selectum/selectum-red-tile-updated.png",
+    },
+    {
+      id: "galia",
+      name: "Galia Speckled",
+      subtitle: "Natural Texture & Character",
+      description:
+        "Beautiful speckled finish with natural variation creates authentic Mediterranean charm. Each tile tells its own story.",
+      roofImage: "/tiles/selectum/selectum-galia-tiles-roof.png",
+      singleTileImage: "/tiles/selectum/selectum-galia-tile-single.png",
+    },
+  ]
+
+  const nextSlide = () => {
+    setCurrentSlide((prev) => (prev + 1) % featuredTiles.length)
+  }
+
+  const prevSlide = () => {
+    setCurrentSlide((prev) => (prev - 1 + featuredTiles.length) % featuredTiles.length)
+  }
+
+  useEffect(() => {
+    const timer = setInterval(nextSlide, 5000) // Auto-advance every 5 seconds
+    return () => clearInterval(timer)
+  }, [])
+
+  return (
+    <section className="py-16 sm:py-20 bg-gradient-to-b from-white to-neutral-50 border-b border-neutral-200">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="text-center mb-12">
+          <h2 className="text-3xl font-bold text-neutral-900 sm:text-4xl mb-4">Featured Tiles</h2>
+          <p className="text-lg text-neutral-600">Discover our premium clay tile collection</p>
+        </div>
+
+        <div className="bg-white rounded-2xl shadow-xl overflow-hidden max-w-4xl mx-auto relative">
+          {featuredTiles.map((tile, index) => (
+            <div
+              key={tile.id}
+              className={`transition-opacity duration-700 ease-in-out ${
+                index === currentSlide ? "opacity-100" : "opacity-0 absolute inset-0"
+              }`}
+            >
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-0">
+                {/* Large roof installation image */}
+                <div className="lg:col-span-2 relative h-64 sm:h-80 lg:h-96">
+                  <Image
+                    src={tile.roofImage || "/placeholder.svg"}
+                    alt={`${tile.name} tiles roof installation`}
+                    fill
+                    className="object-cover"
+                    sizes="(max-width: 1024px) 100vw, 66vw"
+                    priority={index === 0}
+                  />
+
+                  {/* Single tile overlay in corner */}
+                  <div className="absolute bottom-4 right-4 w-20 h-20 sm:w-24 sm:h-24 bg-white/95 rounded-lg p-2 shadow-lg">
+                    <div className="relative w-full h-full">
+                      <Image
+                        src={tile.singleTileImage || "/placeholder.svg"}
+                        alt={`${tile.name} single tile`}
+                        fill
+                        className="object-contain"
+                        sizes="96px"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Content section */}
+                <div className="p-8 lg:p-10 flex flex-col justify-center">
+                  <div className="mb-6">
+                    <h3 className="text-2xl font-bold text-neutral-900 mb-2">{tile.name}</h3>
+                    <p className="text-orange-600 font-semibold mb-4">{tile.subtitle}</p>
+                    <p className="text-neutral-600 leading-relaxed">{tile.description}</p>
+                  </div>
+
+                  <Link href="/tile-selection" className="tappable">
+                    <Button className="w-full h-12 bg-orange-600 hover:bg-orange-700 text-white font-semibold rounded-lg transition-all duration-200 cursor-pointer">
+                      View All Tile Options
+                    </Button>
+                  </Link>
+                </div>
+              </div>
+            </div>
+          ))}
+
+          {/* Navigation arrows */}
+          <button
+            onClick={prevSlide}
+            className="absolute left-4 top-1/2 -translate-y-1/2 bg-white/90 hover:bg-white text-neutral-800 p-2 rounded-full shadow-lg transition-all z-10"
+            aria-label="Previous tile"
+          >
+            <ChevronLeft className="h-5 w-5" />
+          </button>
+          <button
+            onClick={nextSlide}
+            className="absolute right-4 top-1/2 -translate-y-1/2 bg-white/90 hover:bg-white text-neutral-800 p-2 rounded-full shadow-lg transition-all z-10"
+            aria-label="Next tile"
+          >
+            <ChevronRight className="h-5 w-5" />
+          </button>
+
+          {/* Dots indicator */}
+          <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2 z-10">
+            {featuredTiles.map((_, index) => (
+              <button
+                key={index}
+                onClick={() => setCurrentSlide(index)}
+                className={`w-2 h-2 rounded-full transition-all ${
+                  index === currentSlide ? "bg-orange-600" : "bg-white/60"
+                }`}
+                aria-label={`Go to ${featuredTiles[index].name} slide`}
+              />
+            ))}
+          </div>
+        </div>
+      </div>
+    </section>
+  )
+}
+
 // --- Main Landing Page Component ---
 
 function useIntersectionObserver(options = {}) {
@@ -675,6 +810,9 @@ export default function Page() {
     <>
       <main className="bg-white">
         <ScrollHeader currentPage="home" />
+
+        {/* Featured Tile Carousel */}
+        <FeaturedTileCarousel />
 
         {/* Stats/Credibility Section */}
         <section ref={statsRef} className="py-20 sm:py-24 bg-white relative z-10">
@@ -744,7 +882,7 @@ export default function Page() {
               Contact us today for a free consultation and quote on your clay tile roofing project.
             </p>
             <Link href="/contact#quote" className="tappable">
-              <Button className="h-14 px-8 text-lg font-semibold bg-orange-600 hover:bg-orange-700 text-white rounded-full shadow-lg hover:shadow-xl transition-all duration-200 cursor-pointer">
+              <Button className="h-14 px-8 text-lg font-semibold bg-orange-600 hover:bg-orange-700 text-white rounded-lg shadow-lg hover:shadow-xl transition-all duration-200 cursor-pointer">
                 Request a Quote
               </Button>
             </Link>
