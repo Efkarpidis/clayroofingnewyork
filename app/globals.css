@@ -42,6 +42,13 @@
   --header-height: 64px;
   --safe-area-top: env(safe-area-inset-top, 0px);
   --total-header-height: calc(var(--header-height) + var(--safe-area-top));
+
+  /* Brand Colors */
+  --clay-red: #c1442e;
+  --clay-red-hover: #a13426;
+  --clay-red-dark: #8b2d1f;
+  --charcoal-gray: #2b2b2b;
+  --charcoal-gray-hover: #1f1f1f;
 }
 
 .dark {
@@ -116,6 +123,13 @@
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
+
+  /* Brand Color Classes */
+  --color-clay-red: var(--clay-red);
+  --color-clay-red-hover: var(--clay-red-hover);
+  --color-clay-red-dark: var(--clay-red-dark);
+  --color-charcoal-gray: var(--charcoal-gray);
+  --color-charcoal-gray-hover: var(--charcoal-gray-hover);
 }
 
 @layer base {
@@ -167,4 +181,65 @@
 /* Disable touch callout only where necessary, not on buttons */
 .no-touch-callout {
   -webkit-touch-callout: none;
+}
+
+/* Brand Color Utilities */
+.bg-clay-red {
+  background-color: var(--clay-red);
+}
+
+.bg-clay-red:hover {
+  background-color: var(--clay-red-hover);
+}
+
+.text-clay-red {
+  color: var(--clay-red);
+}
+
+.text-clay-red:hover {
+  color: var(--clay-red-hover);
+}
+
+.border-clay-red {
+  border-color: var(--clay-red);
+}
+
+.bg-charcoal-gray {
+  background-color: var(--charcoal-gray);
+}
+
+.bg-charcoal-gray:hover {
+  background-color: var(--charcoal-gray-hover);
+}
+
+.text-charcoal-gray {
+  color: var(--charcoal-gray);
+}
+
+/* Luxury Typography */
+.luxury-title {
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.luxury-subtitle {
+  font-weight: 500;
+  letter-spacing: 0.05em;
+  opacity: 0.8;
+}
+
+/* Premium Badge */
+.premium-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.25rem 0.75rem;
+  background: linear-gradient(135deg, var(--clay-red), var(--clay-red-dark));
+  color: white;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  border-radius: 9999px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
 }

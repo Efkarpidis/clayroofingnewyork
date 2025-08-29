@@ -5,16 +5,13 @@ import Image from "next/image"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent } from "@/components/ui/dialog"
-import { ArrowLeft } from "lucide-react"
+import { ArrowLeft, Grid3X3, Camera } from "lucide-react"
 import { StickyCallBar } from "@/components/sticky-call-bar"
 import { ScrollHeader } from "@/components/scroll-header"
-import { galleryData, tileTypes, type Photo } from "../gallery-data"
+import { galleryPhotos, type ProjectPhoto } from "../gallery-data"
 
 export default function GalleryPage() {
-  const [activeFilter, setActiveFilter] = useState("All")
-  const [selectedPhoto, setSelectedPhoto] = useState<Photo | null>(null)
-
-  const filteredProjects = activeFilter === "All" ? galleryData : galleryData.filter((p) => p.tileName === activeFilter)
+  const [selectedPhoto, setSelectedPhoto] = useState<ProjectPhoto | null>(null)
 
   return (
     <>
@@ -22,83 +19,103 @@ export default function GalleryPage() {
         <ScrollHeader currentPage="gallery" />
 
         {/* Hero Section */}
-        <section className="bg-gray-900 text-white py-16 pt-20">
+        <section className="bg-gradient-to-r from-neutral-900 via-neutral-800 to-neutral-700 text-white py-16 pt-20">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex items-center mb-6">
-              <Link href="/" className="flex items-center text-orange-400 hover:text-orange-300 mr-4">
+              <Link href="/" className="flex items-center text-white/80 hover:text-white mr-4">
                 <ArrowLeft className="w-5 h-5 mr-2" />
                 Back to Home
               </Link>
             </div>
-            <h1 className="text-4xl md:text-5xl font-bold mb-4">Our Clay Tile Roofing Projects</h1>
-            <p className="text-xl text-gray-300 max-w-3xl">
-              Explore our portfolio of premium clay tile roofing installations across New York City.
-            </p>
+
+            <div className="text-center max-w-4xl mx-auto">
+              <div className="flex items-center justify-center gap-3 mb-6">
+                <div className="premium-badge">
+                  <Camera className="w-3 h-3 mr-1" />
+                  Project Gallery
+                </div>
+              </div>
+
+              <h1 className="luxury-title text-4xl md:text-5xl mb-4">Our Clay Tile Roofing Projects</h1>
+              <p className="text-xl text-neutral-300 max-w-3xl mx-auto leading-relaxed">
+                Explore our portfolio of premium clay tile roofing installations across New York City and surrounding
+                areas.
+              </p>
+
+              <div className="flex items-center justify-center gap-4 mt-8 text-neutral-400">
+                <div className="flex items-center gap-2">
+                  <Grid3X3 className="w-4 h-4" />
+                  <span className="text-sm">{galleryPhotos.length} Projects</span>
+                </div>
+                <span className="w-1 h-1 bg-neutral-400 rounded-full"></span>
+                <span className="text-sm">Premium Clay Tiles</span>
+                <span className="w-1 h-1 bg-neutral-400 rounded-full"></span>
+                <span className="text-sm">30+ Years Experience</span>
+              </div>
+            </div>
           </div>
         </section>
 
         {/* Gallery Grid */}
         <section className="py-16">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="my-8 flex flex-wrap items-center justify-center gap-2">
-              <Button
-                variant={activeFilter === "All" ? "default" : "outline"}
-                onClick={() => setActiveFilter("All")}
-                className="rounded-full"
-              >
-                All Projects
-              </Button>
-              {tileTypes.map((type) => (
-                <Button
-                  key={type}
-                  variant={activeFilter === type ? "default" : "outline"}
-                  onClick={() => setActiveFilter(type)}
-                  className="rounded-full"
+            {/* Responsive Grid: 1 column mobile, 2 columns tablet, 3 columns desktop */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
+              {galleryPhotos.map((photo) => (
+                <button
+                  key={photo.id}
+                  onClick={() => setSelectedPhoto(photo)}
+                  className="group relative block w-full overflow-hidden rounded-xl bg-neutral-100 transition-all duration-300 hover:shadow-xl hover:scale-[1.02] cursor-pointer"
                 >
-                  {type}
-                </Button>
+                  {/* Consistent aspect ratio container */}
+                  <div className="aspect-[4/3] relative">
+                    <Image
+                      src={photo.src || "/placeholder.svg"}
+                      alt={photo.alt}
+                      fill
+                      className="object-cover transition-transform duration-500 group-hover:scale-105"
+                      sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                      loading="lazy"
+                    />
+
+                    {/* Subtle hover overlay */}
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+
+                    {/* Future-proof overlay for project info */}
+                    <div className="absolute bottom-0 left-0 right-0 p-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                      {/* Space reserved for future project details */}
+                      <div className="text-white">
+                        <div className="w-2 h-2 bg-white/60 rounded-full mx-auto"></div>
+                      </div>
+                    </div>
+                  </div>
+                </button>
               ))}
             </div>
 
-            <div className="space-y-12">
-              {filteredProjects.map((project) => (
-                <section key={project.id}>
-                  <div className="mb-4">
-                    <h2 className="text-2xl font-bold">{project.tileName}</h2>
-                    <p className="text-md text-neutral-500">{project.tileColor}</p>
-                  </div>
-                  <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                    {project.photos.map((photo, index) => (
-                      <button
-                        key={index}
-                        onClick={() => setSelectedPhoto(photo)}
-                        className="group relative block w-full overflow-hidden rounded-lg text-left"
-                      >
-                        <Image
-                          src={photo.src || "/placeholder.svg"}
-                          alt={photo.alt}
-                          width={800}
-                          height={600}
-                          className="aspect-[4/3] w-full object-cover transition-transform duration-300 group-hover:scale-105"
-                        />
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
-                        <div className="absolute bottom-0 left-0 p-4">
-                          <h3 className="font-semibold text-white">{photo.angle}</h3>
-                        </div>
-                      </button>
-                    ))}
-                  </div>
-                </section>
-              ))}
+            {/* Future projects placeholder */}
+            <div className="mt-12 text-center">
+              <div className="bg-neutral-50 rounded-xl p-8 border-2 border-dashed border-neutral-200">
+                <Camera className="h-12 w-12 text-neutral-400 mx-auto mb-4" />
+                <h3 className="text-lg font-semibold text-neutral-700 mb-2">More Projects Coming Soon</h3>
+                <p className="text-neutral-500 mb-4">
+                  We're continuously adding new project photos to showcase our latest clay tile installations.
+                </p>
+                <Link href="/contact#quote">
+                  <Button className="bg-clay-red hover:bg-clay-red text-white font-semibold cursor-pointer">
+                    Start Your Project
+                  </Button>
+                </Link>
+              </div>
             </div>
           </div>
         </section>
 
         {/* CTA Section */}
-        <section className="py-16 bg-orange-600 text-white">
+        <section className="py-16 bg-clay-red text-white">
           <div className="max-w-4xl mx-auto text-center px-4 sm:px-6 lg:px-8">
             <h2 className="text-3xl md:text-4xl font-bold mb-4">Ready to Transform Your Roof?</h2>
-            <p className="text-xl mb-8 text-orange-100">
+            <p className="text-xl mb-8 text-red-100">
               Let us create a beautiful clay tile roof for your property. Contact us today for a free consultation and
               quote.
             </p>
@@ -106,14 +123,16 @@ export default function GalleryPage() {
               <Button
                 size="lg"
                 variant="outline"
-                className="border-white text-white hover:bg-white hover:text-orange-600 px-8 py-3 text-lg bg-transparent"
+                className="border-white text-white hover:bg-white hover:text-clay-red px-8 py-3 text-lg bg-transparent cursor-pointer"
+                asChild
               >
-                <Link href="/#quote">Get Free Quote</Link>
+                <Link href="/contact#quote">Get Free Quote</Link>
               </Button>
               <Button
                 size="lg"
                 variant="outline"
-                className="border-white text-white hover:bg-white hover:text-orange-600 px-8 py-3 text-lg bg-transparent"
+                className="border-white text-white hover:bg-white hover:text-clay-red px-8 py-3 text-lg bg-transparent cursor-pointer"
+                asChild
               >
                 <Link href="/contact">Contact Us</Link>
               </Button>
@@ -148,20 +167,28 @@ export default function GalleryPage() {
         </footer>
       </div>
 
-      {/* Dialog for Selected Photo */}
+      {/* Full-Screen Photo Modal */}
       <Dialog open={!!selectedPhoto} onOpenChange={() => setSelectedPhoto(null)}>
-        <DialogContent className="max-w-4xl p-2 sm:p-4">
+        <DialogContent className="max-w-6xl p-2 sm:p-4 bg-black/95">
           {selectedPhoto && (
-            <div>
-              <Image
-                src={selectedPhoto.src || "/placeholder.svg"}
-                alt={selectedPhoto.alt}
-                width={1600}
-                height={1200}
-                className="w-full rounded-md object-contain"
-              />
-              <div className="mt-2 px-2 text-center text-sm text-neutral-600">
-                <p>{selectedPhoto.alt}</p>
+            <div className="relative">
+              <div className="aspect-video relative max-h-[80vh]">
+                <Image
+                  src={selectedPhoto.src || "/placeholder.svg"}
+                  alt={selectedPhoto.alt}
+                  fill
+                  className="object-contain rounded-md"
+                  sizes="90vw"
+                  priority
+                />
+              </div>
+
+              {/* Future-proof space for project details */}
+              <div className="mt-4 text-center">
+                <div className="text-white/60 text-sm">
+                  {/* Space reserved for future project information */}
+                  <div className="w-2 h-2 bg-white/20 rounded-full mx-auto"></div>
+                </div>
               </div>
             </div>
           )}
