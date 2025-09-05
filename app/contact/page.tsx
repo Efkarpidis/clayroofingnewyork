@@ -486,7 +486,7 @@ function ContactForm() {
       )}
 
       <form action={formAction} className="space-y-6" id="quote">
-        <FieldWrapper id="name" label="Full Name" required error={errors.name?.message || state.errors?.name?.[0]}>
+        <FieldWrapper id="name" label="Name" required error={errors.name?.message || state.errors?.name?.[0]}>
           <FormInput {...register("name")} placeholder="Cocoa Clay" />
         </FieldWrapper>
 
@@ -518,11 +518,11 @@ function ContactForm() {
             <option value="" className="text-neutral-400">
               Select...
             </option>
+            <option value="homeowner">Homeowner</option>
             <option value="general-contractor">General Contractor</option>
             <option value="architect">Architect</option>
-            <option value="homeowner">Homeowner</option>
-            <option value="previous-client">Previous Client (Warranty or Service Request)</option>
             <option value="other">Manufacturer</option>
+            <option value="previous-client">Previous Client (Warranty or Service Request)</option>
             <option value="other">Other</option>
           </FormSelect>
           {selectedContactType === "previous-client" && (
@@ -579,7 +579,7 @@ function ContactForm() {
           required
           error={errors.message?.message || state.errors?.message?.[0]}
         >
-          <FormTextarea {...register("message")} rows={4} placeholder="Tell us about your project..." />
+          <FormTextarea {...register("message")} rows={4} placeholder="Type your message here." />
         </FieldWrapper>
 
         <FieldWrapper id="file" label="Attach File" error={state.errors?.file?.[0]}>
@@ -684,11 +684,11 @@ function ContactPage() {
                   <div>
                     <div className="flex gap-2">
                       <a href="tel:+12123654386" className="hover:underline">
-                        (212) 365-4386
+                        212-365-4386
                       </a>
                       <span className="text-neutral-400">|</span>
                       <a href="sms:+12123654386" className="hover:underline">
-                        Text
+                        iMessage
                       </a>
                     </div>
                     <span className="text-sm text-neutral-600">Call or iMessage</span>
@@ -704,18 +704,48 @@ function ContactPage() {
             </div>
 
             {/* How to Get Here */}
-            <div>
-              <h3 className="text-xl font-bold text-neutral-900 mb-4">How to Get Here</h3>
-              <a
-                href="https://maps.google.com/?q=33-15+127th+Pl,+Corona,+NY+11368"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 bg-orange-600 text-white px-4 py-2 rounded-lg hover:bg-orange-700 transition-colors tappable"
-              >
-                <MapPin className="h-4 w-4" />
-                Open in Google Maps
-              </a>
-            </div>
+<div>
+  <h3 className="flex items-center gap-2 text-xl font-bold text-neutral-900 mb-4">
+    <MapPin className="h-5 w-5 text-orange-600" />
+    How to Get Here
+  </h3>
+
+  <div className="flex gap-4">
+    {/* Google Maps */}
+    <a
+      href="https://www.google.com/maps/search/?api=1&query=33-15+127th+Pl,+Corona,+NY+11368"
+      target="_blank"
+      rel="noopener noreferrer"
+      className="hover:opacity-80 transition-opacity"
+      aria-label="Open in Google Maps"
+    >
+      <Image src="/icons/google-maps.png" alt="Google Maps" width={40} height={40} />
+    </a>
+
+    {/* Apple Maps */}
+    <a
+      href="http://maps.apple.com/?q=33-15+127th+Pl,+Corona,+NY+11368"
+      target="_blank"
+      rel="noopener noreferrer"
+      className="hover:opacity-80 transition-opacity"
+      aria-label="Open in Apple Maps"
+    >
+      <Image src="/icons/apple-maps.png" alt="Apple Maps" width={40} height={40} />
+    </a>
+
+    {/* Waze */}
+    <a
+      href="https://waze.com/ul?q=33-15+127th+Pl,+Corona,+NY+11368"
+      target="_blank"
+      rel="noopener noreferrer"
+      className="hover:opacity-80 transition-opacity"
+      aria-label="Open in Waze"
+    >
+      <Image src="/icons/waze.png" alt="Waze" width={40} height={40} />
+    </a>
+  </div>
+</div>
+
 
             {/* Before You Contact Us */}
             <div>
