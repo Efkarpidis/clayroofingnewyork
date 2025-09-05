@@ -495,11 +495,11 @@ function ContactForm() {
         </FieldWrapper>
 
         <FieldWrapper id="phone" label="Phone" error={errors.phone?.message || state.errors?.phone?.[0]}>
-          <FormInput {...register("phone")} type="tel" placeholder="(212) 555-0134" />
+          <FormInput {...register("phone")} type="tel" placeholder="(718) 000-0000" />
         </FieldWrapper>
 
         <FieldWrapper id="company" label="Company" error={errors.company?.message || state.errors?.company?.[0]}>
-          <FormInput {...register("company")} placeholder="Your Company Name" />
+          <FormInput {...register("company")} placeholder="Cocoa's Roofing Company" />
         </FieldWrapper>
 
         <FieldWrapper
@@ -521,8 +521,9 @@ function ContactForm() {
             <option value="general-contractor">General Contractor</option>
             <option value="architect">Architect</option>
             <option value="homeowner">Homeowner</option>
-            <option value="other">Other</option>
             <option value="previous-client">Previous Client (Warranty or Service Request)</option>
+            <option value="other">Manufacturer</option>
+            <option value="other">Other</option>
           </FormSelect>
           {selectedContactType === "previous-client" && (
             <div className="mt-2 text-sm text-neutral-600 italic">Warranty & service support for past projects.</div>
@@ -551,6 +552,7 @@ function ContactForm() {
             <option value="Vienna">Vienna</option>
             <option value="S-Mixed">S-Mixed</option>
             <option value="Selectum">Selectum</option>
+            <option value="Request">Request</option>
           </FormSelect>
         </FieldWrapper>
 
@@ -721,7 +723,7 @@ function ContactPage() {
               <ul className="space-y-3 text-neutral-700">
                 <li className="flex items-start gap-3">
                   <Check className="h-5 w-5 text-orange-600 mt-0.5 flex-shrink-0" />
-                  <span>Looking for an estimate?</span>
+                  <span>Looking for a free estimate? We got you covered.</span>
                 </li>
                 <li className="flex items-start gap-3">
                   <Check className="h-5 w-5 text-orange-600 mt-0.5 flex-shrink-0" />
@@ -734,6 +736,10 @@ function ContactPage() {
                 <li className="flex items-start gap-3">
                   <Check className="h-5 w-5 text-orange-600 mt-0.5 flex-shrink-0" />
                   <span>Are you a contractor, architect, or homeowner?</span>
+                </li>
+                 <li className="flex items-start gap-3">
+                  <X className="h-5 w-5 text-red-600 mt-0.5 flex-shrink-0" />
+                  <span>We are not a roof repair service unless you are a previous client.</span>
                 </li>
               </ul>
             </div>
