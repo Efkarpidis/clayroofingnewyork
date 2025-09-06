@@ -705,10 +705,9 @@ function ContactPage() {
                       <a href="sms:+12123654386" className="hover:underline text-lg">
                         212-365-4386
                       </a>
-                      <span className="block text-sm text-neutral-600">Text<br></span>
+                      <span className="block text-sm text-neutral-600">Text<br /></span>
                     </div>
                   </div>
-
                   {/* WhatsApp */}
                   <div className="flex items-center gap-3">
                     <svg className="h-6 w-6 text-orange-600" viewBox="0 0 24 24" fill="currentColor">
