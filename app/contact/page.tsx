@@ -512,10 +512,11 @@ function ContactForm() {
               Select...
             </option>
             <option value="general-contractor">General Contractor</option>
-            <option value="architect">Architect</option>
             <option value="homeowner">Homeowner</option>
-            <option value="other">Other</option>
+            <option value="architect">Architect</option>
+            <option value="architect">Manufacturer</option>
             <option value="previous-client">Previous Client (Warranty or Service Request)</option>
+            <option value="other">Other</option>
           </FormSelect>
           {selectedContactType === "previous-client" && (
             <div className="mt-2 text-sm text-neutral-600 italic">Warranty & service support for past projects.</div>
