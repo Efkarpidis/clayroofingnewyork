@@ -4,7 +4,7 @@ import React, { useEffect } from "react"
 import { useActionState, useState } from "react"
 import { StickyCallBar } from "@/components/sticky-call-bar"
 import { ScrollHeader } from "@/components/scroll-header"
-import { MapPin, Phone, Mail, Upload, Camera, FileText, X, Check, Shield } from "lucide-react"
+import { MapPin, Phone, Mail, Upload, Camera, FileText, X, Check, Shield, MessageCircle } from "lucide-react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
@@ -654,13 +654,16 @@ function ContactForm() {
 
 function ContactPage() {
   return (
-    <div className="bg-white text-neutral-800">
+    <div className="bg-white text-neutral-800 min-h-screen">
       <ScrollHeader currentPage="contact" />
 
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-        <div className="text-center mb-12">
-          <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight sm:text-4xl">Contact Us</h1>
-          <p className="mt-2 max-w-2xl mx-auto text-lg text-neutral-600">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-16">
+        {/* Header Section */}
+        <div className="text-center mb-8 sm:mb-12">
+          <h1 className="text-2xl sm:text-3xl md:text-4xl font-extrabold tracking-tight text-neutral-900">
+            Contact Us
+          </h1>
+          <p className="mt-2 max-w-2xl mx-auto text-base sm:text-lg text-neutral-600">
             Have a question or need a quote? We're here to help.
           </p>
           <p className="mt-1 text-sm text-neutral-500 italic">
@@ -668,129 +671,117 @@ function ContactPage() {
           </p>
         </div>
 
-        <div className="mt-16 grid grid-cols-1 gap-16 lg:grid-cols-2">
-          {/* Left Side - Contact Info with Clay Tint Background */}
-          <div className="bg-gradient-to-br from-orange-50 to-orange-100 rounded-lg p-8 space-y-8">
+        <div className="grid grid-cols-1 gap-8 lg:gap-16 lg:grid-cols-2">
+          {/* Left Side - Contact Info */}
+          <div className="bg-gradient-to-br from-orange-50 to-orange-100 rounded-xl p-6 sm:p-8 space-y-6 sm:space-y-8">
+            {/* Get in Touch Section */}
             <div>
-              <h2 className="text-2xl font-bold text-neutral-900 mb-6">Get in Touch</h2>
-              <div className="space-y-4 text-lg text-neutral-700">
-                <div className="flex items-start gap-3">
-                  <MapPin className="h-6 w-6 flex-shrink-0 text-orange-600 mt-1" />
-                  <span>33-15 127th Pl, Corona, NY 11368</span>
-                </div>
+              <h2 className="text-xl sm:text-2xl font-bold text-neutral-900 mb-4 sm:mb-6">Get in Touch</h2>
 
-                <div className="space-y-4">
-                  {/* Phone Call */}
-                  <div className="flex items-center gap-3">
-                    <Phone className="h-6 w-6 text-orange-600" />
-                    <div>
-                      <a 
-                     href="tel:+12123654386" 
-                     aria-label="Call 212-365-4386" 
-                     className="hover:underline text-lg" 
-                    >
-                            212-365-4386
-                          </a>
-
-                      <span className="block text-sm text-neutral-600">Voice</span>
-                    </div>
-                  </div>
-
-                  {/* Text/SMS */}
-                  <div className="flex items-center gap-3">
-                    <svg className="h-6 w-6 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
-                      />
-                    </svg>
-                    <div>
-                    <a 
-                    href="sms:+12123654386" 
-                    aria-label="Text 212-365-4386" 
-                  className="hover:underline text-lg"
-                    >
-                        212-365-4386
-                        </a>
-
-                      <span className="block text-sm text-neutral-600">Text<br /></span>
-                    </div>
-                  </div>
-                  {/* WhatsApp */}
-                  <div className="flex items-center gap-3">
-                    <svg className="h-6 w-6 text-orange-600" viewBox="0 0 24 24" fill="currentColor">
-                      <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893A11.821 11.821 0 0020.885 3.097" />
-                    </svg>
-                    <div>
-                    <a 
-                         href="https://wa.me/12123654386" 
-                       aria-label="WhatsApp 212-365-4386" 
-                       className="hover:underline text-lg"
-                          >
-  212-365-4386
-</a>
-
-                      <span className="block text-sm text-neutral-600">WhatsApp</span>
-                    </div>
-                  </div>
-                </div>
-                <div className="flex items-center gap-3">
-                  <Mail className="h-6 w-6 text-orange-600" />
-                  <a href="mailto:chris@clayroofingnewyork.com" className="hover:underline">
-                    chris@clayroofingnewyork.com
-                  </a>
+              {/* Address */}
+              <div className="mb-6">
+                <div className="flex items-start gap-3 p-3 rounded-lg bg-white/50 border border-orange-200">
+                  <MapPin className="h-5 w-5 text-orange-600 mt-0.5 flex-shrink-0" />
+                  <span className="text-neutral-700 font-medium">33-15 127th Pl, Corona, NY 11368</span>
                 </div>
               </div>
+
+              {/* Contact Buttons */}
+              <div className="space-y-3">
+                {/* Phone Call */}
+                <a
+                  href="tel:+12123654386"
+                  className="flex items-center gap-3 w-full p-4 rounded-lg bg-orange-600 text-white font-semibold shadow-md hover:bg-orange-700 transition-all duration-200 transform hover:scale-[1.02] active:scale-[0.98]"
+                >
+                  <Phone className="h-5 w-5 flex-shrink-0" />
+                  <span>Call: 212-365-4386</span>
+                </a>
+
+                {/* Text/SMS */}
+                <a
+                  href="sms:+12123654386"
+                  className="flex items-center gap-3 w-full p-4 rounded-lg bg-blue-600 text-white font-semibold shadow-md hover:bg-blue-700 transition-all duration-200 transform hover:scale-[1.02] active:scale-[0.98]"
+                >
+                  <MessageCircle className="h-5 w-5 flex-shrink-0" />
+                  <span>Text: 212-365-4386</span>
+                </a>
+
+                {/* WhatsApp */}
+                <a
+                  href="https://wa.me/12123654386"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-3 w-full p-4 rounded-lg bg-green-600 text-white font-semibold shadow-md hover:bg-green-700 transition-all duration-200 transform hover:scale-[1.02] active:scale-[0.98]"
+                >
+                  <svg className="h-5 w-5 flex-shrink-0" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893A11.821 11.821 0 0020.885 3.097" />
+                  </svg>
+                  <span>WhatsApp: 212-365-4386</span>
+                </a>
+
+                {/* Email */}
+                <a
+                  href="mailto:chris@clayroofingnewyork.com"
+                  className="flex items-center gap-3 w-full p-4 rounded-lg bg-neutral-700 text-white font-semibold shadow-md hover:bg-neutral-800 transition-all duration-200 transform hover:scale-[1.02] active:scale-[0.98]"
+                >
+                  <Mail className="h-5 w-5 flex-shrink-0" />
+                  <span>Email: chris@clayroofingnewyork.com</span>
+                </a>
+              </div>
             </div>
+
             {/* How to Get Here */}
             <div>
-              <h3 className="flex items-center gap-2 text-xl font-bold text-neutral-900 mb-4">
+              <h3 className="text-lg sm:text-xl font-bold text-neutral-900 mb-4 flex items-center gap-2">
                 <MapPin className="h-5 w-5 text-orange-600" />
                 How to Get Here
               </h3>
-
-              <div className="flex flex-nowrap items-center justify-start gap-4 sm:gap-6">
-                {/* Google Maps */}
+              <div className="flex items-center justify-start gap-4 sm:gap-6">
                 <a
                   href="https://www.google.com/maps/search/?api=1&query=33-15+127th+Pl,+Corona,+NY+11368"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="hover:opacity-80 transition-opacity"
+                  className="flex flex-col items-center gap-2 p-3 rounded-lg bg-white/70 hover:bg-white transition-colors"
                   aria-label="Open in Google Maps"
                 >
-                  <Image src="/icons/google-maps.svg" alt="Google Maps" width={40} height={40} />
+                  <div className="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center">
+                    <MapPin className="h-5 w-5 text-white" />
+                  </div>
+                  <span className="text-xs font-medium text-neutral-700">Google Maps</span>
                 </a>
 
-                {/* Apple Maps */}
                 <a
                   href="http://maps.apple.com/?q=33-15+127th+Pl,+Corona,+NY+11368"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="hover:opacity-80 transition-opacity"
+                  className="flex flex-col items-center gap-2 p-3 rounded-lg bg-white/70 hover:bg-white transition-colors"
                   aria-label="Open in Apple Maps"
                 >
-                  <Image src="/icons/apple-maps.svg" alt="Apple Maps" width={40} height={40} />
+                  <div className="w-10 h-10 bg-gray-800 rounded-full flex items-center justify-center">
+                    <MapPin className="h-5 w-5 text-white" />
+                  </div>
+                  <span className="text-xs font-medium text-neutral-700">Apple Maps</span>
                 </a>
 
-                {/* Waze */}
                 <a
                   href="https://waze.com/ul?q=33-15+127th+Pl,+Corona,+NY+11368"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="hover:opacity-80 transition-opacity"
+                  className="flex flex-col items-center gap-2 p-3 rounded-lg bg-white/70 hover:bg-white transition-colors"
                   aria-label="Open in Waze"
                 >
-                  <Image src="/icons/waze.svg" alt="Waze" width={40} height={40} />
+                  <div className="w-10 h-10 bg-cyan-500 rounded-full flex items-center justify-center">
+                    <MapPin className="h-5 w-5 text-white" />
+                  </div>
+                  <span className="text-xs font-medium text-neutral-700">Waze</span>
                 </a>
               </div>
             </div>
 
             {/* Before You Contact Us */}
             <div>
-              <h3 className="text-xl font-bold text-neutral-900 mb-4">Before You Contact Us</h3>
-              <ul className="space-y-3 text-neutral-700">
+              <h3 className="text-lg sm:text-xl font-bold text-neutral-900 mb-4">Before You Contact Us</h3>
+              <ul className="space-y-3 text-sm sm:text-base text-neutral-700">
                 <li className="flex items-start gap-3">
                   <Check className="h-5 w-5 text-orange-600 mt-0.5 flex-shrink-0" />
                   <span>Looking for a free estimate? We got you covered.</span>
@@ -816,13 +807,14 @@ function ContactPage() {
           </div>
 
           {/* Right Side - Contact Form */}
-          <div className="rounded-lg border border-neutral-200 bg-white p-6 sm:p-8 shadow-sm">
+          <div className="rounded-xl border border-neutral-200 bg-white p-6 sm:p-8 shadow-sm">
             <ContactForm />
           </div>
         </div>
       </main>
 
-      <footer className="border-t border-neutral-200 bg-neutral-50">
+      {/* Footer */}
+      <footer className="border-t border-neutral-200 bg-neutral-50 mt-16">
         <div className="max-w-7xl mx-auto px-4 py-6 space-y-4">
           <div className="flex items-center justify-center gap-3 text-sm text-neutral-600">
             <a

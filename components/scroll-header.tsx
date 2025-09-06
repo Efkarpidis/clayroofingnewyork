@@ -25,7 +25,7 @@ export function ScrollHeader({ currentPage = "home" }: ScrollHeaderProps) {
   }, [])
 
   return (
-    <header className="sticky top-0 left-0 right-0 z-[1000] safe-area-top">
+    <header className="sticky top-0 left-0 right-0 z-[1000]">
       <div
         className={`transition-all duration-300 ease-in-out ${
           scrolled
@@ -34,7 +34,7 @@ export function ScrollHeader({ currentPage = "home" }: ScrollHeaderProps) {
         }`}
       >
         <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-14 sm:h-16 md:h-18 lg:h-20">
+          <div className="flex items-center justify-between h-16 sm:h-18 lg:h-20">
             {/* Logo - Left Aligned */}
             <Link href="/" className="flex items-center flex-shrink-0">
               <Image
@@ -42,21 +42,27 @@ export function ScrollHeader({ currentPage = "home" }: ScrollHeaderProps) {
                 alt="Clay Roofing New York - Specializing in Clay & Ceramic Tile Roofing"
                 width={320}
                 height={68}
-                className="object-contain h-7 sm:h-8 md:h-10 lg:h-12 w-auto max-w-[200px] sm:max-w-[280px] md:max-w-[320px]"
+                className={`object-contain w-auto ${
+                  currentPage === "contact"
+                    ? "h-10 sm:h-12 md:h-14 lg:h-16 max-w-[240px] sm:max-w-[300px] md:max-w-[360px]"
+                    : "h-7 sm:h-8 md:h-10 lg:h-12 max-w-[200px] sm:max-w-[280px] md:max-w-[320px]"
+                }`}
                 priority
               />
             </Link>
 
             {/* Mobile Menu - Visible on small screens */}
             <div className="flex items-center gap-2 md:hidden">
-              <Link href="/contact#quote" className="tappable">
-                <Button
-                  size="sm"
-                  className="bg-gradient-to-r from-orange-600 to-orange-700 text-white hover:from-orange-700 hover:to-orange-800 text-xs font-semibold transition-all shadow-md hover:shadow-lg cursor-pointer h-9 px-3"
-                >
-                  Request Quote
-                </Button>
-              </Link>
+              {currentPage !== "contact" && (
+                <Link href="/contact#quote" className="tappable">
+                  <Button
+                    size="sm"
+                    className="bg-gradient-to-r from-orange-600 to-orange-700 text-white hover:from-orange-700 hover:to-orange-800 text-xs font-semibold transition-all shadow-md hover:shadow-lg cursor-pointer h-9 px-3"
+                  >
+                    Request Quote
+                  </Button>
+                </Link>
+              )}
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button
@@ -192,14 +198,16 @@ export function ScrollHeader({ currentPage = "home" }: ScrollHeaderProps) {
               >
                 Contact
               </Link>
-              <Link href="/contact#quote" className="tappable">
-                <Button
-                  size="sm"
-                  className="bg-gradient-to-r from-orange-600 to-orange-700 text-white hover:from-orange-700 hover:to-orange-800 text-xs font-semibold transition-all shadow-lg hover:shadow-xl cursor-pointer h-9 px-4 whitespace-nowrap"
-                >
-                  Request Quote
-                </Button>
-              </Link>
+              {currentPage !== "contact" && (
+                <Link href="/contact#quote" className="tappable">
+                  <Button
+                    size="sm"
+                    className="bg-gradient-to-r from-orange-600 to-orange-700 text-white hover:from-orange-700 hover:to-orange-800 text-xs font-semibold transition-all shadow-lg hover:shadow-xl cursor-pointer h-9 px-4 whitespace-nowrap"
+                  >
+                    Request Quote
+                  </Button>
+                </Link>
+              )}
             </nav>
           </div>
         </div>
