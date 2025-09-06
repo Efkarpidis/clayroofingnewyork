@@ -1,10 +1,11 @@
 "use client"
 
-import React, { useEffect } from "react"
-import { useActionState, useState } from "react"
+import React, { useEffect, useState } from "react"
+import { useActionState } from "react"
 import { StickyCallBar } from "@/components/sticky-call-bar"
 import { ScrollHeader } from "@/components/scroll-header"
-import { MapPin, Phone, Mail, Upload, Camera, FileText, X, Check, Shield, MessageCircle } from "lucide-react"
+import { Button } from "@/components/ui/button"
+import { MapPin, Phone, Mail, Upload, Camera, FileText, X, Check, Shield, MessageCircle, Clock } from "lucide-react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
@@ -410,16 +411,8 @@ function ContactForm() {
       setValue("tileColor", tileColor)
     }
 
-    // Smooth scroll to form
-    const hash = window.location.hash
-    if (hash === "#quote") {
-      setTimeout(() => {
-        const formElement = document.getElementById("quote")
-        if (formElement) {
-          formElement.scrollIntoView({ behavior: "smooth", block: "start" })
-        }
-      }, 100)
-    }
+    // Always scroll to top when page loads - no auto-scroll to form
+    window.scrollTo(0, 0)
   }, [setValue])
 
   // Update selected tile family when form value changes
@@ -653,6 +646,23 @@ function ContactForm() {
 }
 
 function ContactPage() {
+  const [addressCopied, setAddressCopied] = useState(false)
+
+  // Ensure page always loads at top
+  useEffect(() => {
+    window.scrollTo(0, 0)
+  }, [])
+
+  const copyAddressToClipboard = async () => {
+    try {
+      await navigator.clipboard.writeText("33-15 127th Pl, Corona, NY 11368")
+      setAddressCopied(true)
+      setTimeout(() => setAddressCopied(false), 2000)
+    } catch (err) {
+      console.error("Failed to copy address:", err)
+    }
+  }
+
   return (
     <div className="bg-white text-neutral-800 min-h-screen">
       <ScrollHeader currentPage="contact" />
@@ -678,58 +688,60 @@ function ContactPage() {
             <div>
               <h2 className="text-xl font-semibold text-neutral-900 mb-4">Get in Touch</h2>
 
-              {/* Address */}
-              <div className="mb-6">
-                <div className="flex items-start gap-3 p-3 rounded-lg bg-white/50 border border-orange-200">
-                  <MapPin className="h-5 w-5 text-orange-600 mt-0.5 flex-shrink-0" />
-                  <span className="text-neutral-700 font-medium">33-15 127th Pl, Corona, NY 11368</span>
-                </div>
-              </div>
-
               {/* Helper Text */}
               <p className="text-sm text-neutral-500 mb-4">Tap an option to get in touch</p>
 
               {/* Contact Buttons */}
               <div className="space-y-4">
                 {/* Phone Call */}
-                <a
-                  href="tel:+12123654386"
-                  className="flex items-center gap-3 rounded-xl border border-neutral-300 bg-white px-4 py-3 text-base font-medium text-neutral-800 shadow-sm hover:bg-neutral-50 active:bg-neutral-100 transition-colors"
+                <Button
+                  variant="outline"
+                  className="w-full justify-start gap-3 h-auto py-3 px-4 text-base font-medium text-neutral-800 border-neutral-300 bg-white hover:bg-neutral-50 active:bg-neutral-100 transition-colors"
+                  asChild
                 >
-                  <Phone className="h-5 w-5 text-orange-600 flex-shrink-0" />
-                  <span>Call: 212-365-4386</span>
-                </a>
+                  <a href="tel:+12123654386">
+                    <Phone className="h-5 w-5 text-orange-600 flex-shrink-0" />
+                    <span>Call: 212-365-4386</span>
+                  </a>
+                </Button>
 
                 {/* Text/SMS */}
-                <a
-                  href="sms:+12123654386"
-                  className="flex items-center gap-3 rounded-xl border border-neutral-300 bg-white px-4 py-3 text-base font-medium text-neutral-800 shadow-sm hover:bg-neutral-50 active:bg-neutral-100 transition-colors"
+                <Button
+                  variant="outline"
+                  className="w-full justify-start gap-3 h-auto py-3 px-4 text-base font-medium text-neutral-800 border-neutral-300 bg-white hover:bg-neutral-50 active:bg-neutral-100 transition-colors"
+                  asChild
                 >
-                  <MessageCircle className="h-5 w-5 text-orange-600 flex-shrink-0" />
-                  <span>Text: 212-365-4386</span>
-                </a>
+                  <a href="sms:+12123654386">
+                    <MessageCircle className="h-5 w-5 text-orange-600 flex-shrink-0" />
+                    <span>Text: 212-365-4386</span>
+                  </a>
+                </Button>
 
                 {/* WhatsApp */}
-                <a
-                  href="https://wa.me/12123654386"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center gap-3 rounded-xl border border-neutral-300 bg-white px-4 py-3 text-base font-medium text-neutral-800 shadow-sm hover:bg-neutral-50 active:bg-neutral-100 transition-colors"
+                <Button
+                  variant="outline"
+                  className="w-full justify-start gap-3 h-auto py-3 px-4 text-base font-medium text-neutral-800 border-neutral-300 bg-white hover:bg-neutral-50 active:bg-neutral-100 transition-colors"
+                  asChild
                 >
-                  <svg className="h-5 w-5 text-orange-600 flex-shrink-0" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893A11.821 11.821 0 0020.885 3.097" />
-                  </svg>
-                  <span>WhatsApp: 212-365-4386</span>
-                </a>
+                  <a href="https://wa.me/12123654386" target="_blank" rel="noopener noreferrer">
+                    <svg className="h-5 w-5 text-orange-600 flex-shrink-0" viewBox="0 0 24 24" fill="currentColor">
+                      <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893A11.821 11.821 0 0020.885 3.097" />
+                    </svg>
+                    <span>WhatsApp: 212-365-4386</span>
+                  </a>
+                </Button>
 
                 {/* Email */}
-                <a
-                  href="mailto:chris@clayroofingnewyork.com"
-                  className="flex items-center gap-3 rounded-xl border border-neutral-300 bg-white px-4 py-3 text-base font-medium text-neutral-800 shadow-sm hover:bg-neutral-50 active:bg-neutral-100 transition-colors"
+                <Button
+                  variant="outline"
+                  className="w-full justify-start gap-3 h-auto py-3 px-4 text-base font-medium text-neutral-800 border-neutral-300 bg-white hover:bg-neutral-50 active:bg-neutral-100 transition-colors"
+                  asChild
                 >
-                  <Mail className="h-5 w-5 text-orange-600 flex-shrink-0" />
-                  <span>Email: chris@clayroofingnewyork.com</span>
-                </a>
+                  <a href="mailto:chris@clayroofingnewyork.com">
+                    <Mail className="h-5 w-5 text-orange-600 flex-shrink-0" />
+                    <span>Email: chris@clayroofingnewyork.com</span>
+                  </a>
+                </Button>
               </div>
             </div>
 
@@ -739,7 +751,7 @@ function ContactPage() {
                 <MapPin className="h-5 w-5 text-orange-600" />
                 How to Get Here
               </h3>
-              <div className="flex items-center justify-start gap-4 sm:gap-6">
+              <div className="flex items-center justify-start gap-4 sm:gap-6 mb-4">
                 <a
                   href="https://www.google.com/maps/search/?api=1&query=33-15+127th+Pl,+Corona,+NY+11368"
                   target="_blank"
@@ -769,6 +781,50 @@ function ContactPage() {
                 >
                   <Image src="/icons/waze.svg" alt="Waze" width={40} height={40} />
                 </a>
+              </div>
+
+              {/* Copy Address Button */}
+              <Button
+                variant="outline"
+                onClick={copyAddressToClipboard}
+                className="w-full justify-start gap-3 h-auto py-3 px-4 text-base font-medium text-neutral-800 border-neutral-300 bg-white hover:bg-neutral-50 active:bg-neutral-100 transition-colors"
+                aria-label="Copy address"
+              >
+                <MapPin className="h-5 w-5 text-orange-600 flex-shrink-0" />
+                <div className="flex flex-col items-start">
+                  <span className="text-neutral-900 font-medium">33-15 127th Pl, Corona, NY 11368</span>
+                  <span className="text-xs text-neutral-500">Tap to copy</span>
+                </div>
+              </Button>
+
+              {addressCopied && (
+                <div
+                  className="mt-2 text-sm text-green-600 font-medium animate-in fade-in-0 duration-200"
+                  role="status"
+                  aria-live="polite"
+                >
+                  Copied to clipboard
+                </div>
+              )}
+            </div>
+
+            {/* Operating Hours */}
+            <div className="mt-4">
+              <div className="bg-white/70 rounded-lg border border-neutral-200 shadow-sm p-4">
+                <h3 className="text-lg sm:text-xl font-semibold text-neutral-900 mb-3 flex items-center gap-2">
+                  <Clock className="h-5 w-5 text-orange-600" />
+                  Operating Hours
+                </h3>
+                <div className="space-y-2 sm:grid sm:grid-cols-2 sm:gap-4 sm:space-y-0">
+                  <div className="flex justify-between sm:flex-col sm:justify-start">
+                    <span className="text-neutral-600">Mon–Sat:</span>
+                    <span className="text-neutral-900 font-medium">9:00 AM – 5:00 PM</span>
+                  </div>
+                  <div className="flex justify-between sm:flex-col sm:justify-start">
+                    <span className="text-neutral-600">Sunday:</span>
+                    <span className="text-neutral-900 font-medium">Closed</span>
+                  </div>
+                </div>
               </div>
             </div>
 
