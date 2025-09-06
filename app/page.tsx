@@ -920,8 +920,8 @@ export default function Page() {
             <div>
               <h3 className="text-lg font-semibold text-neutral-900 mb-4">Business Hours</h3>
               <div className="space-y-2 text-neutral-600">
-                <p>Monday - Friday: 8:00 AM - 5:00 PM</p>
-                <p>Saturday - Sunday: By Appointment</p>
+                <p>Mon-Sat: 9:00 AM - 5:00 PM</p>
+                <p>Sunday: Closed</p>
               </div>
             </div>
           </div>
