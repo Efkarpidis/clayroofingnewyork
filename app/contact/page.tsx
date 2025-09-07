@@ -514,7 +514,7 @@ function ContactForm() {
             <option value="general-contractor">General Contractor</option>
             <option value="homeowner">Homeowner</option>
             <option value="architect">Architect</option>
-            <option value="architect">Manufacturer</option>
+            <option value="manufacturer">Manufacturer</option>
             <option value="previous-client">Previous Client (Warranty or Service Request)</option>
             <option value="other">Other</option>
           </FormSelect>
@@ -740,7 +740,10 @@ function ContactPage() {
                 >
                   <a href="mailto:chris@clayroofingnewyork.com">
                     <Mail className="h-5 w-5 text-orange-600 flex-shrink-0" />
-                    <span>Email: chris@clayroofingnewyork.com</span>
+                    <div className="flex flex-col items-start min-w-0">
+                      <span className="text-neutral-900 font-medium">Email Us</span>
+                      <span className="text-xs text-neutral-500 truncate w-full">chris@clayroofingnewyork.com</span>
+                    </div>
                   </a>
                 </Button>
               </div>

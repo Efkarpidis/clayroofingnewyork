@@ -139,10 +139,9 @@ export default function GalleryPage() {
                 </div>
               </div>
 
-              <h1 className="luxury-title text-4xl md:text-5xl mb-6 text-white">Our Clay Tile Roofing Projects</h1>
+              <h1 className="luxury-title text-4xl md:text-5xl mb-6 text-white">Welcome to our Project Gallery</h1>
               <p className="text-lg md:text-xl text-neutral-300 max-w-4xl mx-auto leading-relaxed">
-                From the number one clay tile manufacturer in the world, proudly installed by Clay Roofs New York. Over
-                30+ years of experience. 10M+ tiles installed. 3K+ projects completed.
+                Elevating America’s homes with European elegance.
               </p>
             </div>
           </div>
