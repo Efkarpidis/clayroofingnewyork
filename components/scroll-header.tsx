@@ -35,8 +35,8 @@ export function ScrollHeader({ currentPage = "home" }: ScrollHeaderProps) {
       >
         <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16 sm:h-18 lg:h-20">
-            {/* Logo - Left Aligned */}
-            <Link href="/" className="flex items-center flex-shrink-0">
+            {/* Logo - Left Aligned with flex-1 on mobile */}
+            <Link href="/" className="flex items-center flex-1 md:flex-initial flex-shrink-0 min-w-0">
               <Image
                 src="/clay-roofing-new-york-logo.png"
                 alt="Clay Roofing New York - Specializing in Clay & Ceramic Tile Roofing"
@@ -44,15 +44,15 @@ export function ScrollHeader({ currentPage = "home" }: ScrollHeaderProps) {
                 height={68}
                 className={`object-contain w-auto ${
                   currentPage === "contact"
-                    ? "h-10 sm:h-12 md:h-14 lg:h-16 max-w-[240px] sm:max-w-[300px] md:max-w-[360px]"
-                    : "h-7 sm:h-8 md:h-10 lg:h-12 max-w-[200px] sm:max-w-[280px] md:max-w-[320px]"
+                    ? "h-12 sm:h-12 md:h-14 lg:h-16 max-w-[280px] sm:max-w-[300px] md:max-w-[360px]"
+                    : "h-9 sm:h-8 md:h-10 lg:h-12 max-w-[240px] sm:max-w-[280px] md:max-w-[320px]"
                 }`}
                 priority
               />
             </Link>
 
-            {/* Mobile Menu - Visible on small screens */}
-            <div className="flex items-center gap-2 md:hidden">
+            {/* Mobile Menu - Visible on small screens with fixed width */}
+            <div className="flex items-center gap-2 md:hidden flex-shrink-0 min-w-[100px]">
               {currentPage !== "contact" && (
                 <Link href="/contact#quote" className="tappable">
                   <Button
@@ -68,7 +68,7 @@ export function ScrollHeader({ currentPage = "home" }: ScrollHeaderProps) {
                   <Button
                     variant="ghost"
                     size="icon"
-                    className="tappable text-neutral-800 hover:bg-orange-100 hover:text-orange-700"
+                    className="tappable text-neutral-800 hover:bg-orange-100 hover:text-orange-700 min-w-[44px] min-h-[44px]"
                   >
                     <Menu className="h-5 w-5" />
                     <span className="sr-only">Toggle menu</span>
