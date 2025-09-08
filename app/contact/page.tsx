@@ -64,7 +64,7 @@ async function handleContactFormSubmit(
 
   if (!validatedFields.success) {
     return {
-      message: "Please fix the errors below.",
+      message: "Please complete the required fields highlighted below.",
       errors: validatedFields.error.flatten().fieldErrors,
       success: false,
     }
@@ -442,7 +442,7 @@ function ContactForm() {
   useEffect(() => {
     if (state.success) {
       setShowToast(true)
-      // Clear form
+      // Clear form only on success
       reset()
       setFile(null)
       setPhotos([])
@@ -640,7 +640,13 @@ function ContactForm() {
           )}
         </button>
 
-        {!state.success && state.message && <p className="text-center text-sm text-red-600">{state.message}</p>}
+        {!state.success && state.message && (
+          <p className="text-center text-sm text-red-600">
+            {state.message === "Please fix the errors below."
+              ? "Please complete the required fields highlighted below."
+              : state.message}
+          </p>
+        )}
       </form>
     </>
   )

@@ -35,8 +35,8 @@ export function ScrollHeader({ currentPage = "home" }: ScrollHeaderProps) {
       >
         <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16 sm:h-18 lg:h-20">
-            {/* Logo - Left Aligned with flex-1 on mobile */}
-            <Link href="/" className="flex items-center flex-1 md:flex-initial flex-shrink-0 min-w-0 mr-2">
+            {/* Logo - Left Aligned with improved mobile sizing */}
+            <Link href="/" className="flex items-center flex-1 md:flex-initial flex-shrink-0 min-w-0 mr-4">
               <Image
                 src="/clay-roofing-new-york-logo.png"
                 alt="Clay Roofing New York - Specializing in Clay & Ceramic Tile Roofing"
@@ -44,25 +44,15 @@ export function ScrollHeader({ currentPage = "home" }: ScrollHeaderProps) {
                 height={68}
                 className={`object-contain w-auto ${
                   currentPage === "contact"
-                    ? "h-14 sm:h-12 md:h-14 lg:h-16 max-w-[300px] sm:max-w-[300px] md:max-w-[360px]"
-                    : "h-11 sm:h-8 md:h-10 lg:h-12 max-w-[260px] sm:max-w-[280px] md:max-w-[320px]"
+                    ? "h-12 sm:h-12 md:h-14 lg:h-16 max-w-[280px] sm:max-w-[300px] md:max-w-[360px]"
+                    : "h-10 sm:h-8 md:h-10 lg:h-12 max-w-[240px] sm:max-w-[280px] md:max-w-[320px]"
                 }`}
                 priority
               />
             </Link>
 
-            {/* Mobile Menu - Visible on small screens with fixed width */}
-            <div className="flex items-center gap-2 md:hidden flex-shrink-0 min-w-[100px]">
-              {currentPage !== "contact" && (
-                <Link href="/contact#quote" className="tappable">
-                  <Button
-                    size="sm"
-                    className="bg-gradient-to-r from-orange-600 to-orange-700 text-white hover:from-orange-700 hover:to-orange-800 text-xs font-semibold transition-all shadow-md hover:shadow-lg cursor-pointer h-9 px-3"
-                  >
-                    Request Quote
-                  </Button>
-                </Link>
-              )}
+            {/* Mobile Menu - Only burger button on mobile */}
+            <div className="flex items-center md:hidden flex-shrink-0">
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button
@@ -74,22 +64,25 @@ export function ScrollHeader({ currentPage = "home" }: ScrollHeaderProps) {
                     <span className="sr-only">Toggle menu</span>
                   </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-56 bg-white/95 backdrop-blur-sm border-orange-100">
+                <DropdownMenuContent
+                  align="end"
+                  className="w-full min-w-[280px] bg-white/95 backdrop-blur-sm border-orange-100 animate-in slide-in-from-top-2 fade-in-0 duration-200"
+                >
                   <DropdownMenuItem asChild>
                     <a
                       href="tel:2123654386"
-                      className="flex items-center gap-2 px-2 py-2 text-sm font-medium text-neutral-700 hover:text-orange-600 hover:bg-orange-50 transition-colors cursor-pointer tappable"
+                      className="flex items-center gap-3 px-4 py-3 text-base font-medium text-neutral-700 hover:text-orange-600 hover:bg-orange-50 transition-colors cursor-pointer tappable min-h-[48px]"
                     >
-                      <Phone className="w-4 h-4" />
+                      <Phone className="w-5 h-5" />
                       212-365-4386
                     </a>
                   </DropdownMenuItem>
                   <DropdownMenuItem asChild>
                     <Link
                       href="/"
-                      className={`px-2 py-2 text-sm font-medium transition-colors cursor-pointer tappable ${
+                      className={`flex items-center px-4 py-3 text-base font-medium transition-colors cursor-pointer tappable min-h-[48px] ${
                         currentPage === "home"
-                          ? "text-orange-600 bg-gradient-to-r from-orange-50 to-orange-100 hover:from-orange-100 hover:to-orange-150 rounded-md"
+                          ? "text-orange-600 bg-gradient-to-r from-orange-50 to-orange-100"
                           : "text-neutral-700 hover:text-orange-600 hover:bg-orange-50"
                       }`}
                     >
@@ -99,9 +92,9 @@ export function ScrollHeader({ currentPage = "home" }: ScrollHeaderProps) {
                   <DropdownMenuItem asChild>
                     <Link
                       href="/gallery"
-                      className={`px-2 py-2 text-sm font-medium transition-colors cursor-pointer tappable ${
+                      className={`flex items-center px-4 py-3 text-base font-medium transition-colors cursor-pointer tappable min-h-[48px] ${
                         currentPage === "gallery"
-                          ? "text-orange-600 bg-gradient-to-r from-orange-50 to-orange-100 hover:from-orange-100 hover:to-orange-150 rounded-md"
+                          ? "text-orange-600 bg-gradient-to-r from-orange-50 to-orange-100"
                           : "text-neutral-700 hover:text-orange-600 hover:bg-orange-50"
                       }`}
                     >
@@ -111,9 +104,9 @@ export function ScrollHeader({ currentPage = "home" }: ScrollHeaderProps) {
                   <DropdownMenuItem asChild>
                     <Link
                       href="/tile-selection"
-                      className={`px-2 py-2 text-sm font-medium transition-colors cursor-pointer tappable ${
+                      className={`flex items-center px-4 py-3 text-base font-medium transition-colors cursor-pointer tappable min-h-[48px] ${
                         currentPage === "tile-selection"
-                          ? "text-orange-600 bg-gradient-to-r from-orange-50 to-orange-100 hover:from-orange-100 hover:to-orange-150 rounded-md"
+                          ? "text-orange-600 bg-gradient-to-r from-orange-50 to-orange-100"
                           : "text-neutral-700 hover:text-orange-600 hover:bg-orange-50"
                       }`}
                     >
@@ -123,9 +116,9 @@ export function ScrollHeader({ currentPage = "home" }: ScrollHeaderProps) {
                   <DropdownMenuItem asChild>
                     <Link
                       href="/about"
-                      className={`px-2 py-2 text-sm font-medium transition-colors cursor-pointer tappable ${
+                      className={`flex items-center px-4 py-3 text-base font-medium transition-colors cursor-pointer tappable min-h-[48px] ${
                         currentPage === "about"
-                          ? "text-orange-600 bg-gradient-to-r from-orange-50 to-orange-100 hover:from-orange-100 hover:to-orange-150 rounded-md"
+                          ? "text-orange-600 bg-gradient-to-r from-orange-50 to-orange-100"
                           : "text-neutral-700 hover:text-orange-600 hover:bg-orange-50"
                       }`}
                     >
@@ -135,9 +128,9 @@ export function ScrollHeader({ currentPage = "home" }: ScrollHeaderProps) {
                   <DropdownMenuItem asChild>
                     <Link
                       href="/contact"
-                      className={`px-2 py-2 text-sm font-medium transition-colors cursor-pointer tappable ${
+                      className={`flex items-center px-4 py-3 text-base font-medium transition-colors cursor-pointer tappable min-h-[48px] ${
                         currentPage === "contact"
-                          ? "text-orange-600 bg-gradient-to-r from-orange-50 to-orange-100 hover:from-orange-100 hover:to-orange-150 rounded-md"
+                          ? "text-orange-600 bg-gradient-to-r from-orange-50 to-orange-100"
                           : "text-neutral-700 hover:text-orange-600 hover:bg-orange-50"
                       }`}
                     >
