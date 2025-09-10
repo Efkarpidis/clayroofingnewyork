@@ -454,8 +454,16 @@ function ContactForm() {
     }
   }, [state.success, reset])
 
-// ---- handle submit without losing inputs on validation errors ----
+// --- inside page.tsx ---
 const onSubmit = (values: ContactFormData) => {
+  console.log("[Contact] onSubmit fired", { // ADD
+    name: values.name,
+    email: values.email,
+    contactType: values.contactType,
+    hasFile: !!values.file,
+    photosCount: values.photos?.length ?? 0,
+  }); // ADD
+
   const fd = new FormData();
   fd.append("name", values.name ?? "");
   fd.append("email", values.email ?? "");
@@ -466,14 +474,19 @@ const onSubmit = (values: ContactFormData) => {
   fd.append("tileColor", values.tileColor ?? "");
   fd.append("message", values.message ?? "");
   if (values.file) fd.append("file", values.file);
-  (values.photos ?? []).forEach((p) => fd.append("photos", p));
+  (values.photos ?? []).forEach((p, i) => fd.append("photos", p));
   fd.append("privacyAccepted", values.privacyAccepted ? "on" : "off");
   fd.append("previousProjectReference", values.previousProjectReference ?? "");
 
- startTransition(() => {
-  formAction(fd, setState, setError);
-})
+  console.log("[Contact] built FormData (without files)", // ADD
+    Object.fromEntries([...fd.entries()].map(([k, v]) => [k, typeof v === "string" ? v : "[file]"]))
+  ); // ADD
+
+  startTransition(() => {
+    formAction(fd, setState, setError);
+  });
 };
+
 
   if (state.success && !showToast) {
     return (
@@ -497,7 +510,13 @@ const onSubmit = (values: ContactFormData) => {
         </div>
       )}
 
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-6" id="quote">
+      <form
+  onSubmit={handleSubmit(onSubmit)}
+  className="space-y-6"
+  id="quote"
+  encType="multipart/form-data"
+  noValidate
+>
         <FieldWrapper id="name" label="Name" required error={errors.name?.message || state.errors?.name?.[0]}>
           <FormInput {...register("name")} placeholder="Cocoa Clay" />
         </FieldWrapper>
@@ -647,6 +666,7 @@ const onSubmit = (values: ContactFormData) => {
         <button
   type="submit"
   disabled={isPending}
+  aria-disabled={isPending}
   className="w-full inline-flex items-center justify-center gap-2 rounded-lg bg-orange-600 px-6 py-3 text-base font-semibold text-white shadow-sm transition-colors hover:bg-orange-700 disabled:bg-orange-400 focus:outline-none focus:ring-2 focus:ring-orange-500"
 >
   {isPending ? (
