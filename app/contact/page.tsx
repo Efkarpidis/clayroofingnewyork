@@ -645,19 +645,20 @@ const onSubmit = (values: ContactFormData) => {
         )}
 
         <button
-          type="submit"
-          disabled={isPending}
-          className="flex w-full items-center justify-center gap-2 rounded-lg bg-orange-600 px-6 py-3 text-base font-semibold text-white shadow-sm transition-colors hover:bg-orange-700 disabled:bg-orange-400 focus:outline-none focus:ring-2 focus:ring-orange-500 tappable"
-        >
-          {isPending ? (
-            <>
-              <div className="h-5 w-5 animate-spin rounded-full border-2 border-white border-t-transparent" />
-              Sending...
-            </>
-          ) : (
-            "Send"
-          )}
-        </button>
+  type="submit"
+  disabled={isPending}
+  className="w-full inline-flex items-center justify-center gap-2 rounded-lg bg-orange-600 px-6 py-3 text-base font-semibold text-white shadow-sm transition-colors hover:bg-orange-700 disabled:bg-orange-400 focus:outline-none focus:ring-2 focus:ring-orange-500"
+>
+  {isPending ? (
+    <>
+      <div className="h-5 w-5 animate-spin rounded-full border-2 border-white border-t-transparent" />
+      Sending…
+    </>
+  ) : (
+    'Send'
+  )}
+</button>
+
 
         {!state.success && state.message && (
           <p className="text-center text-sm text-red-600">
