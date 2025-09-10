@@ -456,14 +456,16 @@ function ContactForm() {
 
 // --- inside page.tsx ---
 const onSubmit = (values: ContactFormData) => {
-  console.log("[Contact] onSubmit fired", { // ADD
+  // 🔹 Step 1: log when onSubmit fires
+  console.log("[Contact] onSubmit fired", {
     name: values.name,
     email: values.email,
     contactType: values.contactType,
     hasFile: !!values.file,
     photosCount: values.photos?.length ?? 0,
-  }); // ADD
+  });
 
+  // 🔹 Step 2: build FormData
   const fd = new FormData();
   fd.append("name", values.name ?? "");
   fd.append("email", values.email ?? "");
@@ -478,14 +480,19 @@ const onSubmit = (values: ContactFormData) => {
   fd.append("privacyAccepted", values.privacyAccepted ? "on" : "off");
   fd.append("previousProjectReference", values.previousProjectReference ?? "");
 
-  console.log("[Contact] built FormData (without files)", // ADD
-    Object.fromEntries([...fd.entries()].map(([k, v]) => [k, typeof v === "string" ? v : "[file]"]))
-  ); // ADD
+  // 🔹 Step 3: log FormData (with files replaced by “[file]”)
+  console.log("[Contact] built FormData (without files)",
+    Object.fromEntries(
+      [...fd.entries()].map(([k, v]) => [k, typeof v === "string" ? v : "[file]"])
+    )
+  );
 
+  // 🔹 Step 4: call the async formAction
   startTransition(() => {
     formAction(fd, setState, setError);
   });
 };
+
 
 
   if (state.success && !showToast) {
