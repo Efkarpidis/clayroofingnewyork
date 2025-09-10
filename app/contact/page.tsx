@@ -1,7 +1,6 @@
 "use client"
 
-import React, { useEffect, useState } from "react"
-import { useActionState } from "react"
+import React, { useEffect, useState, useTransition } from "react"
 import { StickyCallBar } from "@/components/sticky-call-bar"
 import { ScrollHeader } from "@/components/scroll-header"
 import { Button } from "@/components/ui/button"
@@ -17,7 +16,8 @@ const contactFormSchema = z.object({
   email: z.string().email({ message: "Please enter a valid email address." }),
   phone: z.string().optional(),
   company: z.string().optional(),
-  contactType: z.enum(["general-contractor", "architect", "homeowner", "other", "previous-client"], {
+  contactType: z.enum(["general-contractor", "architect", "homeowner", "manufacturer", "other", "previous-client"], {
+
     errorMap: () => ({ message: "Please select your contact type." }),
   }),
   tileFamily: z.string().optional(),
@@ -33,51 +33,38 @@ const contactFormSchema = z.object({
 
 type ContactFormData = z.infer<typeof contactFormSchema>
 
-// Mock server action for contact form
-async function handleContactFormSubmit(
-  prevState: { message: string; success: boolean; errors?: any },
-  formData: FormData,
-): Promise<{ message: string; success: boolean; errors?: any }> {
-  // Simulate processing delay
-  await new Promise((resolve) => setTimeout(resolve, 1000))
+const formAction = async (
+  fd: FormData,
+  setState: React.Dispatch<React.SetStateAction<{ message: string; success: boolean; errors?: Record<string, string[]> }>>,
+  setError: ReturnType<typeof useForm<ContactFormData>>["setError"]
+) => {
+  try {
+    const res = await fetch("/api/contact", {
+      method: "POST",
+      body: fd,
+    });
 
-  const data = {
-    name: formData.get("name"),
-    email: formData.get("email"),
-    phone: formData.get("phone"),
-    company: formData.get("company"),
-    contactType: formData.get("contactType"),
-    tileFamily: formData.get("tileFamily"),
-    tileColor: formData.get("tileColor"),
-    message: formData.get("message"),
-    file: formData.get("file"),
-    photos: formData.getAll("photos"),
-    privacyAccepted: formData.get("privacyAccepted") === "on",
-    previousProjectReference: formData.get("previousProjectReference"),
-  }
+    const json = await res.json().catch(() => ({} as any));
 
-  const validatedFields = contactFormSchema.safeParse({
-    ...data,
-    file: data.file && (data.file as File).size > 0 ? data.file : undefined,
-    photos: (data.photos as File[]).filter((f) => f.size > 0),
-  })
+    setState({
+      message: json?.message || (res.ok ? "Thanks—your message was sent." : "Please complete the required fields highlighted below."),
+      success: res.ok,
+      errors: json?.fieldErrors,
+    });
 
-  if (!validatedFields.success) {
-    return {
-      message: "Please complete the required fields highlighted below.",
-      errors: validatedFields.error.flatten().fieldErrors,
-      success: false,
+    if (json?.fieldErrors) {
+      Object.entries(json.fieldErrors).forEach(([field, msg]) => {
+        if (msg) setError(field as keyof ContactFormData, { type: "server", message: Array.isArray(msg) ? msg[0] : msg });
+      });
     }
+  } catch (err) {
+    console.error("Error submitting contact form:", err);
+    setState({
+      message: "Something went wrong. Please try again later.",
+      success: false,
+    });
   }
-
-  console.log("Contact form submitted:", validatedFields.data)
-
-  return {
-    message: "Thanks—your message was sent.",
-    success: true,
-  }
-}
-
+};
 // Reusable form components
 const FieldWrapper = ({
   id,
@@ -374,24 +361,35 @@ const tileColorOptions = {
 }
 
 function ContactForm() {
-  const [state, formAction, isPending] = useActionState(handleContactFormSubmit, {
-    message: "",
-    success: false,
-  })
+  // Form submit result state
+  const [state, setState] = useState<{
+    message: string
+    success: boolean
+    errors?: Record<string, string[]>
+  }>({ message: "", success: false, errors: undefined })
+
+  // Pending state for the submit button
+  const [isPending, startTransition] = useTransition()
+
+  // Local UI state
   const [file, setFile] = useState<File | null>(null)
   const [photos, setPhotos] = useState<File[]>([])
   const [selectedTileFamily, setSelectedTileFamily] = useState<string>("")
   const [selectedContactType, setSelectedContactType] = useState<string>("")
   const [showToast, setShowToast] = useState(false)
 
+  // React Hook Form (keep values mounted)
   const {
     register,
+    handleSubmit,
+    setError,
     formState: { errors },
     setValue,
     watch,
     reset,
   } = useForm<ContactFormData>({
     resolver: zodResolver(contactFormSchema),
+    shouldUnregister: false,
   })
 
   const watchedTileFamily = watch("tileFamily")
@@ -456,6 +454,27 @@ function ContactForm() {
     }
   }, [state.success, reset])
 
+// ---- handle submit without losing inputs on validation errors ----
+const onSubmit = (values: ContactFormData) => {
+  const fd = new FormData();
+  fd.append("name", values.name ?? "");
+  fd.append("email", values.email ?? "");
+  fd.append("phone", values.phone ?? "");
+  fd.append("company", values.company ?? "");
+  fd.append("contactType", values.contactType ?? "");
+  fd.append("tileFamily", values.tileFamily ?? "");
+  fd.append("tileColor", values.tileColor ?? "");
+  fd.append("message", values.message ?? "");
+  if (values.file) fd.append("file", values.file);
+  (values.photos ?? []).forEach((p) => fd.append("photos", p));
+  fd.append("privacyAccepted", values.privacyAccepted ? "on" : "off");
+  fd.append("previousProjectReference", values.previousProjectReference ?? "");
+
+ startTransition(() => {
+  formAction(fd, setState, setError);
+})
+};
+
   if (state.success && !showToast) {
     return (
       <div className="flex flex-col items-center justify-center rounded-lg border border-green-200 bg-green-50 p-8 text-center">
@@ -478,7 +497,7 @@ function ContactForm() {
         </div>
       )}
 
-      <form action={formAction} className="space-y-6" id="quote">
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-6" id="quote">
         <FieldWrapper id="name" label="Name" required error={errors.name?.message || state.errors?.name?.[0]}>
           <FormInput {...register("name")} placeholder="Cocoa Clay" />
         </FieldWrapper>
