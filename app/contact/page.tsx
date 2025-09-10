@@ -900,7 +900,7 @@ function ContactPage() {
                 </li>
                 <li className="flex items-start gap-3">
                   <X className="h-5 w-5 text-red-600 mt-0.5 flex-shrink-0" />
-                  <span>We are not a roof repair service unless you are a previous client.</span>
+                  <span>We are not a roof repair service unless you are a previous client...</span>
                 </li>
               </ul>
             </div>
