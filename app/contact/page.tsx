@@ -675,7 +675,7 @@ const onSubmit = (values: ContactFormData) => {
       Sending…
     </>
   ) : (
-    'Send'
+    'Submit'
   )}
 </button>
 
