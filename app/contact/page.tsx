@@ -1,7 +1,6 @@
 "use client"
 
 import React, { useEffect, useState, useTransition } from "react"
-import { ScrollHeader } from "@/components/scroll-header"
 import { Button } from "@/components/ui/button"
 import { Upload, Camera, FileText, X, Check, Shield } from "lucide-react"
 import { useForm } from "react-hook-form"
@@ -724,8 +723,6 @@ export default function ContactPage() {
 
   return (
     <div className="bg-white text-neutral-800 min-h-screen">
-      <ScrollHeader currentPage="contact" />
-
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-16">
         {/* Header Section */}
         <div className="text-center mb-8 sm:mb-12">

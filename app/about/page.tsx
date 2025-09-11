@@ -1,13 +1,10 @@
 import Image from "next/image"
 import { StickyCallBar } from "@/components/sticky-call-bar"
-import { ScrollHeader } from "@/components/scroll-header"
 
 export default function AboutPage() {
   return (
     <>
       <div className="bg-white text-neutral-800">
-        <ScrollHeader currentPage="about" />
-
         <main className="container mx-auto px-4 py-16 sm:py-24 pb-20 pt-20">
           <div className="flex flex-col items-center text-center">
             <div className="flex items-center gap-4 mb-8">
@@ -20,7 +17,8 @@ export default function AboutPage() {
               />
             </div>
             <p className="mt-4 max-w-2xl text-lg text-neutral-600 sm:text-xl">
-              Clay Roofs New York specializes in premium clay and ceramic tile roofing for homes in the Tri-State area. For over 30 years, we've delivered quality, durability, and craftsmanship to every project.<br>
+              Clay Roofs New York specializes in premium clay and ceramic tile roofing for homes in the Tri-State area.
+              For over 30 years, we've delivered quality, durability, and craftsmanship to every project.
             </p>
           </div>
         </main>

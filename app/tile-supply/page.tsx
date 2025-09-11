@@ -2,15 +2,12 @@ import Image from "next/image"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { StickyCallBar } from "@/components/sticky-call-bar"
-import { ScrollHeader } from "@/components/scroll-header"
 import { Package, Truck, Calculator, CheckCircle } from "lucide-react"
 
 export default function TileSupplyPage() {
   return (
     <>
       <div className="bg-white text-neutral-800 min-h-screen">
-        <ScrollHeader currentPage="tile-supply" />
-
         {/* Hero Section */}
         <section className="pt-20 pb-16 bg-gradient-to-b from-orange-600 to-orange-700 text-white">
           <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">

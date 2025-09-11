@@ -7,7 +7,6 @@ import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent } from "@/components/ui/dialog"
 import { ArrowLeft, ChevronLeft, ChevronRight, Camera } from "lucide-react"
 import { StickyCallBar } from "@/components/sticky-call-bar"
-import { ScrollHeader } from "@/components/scroll-header"
 import { galleryPhotos, type ProjectPhoto } from "../gallery-data"
 
 // Hero carousel photos - select the best 5 for showcase
@@ -119,8 +118,6 @@ export default function GalleryPage() {
   return (
     <>
       <div className="min-h-screen bg-white pb-20">
-        <ScrollHeader currentPage="gallery" />
-
         {/* Hero Section */}
         <section className="bg-gradient-to-r from-charcoal-gray via-neutral-800 to-charcoal-gray text-white py-16 pt-20">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">

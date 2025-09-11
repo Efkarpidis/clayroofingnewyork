@@ -145,6 +145,11 @@
     padding-top: var(--total-header-height);
   }
 
+  /* For pages that don't use main tag, add a general content class */
+  .page-content {
+    padding-top: var(--total-header-height);
+  }
+
   /* Scroll margin for anchor links */
   [id] {
     scroll-margin-top: var(--total-header-height);

@@ -6,7 +6,6 @@ import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { StickyCallBar } from "@/components/sticky-call-bar"
-import { ScrollHeader } from "@/components/scroll-header"
 import { ArrowLeft, ImageIcon } from "lucide-react"
 
 type TileColor = {
@@ -100,8 +99,6 @@ export default function ViennaPage() {
   return (
     <>
       <div className="bg-white text-neutral-800 min-h-screen">
-        <ScrollHeader currentPage="tile-selection" />
-
         {/* Hero Section */}
         <section className="pt-20 pb-16 bg-gradient-to-b from-neutral-50 to-white">
           <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">

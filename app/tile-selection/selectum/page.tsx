@@ -6,7 +6,6 @@ import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { StickyCallBar } from "@/components/sticky-call-bar"
-import { ScrollHeader } from "@/components/scroll-header"
 import { ArrowLeft, Crown } from "lucide-react"
 
 type TileColor = {
@@ -156,8 +155,6 @@ export default function SelectumPage() {
   return (
     <>
       <div className="bg-white text-neutral-800 min-h-screen">
-        <ScrollHeader currentPage="tile-selection" />
-
         {/* Luxury Hero Banner */}
         <section className="pt-20 pb-0 relative overflow-hidden">
           <div className="relative rounded-b-3xl overflow-hidden shadow-2xl">

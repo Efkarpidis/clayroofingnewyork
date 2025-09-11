@@ -19,7 +19,6 @@ import {
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { StickyCallBar } from "@/components/sticky-call-bar"
-import { ScrollHeader } from "@/components/scroll-header"
 import { useActionState } from "react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
@@ -809,8 +808,6 @@ export default function Page() {
   return (
     <>
       <main className="bg-white">
-        <ScrollHeader currentPage="home" />
-
         {/* Featured Tile Carousel */}
         <FeaturedTileCarousel />
 

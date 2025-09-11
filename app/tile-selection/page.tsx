@@ -5,7 +5,6 @@ import Image from "next/image"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { StickyCallBar } from "@/components/sticky-call-bar"
-import { ScrollHeader } from "@/components/scroll-header"
 import { Crown, Star, Award } from "lucide-react"
 
 // Hook for scroll animations
@@ -199,8 +198,6 @@ export default function TileSelectionPage() {
   return (
     <>
       <div className="bg-white text-neutral-800 min-h-screen">
-        <ScrollHeader currentPage="tile-selection" />
-
         {/* Hero Section */}
         <section className="pt-20 pb-16 bg-gradient-to-b from-neutral-900 via-neutral-800 to-neutral-700 text-white relative overflow-hidden">
           {/* Background Pattern */}
