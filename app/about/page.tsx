@@ -20,8 +20,7 @@ export default function AboutPage() {
               />
             </div>
             <p className="mt-4 max-w-2xl text-lg text-neutral-600 sm:text-xl">
-              Clay Roofs New York specializes in premium Spanish clay tile roofing for high-end homes in New York. For
-              over 20 years, we've delivered quality, durability, and craftsmanship to every project.
+              Clay Roofs New York specializes in premium clay and ceramic tile roofing for homes in the Tri-State area. For over 30 years, we've delivered quality, durability, and craftsmanship to every project.<br>
             </p>
           </div>
         </main>

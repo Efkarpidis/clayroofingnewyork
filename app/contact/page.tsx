@@ -3,7 +3,7 @@
 import React, { useEffect, useState, useTransition } from "react"
 import { ScrollHeader } from "@/components/scroll-header"
 import { Button } from "@/components/ui/button"
-import { Phone, Upload, Camera, FileText, X, Check, Shield, MessageCircle } from "lucide-react"
+import { Upload, Camera, FileText, X, Check, Shield } from "lucide-react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
@@ -759,7 +759,7 @@ export default function ContactPage() {
                   asChild
                 >
                   <a href="tel:+12123654386">
-                    <Phone className="h-5 w-5 text-orange-600 flex-shrink-0" />
+                    <img src="/icons/phone-icon.svg" alt="Phone" className="h-5 w-5 text-orange-600 flex-shrink-0" />
                     <span>Call: 212-365-4386</span>
                   </a>
                 </Button>
@@ -771,7 +771,7 @@ export default function ContactPage() {
                   asChild
                 >
                   <a href="sms:+12123654386">
-                    <MessageCircle className="h-5 w-5 text-orange-600 flex-shrink-0" />
+                    <img src="/icons/imessage-icon.svg" alt="Phone" className="h-5 w-5 text-orange-600 flex-shrink-0" />
                     <span>Text: 212-365-4386</span>
                   </a>
                 </Button>
@@ -783,35 +783,33 @@ export default function ContactPage() {
                   asChild
                 >
                   <a href="mailto:chris@clayroofingnewyork.com">
-                    <svg className="h-5 w-5 text-orange-600 flex-shrink-0" viewBox="0 0 24 24" fill="currentColor">
-                      <path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.89 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z" />
-                    </svg>
-                    <span>Email: chris@clayroofingnewyork.com</span>
+                    <img src="/icons/mail-icon.svg" alt="Email" className="h-5 w-5 text-orange-600 flex-shrink-0" />
+                    <span className="text-sm">Email: chris@clayroofingnewyork.com</span>
                   </a>
                 </Button>
-              </div>
-            </div>
 
-            {/* Business Info */}
-            <div>
-              <h3 className="text-lg font-semibold text-neutral-900 mb-3">Business Information</h3>
-              <div className="space-y-2 text-neutral-700">
-                <p className="flex items-start gap-2">
-                  <span className="font-medium">Address:</span>
-                  <button
-                    onClick={copyAddressToClipboard}
-                    className="text-left hover:text-orange-600 transition-colors cursor-pointer"
-                  >
-                    33-15 127th Pl, Corona, NY 11368
-                    {addressCopied && <span className="text-green-600 text-xs ml-2">Copied!</span>}
-                  </button>
-                </p>
-                <p>
-                  <span className="font-medium">Hours:</span> Mon-Sat: 9:00 AM - 5:00 PM
-                </p>
-                <p>
-                  <span className="font-medium">Service Area:</span> New York Tri-State Area
-                </p>
+                {/* Business Info */}
+                <div>
+                  <h3 className="text-lg font-semibold text-neutral-900 mb-3">Business Information</h3>
+                  <div className="space-y-2 text-neutral-700">
+                    <p className="flex items-start gap-2">
+                      <span className="font-medium">Address:</span>
+                      <button
+                        onClick={copyAddressToClipboard}
+                        className="text-left hover:text-orange-600 transition-colors cursor-pointer"
+                      >
+                        33-15 127th Pl, Corona, NY 11368
+                        {addressCopied && <span className="text-green-600 text-xs ml-2">Copied!</span>}
+                      </button>
+                    </p>
+                    <p>
+                      <span className="font-medium">Hours:</span> Mon-Sat: 9:00 AM - 5:00 PM
+                    </p>
+                    <p>
+                      <span className="font-medium">Service Area:</span> New York Tri-State Area
+                    </p>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
