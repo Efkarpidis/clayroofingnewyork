@@ -1,14 +1,12 @@
 "use client"
 
 import React, { useEffect, useState, useTransition } from "react"
-import { StickyCallBar } from "@/components/sticky-call-bar"
 import { ScrollHeader } from "@/components/scroll-header"
 import { Button } from "@/components/ui/button"
-import { MapPin, Phone, Mail, Upload, Camera, FileText, X, Check, Shield, MessageCircle, Clock } from "lucide-react"
+import { Phone, Upload, Camera, FileText, X, Check, Shield, MessageCircle } from "lucide-react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
-import Image from "next/image"
 
 // Enhanced contact form schema
 const contactFormSchema = z.object({
@@ -17,7 +15,6 @@ const contactFormSchema = z.object({
   phone: z.string().optional(),
   company: z.string().optional(),
   contactType: z.enum(["general-contractor", "architect", "homeowner", "manufacturer", "other", "previous-client"], {
-
     errorMap: () => ({ message: "Please select your contact type." }),
   }),
   tileFamily: z.string().optional(),
@@ -33,38 +30,6 @@ const contactFormSchema = z.object({
 
 type ContactFormData = z.infer<typeof contactFormSchema>
 
-const formAction = async (
-  fd: FormData,
-  setState: React.Dispatch<React.SetStateAction<{ message: string; success: boolean; errors?: Record<string, string[]> }>>,
-  setError: ReturnType<typeof useForm<ContactFormData>>["setError"]
-) => {
-  try {
-    const res = await fetch("/api/contact", {
-      method: "POST",
-      body: fd,
-    });
-
-    const json = await res.json().catch(() => ({} as any));
-
-    setState({
-      message: json?.message || (res.ok ? "Thanks—your message was sent." : "Please complete the required fields highlighted below."),
-      success: res.ok,
-      errors: json?.fieldErrors,
-    });
-
-    if (json?.fieldErrors) {
-      Object.entries(json.fieldErrors).forEach(([field, msg]) => {
-        if (msg) setError(field as keyof ContactFormData, { type: "server", message: Array.isArray(msg) ? msg[0] : msg });
-      });
-    }
-  } catch (err) {
-    console.error("Error submitting contact form:", err);
-    setState({
-      message: "Something went wrong. Please try again later.",
-      success: false,
-    });
-  }
-};
 // Reusable form components
 const FieldWrapper = ({
   id,
@@ -454,46 +419,94 @@ function ContactForm() {
     }
   }, [state.success, reset])
 
-// --- inside page.tsx ---
-const onSubmit = (values: ContactFormData) => {
-  // 🔹 Step 1: log when onSubmit fires
-  console.log("[Contact] onSubmit fired", {
-    name: values.name,
-    email: values.email,
-    contactType: values.contactType,
-    hasFile: !!values.file,
-    photosCount: values.photos?.length ?? 0,
-  });
+  // Fixed form submission function
+  const onSubmit = async (values: ContactFormData) => {
+    console.log("[Contact] Form submission started", {
+      name: values.name,
+      email: values.email,
+      contactType: values.contactType,
+    })
 
-  // 🔹 Step 2: build FormData
-  const fd = new FormData();
-  fd.append("name", values.name ?? "");
-  fd.append("email", values.email ?? "");
-  fd.append("phone", values.phone ?? "");
-  fd.append("company", values.company ?? "");
-  fd.append("contactType", values.contactType ?? "");
-  fd.append("tileFamily", values.tileFamily ?? "");
-  fd.append("tileColor", values.tileColor ?? "");
-  fd.append("message", values.message ?? "");
-  if (values.file) fd.append("file", values.file);
-  (values.photos ?? []).forEach((p, i) => fd.append("photos", p));
-  fd.append("privacyAccepted", values.privacyAccepted ? "on" : "off");
-  fd.append("previousProjectReference", values.previousProjectReference ?? "");
+    startTransition(async () => {
+      try {
+        // Build FormData properly
+        const formData = new FormData()
 
-  // 🔹 Step 3: log FormData (with files replaced by “[file]”)
-  console.log("[Contact] built FormData (without files)",
-    Object.fromEntries(
-      [...fd.entries()].map(([k, v]) => [k, typeof v === "string" ? v : "[file]"])
-    )
-  );
+        // Add all form fields
+        formData.append("name", values.name || "")
+        formData.append("email", values.email || "")
+        formData.append("phone", values.phone || "")
+        formData.append("company", values.company || "")
+        formData.append("contactType", values.contactType || "")
+        formData.append("tileFamily", values.tileFamily || "")
+        formData.append("tileColor", values.tileColor || "")
+        formData.append("message", values.message || "")
+        formData.append("previousProjectReference", values.previousProjectReference || "")
+        formData.append("privacyAccepted", values.privacyAccepted ? "true" : "false")
 
-  // 🔹 Step 4: call the async formAction
-  startTransition(() => {
-    formAction(fd, setState, setError);
-  });
-};
+        // Add files if present
+        if (values.file) {
+          formData.append("file", values.file)
+        }
+        if (values.photos && values.photos.length > 0) {
+          values.photos.forEach((photo, index) => {
+            formData.append(`photos`, photo)
+          })
+        }
 
+        console.log("[Contact] Sending request to /api/contact")
 
+        // Send the request
+        const response = await fetch("/api/contact", {
+          method: "POST",
+          body: formData,
+        })
+
+        console.log("[Contact] Response status:", response.status)
+
+        let result
+        try {
+          result = await response.json()
+        } catch (e) {
+          console.error("[Contact] Failed to parse JSON response:", e)
+          result = { ok: false, message: "Invalid server response" }
+        }
+
+        console.log("[Contact] Response data:", result)
+
+        if (response.ok && result.ok) {
+          setState({
+            message: "Thanks—your message was sent.",
+            success: true,
+          })
+        } else {
+          // Handle validation errors
+          if (result.fieldErrors) {
+            Object.entries(result.fieldErrors).forEach(([field, messages]) => {
+              if (messages && Array.isArray(messages) && messages.length > 0) {
+                setError(field as keyof ContactFormData, {
+                  type: "server",
+                  message: messages[0],
+                })
+              }
+            })
+          }
+
+          setState({
+            message: result.message || "Please complete the required fields highlighted below.",
+            success: false,
+            errors: result.fieldErrors,
+          })
+        }
+      } catch (error) {
+        console.error("[Contact] Network error:", error)
+        setState({
+          message: "Network error. Please check your connection and try again.",
+          success: false,
+        })
+      }
+    })
+  }
 
   if (state.success && !showToast) {
     return (
@@ -517,13 +530,7 @@ const onSubmit = (values: ContactFormData) => {
         </div>
       )}
 
-      <form
-  onSubmit={handleSubmit(onSubmit)}
-  className="space-y-6"
-  id="quote"
-  encType="multipart/form-data"
-  noValidate
->
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-6" id="quote" noValidate>
         <FieldWrapper id="name" label="Name" required error={errors.name?.message || state.errors?.name?.[0]}>
           <FormInput {...register("name")} placeholder="Cocoa Clay" />
         </FieldWrapper>
@@ -671,21 +678,19 @@ const onSubmit = (values: ContactFormData) => {
         )}
 
         <button
-  type="submit"
-  disabled={isPending}
-  aria-disabled={isPending}
-  className="w-full inline-flex items-center justify-center gap-2 rounded-lg bg-orange-600 px-6 py-3 text-base font-semibold text-white shadow-sm transition-colors hover:bg-orange-700 disabled:bg-orange-400 focus:outline-none focus:ring-2 focus:ring-orange-500"
->
-  {isPending ? (
-    <>
-      <div className="h-5 w-5 animate-spin rounded-full border-2 border-white border-t-transparent" />
-      Sending…
-    </>
-  ) : (
-    'Submit'
-  )}
-</button>
-
+          type="submit"
+          disabled={isPending}
+          className="w-full inline-flex items-center justify-center gap-2 rounded-lg bg-orange-600 px-6 py-3 text-base font-semibold text-white shadow-sm transition-colors hover:bg-orange-700 disabled:bg-orange-400 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-orange-500"
+        >
+          {isPending ? (
+            <>
+              <div className="h-5 w-5 animate-spin rounded-full border-2 border-white border-t-transparent" />
+              Sending…
+            </>
+          ) : (
+            "Submit"
+          )}
+        </button>
 
         {!state.success && state.message && (
           <p className="text-center text-sm text-red-600">
@@ -699,7 +704,7 @@ const onSubmit = (values: ContactFormData) => {
   )
 }
 
-function ContactPage() {
+export default function ContactPage() {
   const [addressCopied, setAddressCopied] = useState(false)
 
   // Ensure page always loads at top
@@ -771,20 +776,6 @@ function ContactPage() {
                   </a>
                 </Button>
 
-                {/* WhatsApp */}
-                <Button
-                  variant="outline"
-                  className="w-full justify-start gap-3 h-auto py-3 px-4 text-base font-medium text-neutral-800 border-neutral-300 bg-white hover:bg-neutral-50 active:bg-neutral-100 transition-colors"
-                  asChild
-                >
-                  <a href="https://wa.me/12123654386" target="_blank" rel="noopener noreferrer">
-                    <svg className="h-5 w-5 text-orange-600 flex-shrink-0" viewBox="0 0 24 24" fill="currentColor">
-                      <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893A11.821 11.821 0 0020.885 3.097" />
-                    </svg>
-                    <span>WhatsApp: 212-365-4386</span>
-                  </a>
-                </Button>
-
                 {/* Email */}
                 <Button
                   variant="outline"
@@ -792,136 +783,49 @@ function ContactPage() {
                   asChild
                 >
                   <a href="mailto:chris@clayroofingnewyork.com">
-                    <Mail className="h-5 w-5 text-orange-600 flex-shrink-0" />
-                    <div className="flex flex-col items-start min-w-0">
-                      <span className="text-neutral-900 font-medium">Email Us</span>
-                      <span className="text-xs text-neutral-500 truncate w-full">chris@clayroofingnewyork.com</span>
-                    </div>
+                    <svg className="h-5 w-5 text-orange-600 flex-shrink-0" viewBox="0 0 24 24" fill="currentColor">
+                      <path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.89 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z" />
+                    </svg>
+                    <span>Email: chris@clayroofingnewyork.com</span>
                   </a>
                 </Button>
               </div>
             </div>
 
-            {/* How to Get Here */}
+            {/* Business Info */}
             <div>
-              <h3 className="text-xl font-semibold text-neutral-900 mb-4 flex items-center gap-2">
-                <MapPin className="h-5 w-5 text-orange-600" />
-                How to Get Here
-              </h3>
-              <div className="flex items-center justify-start gap-4 sm:gap-6 mb-4">
-                <a
-                  href="https://www.google.com/maps/search/?api=1&query=33-15+127th+Pl,+Corona,+NY+11368"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="rounded-xl border border-neutral-200 bg-white p-2 shadow-sm hover:shadow transition"
-                  aria-label="Open in Google Maps"
-                >
-                  <Image src="/icons/google-maps.svg" alt="Google Maps" width={40} height={40} />
-                </a>
-
-                <a
-                  href="http://maps.apple.com/?q=33-15+127th+Pl,+Corona,+NY+11368"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="rounded-xl border border-neutral-200 bg-white p-2 shadow-sm hover:shadow transition"
-                  aria-label="Open in Apple Maps"
-                >
-                  <Image src="/icons/apple-maps.svg" alt="Apple Maps" width={40} height={40} />
-                </a>
-
-                <a
-                  href="https://waze.com/ul?q=33-15+127th+Pl,+Corona,+NY+11368"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="rounded-xl border border-neutral-200 bg-white p-2 shadow-sm hover:shadow transition"
-                  aria-label="Open in Waze"
-                >
-                  <Image src="/icons/waze.svg" alt="Waze" width={40} height={40} />
-                </a>
+              <h3 className="text-lg font-semibold text-neutral-900 mb-3">Business Information</h3>
+              <div className="space-y-2 text-neutral-700">
+                <p className="flex items-start gap-2">
+                  <span className="font-medium">Address:</span>
+                  <button
+                    onClick={copyAddressToClipboard}
+                    className="text-left hover:text-orange-600 transition-colors cursor-pointer"
+                  >
+                    33-15 127th Pl, Corona, NY 11368
+                    {addressCopied && <span className="text-green-600 text-xs ml-2">Copied!</span>}
+                  </button>
+                </p>
+                <p>
+                  <span className="font-medium">Hours:</span> Mon-Sat: 9:00 AM - 5:00 PM
+                </p>
+                <p>
+                  <span className="font-medium">Service Area:</span> New York Tri-State Area
+                </p>
               </div>
-
-              {/* Copy Address Button */}
-              <Button
-                variant="outline"
-                onClick={copyAddressToClipboard}
-                className="w-full justify-start gap-3 h-auto py-3 px-4 text-base font-medium text-neutral-800 border-neutral-300 bg-white hover:bg-neutral-50 active:bg-neutral-100 transition-colors"
-                aria-label="Copy address"
-              >
-                <MapPin className="h-5 w-5 text-orange-600 flex-shrink-0" />
-                <div className="flex flex-col items-start">
-                  <span className="text-neutral-900 font-medium">33-15 127th Pl, Corona, NY 11368</span>
-                  <span className="text-xs text-neutral-500">Tap to copy</span>
-                </div>
-              </Button>
-
-              {addressCopied && (
-                <div
-                  className="mt-2 text-sm text-green-600 font-medium animate-in fade-in-0 duration-200"
-                  role="status"
-                  aria-live="polite"
-                >
-                  Copied to clipboard
-                </div>
-              )}
-            </div>
-
-            {/* Operating Hours */}
-            <div className="mt-4">
-              <div className="bg-white/70 rounded-lg border border-neutral-200 shadow-sm p-4">
-                <h3 className="text-lg sm:text-xl font-semibold text-neutral-900 mb-3 flex items-center gap-2">
-                  <Clock className="h-5 w-5 text-orange-600" />
-                  Operating Hours
-                </h3>
-                <div className="space-y-2 sm:grid sm:grid-cols-2 sm:gap-4 sm:space-y-0">
-                  <div className="flex justify-between sm:flex-col sm:justify-start">
-                    <span className="text-neutral-600">Mon–Sat:</span>
-                    <span className="text-neutral-900 font-medium">9:00 AM – 5:00 PM</span>
-                  </div>
-                  <div className="flex justify-between sm:flex-col sm:justify-start">
-                    <span className="text-neutral-600">Sunday:</span>
-                    <span className="text-neutral-900 font-medium">Closed</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Before You Contact Us */}
-            <div>
-              <h3 className="text-xl font-semibold text-neutral-900 mb-4">Before You Contact Us</h3>
-              <ul className="space-y-3 text-sm sm:text-base text-neutral-700">
-                <li className="flex items-start gap-3">
-                  <Check className="h-5 w-5 text-orange-600 mt-0.5 flex-shrink-0" />
-                  <span>Looking for a free estimate? We got you covered.</span>
-                </li>
-                <li className="flex items-start gap-3">
-                  <Check className="h-5 w-5 text-orange-600 mt-0.5 flex-shrink-0" />
-                  <span>Already know your preferred tile color?</span>
-                </li>
-                <li className="flex items-start gap-3">
-                  <Check className="h-5 w-5 text-orange-600 mt-0.5 flex-shrink-0" />
-                  <span>Do you have architectural plans/blueprints?</span>
-                </li>
-                <li className="flex items-start gap-3">
-                  <Check className="h-5 w-5 text-orange-600 mt-0.5 flex-shrink-0" />
-                  <span>Are you a contractor, architect, or homeowner?</span>
-                </li>
-                <li className="flex items-start gap-3">
-                  <X className="h-5 w-5 text-red-600 mt-0.5 flex-shrink-0" />
-                  <span>We are not a roof repair service unless you are a previous client...</span>
-                </li>
-              </ul>
             </div>
           </div>
 
           {/* Right Side - Contact Form */}
-          <div className="rounded-xl border border-neutral-200 bg-white p-6 sm:p-8 shadow-sm">
+          <div className="bg-white rounded-xl border border-neutral-200 p-6 sm:p-8">
+            <h2 className="text-xl font-semibold text-neutral-900 mb-6">Send us a message</h2>
             <ContactForm />
           </div>
         </div>
       </main>
 
       {/* Footer */}
-      <footer className="border-t border-neutral-200 bg-neutral-50 mt-16">
+      <footer className="border-t border-neutral-200 bg-neutral-50">
         <div className="max-w-7xl mx-auto px-4 py-6 space-y-4">
           <div className="flex items-center justify-center gap-3 text-sm text-neutral-600">
             <a
@@ -930,7 +834,7 @@ function ContactPage() {
               rel="noopener noreferrer"
               className="flex items-center gap-3 hover:opacity-80 transition-opacity"
             >
-              <Image src="/la-escandella-logo.webp" alt="La Escandella" width={80} height={40} className="h-6 w-auto" />
+              <img src="/la-escandella-logo.webp" alt="La Escandella" className="h-6 w-auto" />
               <span>Proudly partnered with La Escandella.</span>
             </a>
           </div>
@@ -939,10 +843,6 @@ function ContactPage() {
           </div>
         </div>
       </footer>
-
-      <StickyCallBar />
     </div>
   )
 }
-
-export default ContactPage
