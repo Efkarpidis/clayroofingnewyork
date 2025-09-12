@@ -773,6 +773,22 @@ export default function ContactPage() {
                   </a>
                 </Button>
 
+                {/* WhatsApp */}
+<Button
+  variant="outline"
+  className="w-full justify-start gap-3 h-auto py-3 px-4 text-base font-medium text-neutral-800 border-neutral-300 bg-white hover:bg-neutral-50 active:bg-neutral-100 transition-colors"
+  asChild
+>
+  <a href="https://wa.me/12123654386" target="_blank" rel="noopener noreferrer">
+    <img
+      src="/icons/whats-app-icon.svg"
+      alt="WhatsApp"
+      className="h-5 w-5 text-orange-600 flex-shrink-0"
+    />
+    <span>WhatsApp: 212-365-4386</span>
+  </a>
+</Button>
+
                 {/* Email */}
                 <Button
                   variant="outline"
@@ -803,7 +819,7 @@ export default function ContactPage() {
                       <span className="font-medium">Hours:</span> Mon-Sat: 9:00 AM - 5:00 PM
                     </p>
                     <p>
-                      <span className="font-medium">Service Area:</span> New York Tri-State Area
+                      <span className="font-medium">Servicing the Tri-State areea (NY, NJ, CT) </span>
                     </p>
                   </div>
                 </div>
