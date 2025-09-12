@@ -12,6 +12,7 @@ const MAX_FILES_TOTAL = 10          // total # across Documents + Photos
 const MAX_TOTAL_MB = 20             // total size cap across both (MB)
 const MAX_TOTAL_BYTES = MAX_TOTAL_MB * 1024 * 1024
 // --------------------------------------
+const formatMB = (bytes: number) => Math.round((bytes / (1024 * 1024)) * 10) / 10 // 1 decimal
 
 // Enhanced contact form schema
 const contactFormSchema = z.object({
@@ -25,9 +26,9 @@ const contactFormSchema = z.object({
   tileFamily: z.string().optional(),
   tileColor: z.string().optional(),
   message: z.string().min(10, { message: "Your message must be at least 10 characters long." }),
-  // CHANGED: single -> multiple
+  // CHANGED: single -> multiple docs
   files: z.array(z.instanceof(File)).optional(),
-  // Photos already multiple
+  // Photos remain multiple
   photos: z.array(z.instanceof(File)).optional(),
   privacyAccepted: z.boolean().refine((val) => val === true, {
     message: "You must accept the Privacy Policy to continue.",
@@ -93,10 +94,7 @@ const FormSelect = ({ children, ...props }: React.ComponentProps<"select">) => (
   </div>
 )
 
-/**
- * NOTE: Keeping your original single-file button here (unused now) in case you want it elsewhere.
- * It does NOT affect current behavior.
- */
+/** Your original single-file button (kept intact in case you reuse it elsewhere) */
 const FileUploadButton = ({
   file,
   onChange,
@@ -139,7 +137,7 @@ const FileUploadButton = ({
   return (
     <div className="space-y-3">
       <input ref={fileInputRef} type="file" accept={accept} onChange={handleFileChange} className="sr-only" />
-      {isPhotos && (
+      {isPhotos && isMobile && (
         <input
           ref={cameraInputRef}
           type="file"
@@ -156,11 +154,11 @@ const FileUploadButton = ({
           onClick={() => fileInputRef.current?.click()}
           className="flex w-full items-center justify-center gap-3 rounded-lg border-2 border-dashed border-neutral-300 bg-neutral-50 p-4 text-base font-medium text-neutral-700 transition-colors hover:border-orange-400 hover:bg-orange-50 tappable"
         >
-            {isPhotos ? <Camera className="h-5 w-5" /> : <Upload className="h-5 w-5" />}
-            {file ? file.name : label}
+          {isPhotos ? <Camera className="h-5 w-5" /> : <Upload className="h-5 w-5" />}
+          {file ? file.name : label}
         </button>
 
-        {isPhotos && (
+        {isPhotos && isMobile && (
           <button
             type="button"
             onClick={() => cameraInputRef.current?.click()}
@@ -205,7 +203,7 @@ const FileUploadButton = ({
   )
 }
 
-// UPDATED: Multi file picker with optional camera (camera only when isPhotos=true)
+/** Multi file picker with optional camera (camera only when isPhotos=true) */
 const MultiFileUploadButton = ({
   files,
   onChange,
@@ -246,15 +244,8 @@ const MultiFileUploadButton = ({
 
   return (
     <div className="space-y-3">
-      <input
-        ref={fileInputRef}
-        type="file"
-        accept={accept}
-        multiple
-        onChange={handleFileChange}
-        className="sr-only"
-      />
-      {isPhotos && isMobile && (
+      <input ref={fileInputRef} type="file" accept={accept} multiple onChange={handleFileChange} className="sr-only" />
+      {isPhotos && (
         <input
           ref={cameraInputRef}
           type="file"
@@ -276,7 +267,7 @@ const MultiFileUploadButton = ({
           {label}
         </button>
 
-        {isPhotos && isMobile && (
+        {isPhotos && (
           <button
             type="button"
             onClick={() => cameraInputRef.current?.click()}
@@ -303,11 +294,12 @@ const MultiFileUploadButton = ({
                   <div className="flex h-full items-center justify-center">
                     <div className="text-center">
                       <FileText className="mx-auto h-6 w-6 text-neutral-400" />
-                      <p className="mt-1 text-xs text-neutral-500 truncate px-2">{file.name}</p>
                     </div>
                   </div>
                 )}
               </div>
+              {/* Filename caption */}
+              <p className="mt-1 text-xs text-neutral-600 truncate px-1">{file.name}</p>
               <button
                 type="button"
                 onClick={() => removeFile(index)}
@@ -321,9 +313,7 @@ const MultiFileUploadButton = ({
       )}
 
       {files.length === 0 && (
-        <p className="text-sm text-neutral-500">
-          {isPhotos ? "No photos selected" : "No files selected"}
-        </p>
+        <p className="text-sm text-neutral-500">{isPhotos ? "No photos selected" : "No files selected"}</p>
       )}
     </div>
   )
@@ -361,15 +351,14 @@ function ContactForm() {
   // Pending state for the submit button
   const [isPending, startTransition] = useTransition()
 
-  // Local UI state
-  // CHANGED: instead of single file, we store arrays
+  // Local UI state (CHANGED: arrays for docs & photos)
   const [files, setFiles] = useState<File[]>([])
   const [photos, setPhotos] = useState<File[]>([])
   const [selectedTileFamily, setSelectedTileFamily] = useState<string>("")
   const [selectedContactType, setSelectedContactType] = useState<string>("")
   const [showToast, setShowToast] = useState(false)
 
-  // React Hook Form (keep values mounted)
+  // React Hook Form
   const {
     register,
     handleSubmit,
@@ -386,6 +375,12 @@ function ContactForm() {
   const watchedTileFamily = watch("tileFamily")
   const watchedContactType = watch("contactType")
 
+  // Derived sizes/counts for chips
+  const filesBytes = (files || []).reduce((s, f) => s + (f?.size || 0), 0)
+  const photosBytes = (photos || []).reduce((s, f) => s + (f?.size || 0), 0)
+  const totalBytes = filesBytes + photosBytes
+  const totalCount = (files?.length || 0) + (photos?.length || 0)
+
   // Handle URL parameters for prefilled tile data
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search)
@@ -400,7 +395,6 @@ function ContactForm() {
       setValue("tileColor", tileColor)
     }
 
-    // Always scroll to top when page loads - no auto-scroll to form
     window.scrollTo(0, 0)
   }, [setValue])
 
@@ -408,7 +402,6 @@ function ContactForm() {
   useEffect(() => {
     if (watchedTileFamily) {
       setSelectedTileFamily(watchedTileFamily)
-      // Reset tile color when family changes
       setValue("tileColor", "")
     }
   }, [watchedTileFamily, setValue])
@@ -420,33 +413,28 @@ function ContactForm() {
     }
   }, [watchedContactType])
 
-  // Keep RHF in sync
-  React.useEffect(() => {
+  // Keep RHF in sync with arrays
+  useEffect(() => {
     setValue("files", files)
   }, [files, setValue])
 
-  React.useEffect(() => {
+  useEffect(() => {
     setValue("photos", photos)
   }, [photos, setValue])
 
   useEffect(() => {
     if (state.success) {
       setShowToast(true)
-      // Clear form only on success
       reset()
       setFiles([])
       setPhotos([])
       setSelectedTileFamily("")
       setSelectedContactType("")
-
-      // Hide toast after 5 seconds
-      setTimeout(() => {
-        setShowToast(false)
-      }, 5000)
+      setTimeout(() => setShowToast(false), 5000)
     }
   }, [state.success, reset])
 
-  // Fixed form submission function
+  // Submit
   const onSubmit = async (values: ContactFormData) => {
     console.log("[Contact] Form submission started", {
       name: values.name,
@@ -456,28 +444,23 @@ function ContactForm() {
 
     startTransition(async () => {
       try {
-        // --- Upload limits check (client-side guard) ---
-        const docFiles = files || []
-        const photoFiles = photos || []
-        const all = [...docFiles, ...photoFiles]
-
+        // --- Upload limits check ---
+        const all = [...(files || []), ...(photos || [])]
         if (all.length > MAX_FILES_TOTAL) {
           setError("files" as any, { type: "validate", message: `Too many files. Max ${MAX_FILES_TOTAL} total.` })
           setState({ message: `Please reduce to ${MAX_FILES_TOTAL} files total.`, success: false })
           return
         }
-        const totalBytes = all.reduce((sum, f) => sum + (f?.size || 0), 0)
-        if (totalBytes > MAX_TOTAL_BYTES) {
+        const total = all.reduce((sum, f) => sum + (f?.size || 0), 0)
+        if (total > MAX_TOTAL_BYTES) {
           setError("files" as any, { type: "validate", message: `Total size exceeds ${MAX_TOTAL_MB} MB.` })
           setState({ message: `Total uploads must be ≤ ${MAX_TOTAL_MB} MB.`, success: false })
           return
         }
-        // ------------------------------------------------
+        // ---------------------------
 
-        // Build FormData properly
+        // Build FormData
         const formData = new FormData()
-
-        // Add all form fields
         formData.append("name", values.name || "")
         formData.append("email", values.email || "")
         formData.append("phone", values.phone || "")
@@ -493,7 +476,6 @@ function ContactForm() {
         if (values.files && values.files.length > 0) {
           values.files.forEach((f) => formData.append("files", f))
         }
-
         // Add photos (plural)
         if (values.photos && values.photos.length > 0) {
           values.photos.forEach((p) => formData.append("photos", p))
@@ -501,7 +483,6 @@ function ContactForm() {
 
         console.log("[Contact] Sending request to /api/contact")
 
-        // Send the request
         const response = await fetch("/api/contact", {
           method: "POST",
           body: formData,
@@ -525,7 +506,6 @@ function ContactForm() {
             success: true,
           })
         } else {
-          // Handle validation errors
           if (result.fieldErrors) {
             Object.entries(result.fieldErrors).forEach(([field, messages]) => {
               if (messages && Array.isArray(messages) && messages.length > 0) {
@@ -681,6 +661,12 @@ function ContactForm() {
             label="Upload Documents"
             isPhotos={false}
           />
+          {/* chip: documents only */}
+          <div className="mt-2 flex items-center gap-2 text-xs text-neutral-600">
+            <span className="inline-flex items-center rounded-full border border-neutral-300 px-2 py-0.5">
+              {files.length} file{files.length === 1 ? "" : "s"} • {formatMB(filesBytes)} MB
+            </span>
+          </div>
           <p className="text-xs text-neutral-500 mt-1">
             Up to {MAX_FILES_TOTAL} files combined (documents + photos), total ≤ {MAX_TOTAL_MB} MB.
           </p>
@@ -695,6 +681,18 @@ function ContactForm() {
             label="Upload Photo"
             isPhotos={true}
           />
+          {/* chip: photos only */}
+          <div className="mt-2 flex items-center gap-2 text-xs text-neutral-600">
+            <span className="inline-flex items-center rounded-full border border-neutral-300 px-2 py-0.5">
+              {photos.length} photo{photos.length === 1 ? "" : "s"} • {formatMB(photosBytes)} MB
+            </span>
+          </div>
+          {/* combined chip */}
+          <div className="mt-2 flex items-center gap-2 text-xs text-neutral-600">
+            <span className="inline-flex items-center rounded-full border border-neutral-300 px-2 py-0.5">
+              Total: {totalCount} file{totalCount === 1 ? "" : "s"} • {formatMB(totalBytes)} MB
+            </span>
+          </div>
         </FieldWrapper>
 
         <div className="space-y-2">
@@ -863,7 +861,7 @@ export default function ContactPage() {
                       <span className="font-medium">Hours:</span> Mon-Sat: 9:00 AM - 5:00 PM
                     </p>
                     <p>
-                      <span className="font-medium">Servicing the Tri-State area (NY, NJ, CT)</span>
+                      <span className="font-medium">Servicing the Tri-State areea (NY, NJ, CT) </span>
                     </p>
                   </div>
                 </div>
