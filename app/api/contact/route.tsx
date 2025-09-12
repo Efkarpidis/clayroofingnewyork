@@ -84,6 +84,16 @@ function renderUserHtml(params: { logoUrl: string; name: string }) {
   </table>`
 }
 
+// Helper: convert uploaded File to Resend attachment
+async function fileToResendAttachment(f: File) {
+  const buff = Buffer.from(await f.arrayBuffer())
+  return {
+    filename: f.name,
+    content: buff.toString("base64"),
+    contentType: f.type || "application/octet-stream",
+  }
+}
+
 export async function POST(req: NextRequest) {
   console.log("[API] Contact form submission received")
 
@@ -102,68 +112,46 @@ export async function POST(req: NextRequest) {
     const message = formData.get("message")?.toString().trim() || ""
     const privacyAccepted = formData.get("privacyAccepted")?.toString() === "true"
 
+    // Extract files
+    const file = formData.get("file") as File | null
+    const photos = formData.getAll("photos") as File[]
+
+    const attachments: any[] = []
+    if (file) attachments.push(await fileToResendAttachment(file))
+    for (const p of photos) attachments.push(await fileToResendAttachment(p))
+
     console.log("[API] Parsed form data:", {
       name,
       email,
       contactType,
       hasMessage: !!message,
-      privacyAccepted,
+      attachments: attachments.length,
     })
 
-    // Validate required fields
+    // Validation
     const fieldErrors: Record<string, string[]> = {}
-
-    if (!name) {
-      fieldErrors.name = ["Name is required"]
-    }
-    if (!email) {
-      fieldErrors.email = ["Email is required"]
-    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      fieldErrors.email = ["Please enter a valid email address"]
-    }
-    if (!message) {
-      fieldErrors.message = ["Message is required"]
-    } else if (message.length < 10) {
-      fieldErrors.message = ["Message must be at least 10 characters long"]
-    }
-    if (!contactType) {
-      fieldErrors.contactType = ["Please select your contact type"]
-    }
-    if (!privacyAccepted) {
-      fieldErrors.privacyAccepted = ["You must accept the Privacy Policy to continue"]
-    }
+    if (!name) fieldErrors.name = ["Name is required"]
+    if (!email) fieldErrors.email = ["Email is required"]
+    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) fieldErrors.email = ["Please enter a valid email address"]
+    if (!message) fieldErrors.message = ["Message is required"]
+    else if (message.length < 10) fieldErrors.message = ["Message must be at least 10 characters long"]
+    if (!contactType) fieldErrors.contactType = ["Please select your contact type"]
+    if (!privacyAccepted) fieldErrors.privacyAccepted = ["You must accept the Privacy Policy to continue"]
 
     if (Object.keys(fieldErrors).length > 0) {
       console.log("[API] Validation errors:", fieldErrors)
-      return NextResponse.json(
-        {
-          ok: false,
-          message: "Please fix the errors below.",
-          fieldErrors,
-        },
-        { status: 400 },
-      )
+      return NextResponse.json({ ok: false, message: "Please fix the errors below.", fieldErrors }, { status: 400 })
     }
 
-    // Check environment variables
+    // Environment check
     const from = process.env.CONTACT_FROM
     const to = (process.env.CONTACT_TO || "")
       .split(",")
       .map((s) => s.trim())
       .filter(Boolean)
 
-    if (!process.env.RESEND_API_KEY) {
-      console.error("[API] Missing RESEND_API_KEY")
-      return NextResponse.json({ ok: false, message: "Email service not configured." }, { status: 500 })
-    }
-
-    if (!from) {
-      console.error("[API] Missing CONTACT_FROM")
-      return NextResponse.json({ ok: false, message: "Email service not configured." }, { status: 500 })
-    }
-
-    if (to.length === 0) {
-      console.error("[API] Missing CONTACT_TO")
+    if (!process.env.RESEND_API_KEY || !from || to.length === 0) {
+      console.error("[API] Email service not configured properly")
       return NextResponse.json({ ok: false, message: "Email service not configured." }, { status: 500 })
     }
 
@@ -172,7 +160,7 @@ export async function POST(req: NextRequest) {
     const baseUrl = getBaseUrl(req)
     const logoUrl = `${baseUrl}/images/email-logo.png`
 
-    // Send team notification email
+    // Send team email
     try {
       const teamEmail = await resend.emails.send({
         from,
@@ -190,7 +178,10 @@ Tile Family: ${tileFamily || "-"}
 Tile Color: ${tileColor || "-"}
 
 Message:
-${message}`,
+${message}
+
+Attachments: ${attachments.length} file(s)
+`,
         html: renderTeamHtml({
           logoUrl,
           name,
@@ -202,6 +193,7 @@ ${message}`,
           tileColor,
           message,
         }),
+        attachments: attachments.length ? attachments : undefined,
       })
 
       if (teamEmail.error) {
@@ -209,15 +201,15 @@ ${message}`,
         return NextResponse.json({ ok: false, message: "Failed to send email." }, { status: 502 })
       }
 
-      console.log("[API] Team email sent successfully:", teamEmail.data?.id)
-    } catch (error) {
-      console.error("[API] Error sending team email:", error)
+      console.log("[API] Team email sent:", teamEmail.data?.id)
+    } catch (err) {
+      console.error("[API] Error sending team email:", err)
       return NextResponse.json({ ok: false, message: "Failed to send email." }, { status: 502 })
     }
 
-    // Send user confirmation email (best effort)
+    // Send confirmation email to user (without attachments)
     try {
-      const userEmail = await resend.emails.send({
+      await resend.emails.send({
         from,
         to: [email],
         reply_to: to,
@@ -230,33 +222,14 @@ If this is urgent, call us at 212-365-4386.
 
 Clay Roofing New York`,
       })
-
-      if (userEmail.error) {
-        console.warn("[API] User confirmation email failed:", userEmail.error)
-        // Don't fail the whole request if user email fails
-      } else {
-        console.log("[API] User confirmation email sent:", userEmail.data?.id)
-      }
-    } catch (error) {
-      console.warn("[API] Error sending user confirmation email:", error)
-      // Don't fail the whole request if user email fails
+    } catch (err) {
+      console.warn("[API] Error sending user confirmation email:", err)
     }
 
-    console.log("[API] Contact form submission completed successfully")
-
-    return NextResponse.json({
-      ok: true,
-      message: "Thanks—your message was sent.",
-    })
-  } catch (error) {
-    console.error("[API] Unexpected error:", error)
-    return NextResponse.json(
-      {
-        ok: false,
-        message: "Something went wrong. Please try again later.",
-      },
-      { status: 500 },
-    )
+    return NextResponse.json({ ok: true, message: "Thanks—your message was sent." })
+  } catch (err) {
+    console.error("[API] Unexpected error:", err)
+    return NextResponse.json({ ok: false, message: "Something went wrong. Please try again later." }, { status: 500 })
   }
 }
 
