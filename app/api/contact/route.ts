@@ -3,9 +3,13 @@ import { Resend } from "resend"
 
 const resend = new Resend(process.env.RESEND_API_KEY)
 
-// Build a safe absolute URL for images in emails
+// ---- Limits (match UI) ----
+const MAX_FILES_TOTAL = 10
+const MAX_TOTAL_MB = 20
+const MAX_TOTAL_BYTES = MAX_TOTAL_MB * 1024 * 1024
+// ---------------------------
+
 function getBaseUrl(req: NextRequest) {
-  // In prod this will be https://www.clayroofingnewyork.com
   return req.nextUrl.origin.replace(/\/$/, "")
 }
 
@@ -19,8 +23,12 @@ function renderTeamHtml(params: {
   tileFamily?: string
   tileColor?: string
   message: string
+  submittedAt: string
+  attachmentsCount: number
 }) {
-  const { logoUrl, name, email, phone, company, contactType, tileFamily, tileColor, message } = params
+  const {
+    logoUrl, name, email, phone, company, contactType, tileFamily, tileColor, message, submittedAt, attachmentsCount,
+  } = params
 
   return `
   <table width="100%" cellpadding="0" cellspacing="0" style="background:#f6f6f6;padding:24px 0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;">
@@ -34,7 +42,7 @@ function renderTeamHtml(params: {
         <tr>
           <td style="padding:24px">
             <h2 style="margin:0 0 12px 0;color:#111">New Contact Submission</h2>
-            <p style="margin:0 0 16px 0;color:#444">You received a new message from the website contact form.</p>
+            <p style="margin:0 0 16px 0;color:#444">Submitted ${submittedAt}</p>
             <table cellpadding="0" cellspacing="0" style="width:100%;font-size:14px;color:#111">
               <tr><td style="padding:6px 0;width:160px;color:#666">Name</td><td>${name || "-"}</td></tr>
               <tr><td style="padding:6px 0;color:#666">Email</td><td>${email || "-"}</td></tr>
@@ -43,6 +51,7 @@ function renderTeamHtml(params: {
               <tr><td style="padding:6px 0;color:#666">Contact Type</td><td>${contactType || "-"}</td></tr>
               <tr><td style="padding:6px 0;color:#666">Tile Family</td><td>${tileFamily || "-"}</td></tr>
               <tr><td style="padding:6px 0;color:#666">Tile Color</td><td>${tileColor || "-"}</td></tr>
+              <tr><td style="padding:6px 0;color:#666">Attachments</td><td>${attachmentsCount} file(s)</td></tr>
             </table>
 
             <h3 style="margin:20px 0 8px 0;color:#111">Message</h3>
@@ -56,8 +65,19 @@ function renderTeamHtml(params: {
   </table>`
 }
 
-function renderUserHtml(params: { logoUrl: string; name: string }) {
-  const { logoUrl, name } = params
+function renderUserHtml(params: {
+  logoUrl: string
+  name: string
+  email: string
+  phone?: string
+  company?: string
+  contactType?: string
+  tileFamily?: string
+  tileColor?: string
+  message: string
+  submittedAt: string
+}) {
+  const { logoUrl, name, email, phone, company, contactType, tileFamily, tileColor, message, submittedAt } = params
   return `
   <table width="100%" cellpadding="0" cellspacing="0" style="background:#f6f6f6;padding:24px 0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;">
     <tr><td align="center">
@@ -70,13 +90,27 @@ function renderUserHtml(params: { logoUrl: string; name: string }) {
         <tr>
           <td style="padding:24px">
             <h2 style="margin:0 0 12px 0;color:#111">Thanks, ${name || "there"}!</h2>
+            <p style="margin:0 0 12px 0;color:#444">We received your message on <strong>${submittedAt}</strong>.</p>
             <p style="margin:0 0 12px 0;color:#444">
-              We received your message and a specialist will contact you shortly.
+              Our Client Relations Manager will contact you shortly. Below is a copy of what you sent:
             </p>
-            <p style="margin:0 0 12px 0;color:#444">
+
+            <table cellpadding="0" cellspacing="0" style="width:100%;font-size:14px;color:#111;margin:12px 0 0 0">
+              <tr><td style="padding:6px 0;width:160px;color:#666">Name</td><td>${name || "-"}</td></tr>
+              <tr><td style="padding:6px 0;color:#666">Email</td><td>${email || "-"}</td></tr>
+              <tr><td style="padding:6px 0;color:#666">Phone</td><td>${phone || "-"}</td></tr>
+              <tr><td style="padding:6px 0;color:#666">Company</td><td>${company || "-"}</td></tr>
+              <tr><td style="padding:6px 0;color:#666">Contact Type</td><td>${contactType || "-"}</td></tr>
+              <tr><td style="padding:6px 0;color:#666">Tile Family</td><td>${tileFamily || "-"}</td></tr>
+              <tr><td style="padding:6px 0;color:#666">Tile Color</td><td>${tileColor || "-"}</td></tr>
+            </table>
+
+            <h3 style="margin:16px 0 8px 0;color:#111">Your Message</h3>
+            <p style="white-space:pre-wrap;margin:0;color:#222">${(message || "").replace(/</g, "&lt;")}</p>
+
+            <p style="margin-top:24px;font-size:12px;color:#666">
               If this is urgent, call us at <a href="tel:+12123654386" style="color:#ea580c;text-decoration:none">212-365-4386</a>.
             </p>
-            <p style="margin-top:24px;font-size:12px;color:#666">Clay Roofing New York</p>
           </td>
         </tr>
       </table>
@@ -84,7 +118,7 @@ function renderUserHtml(params: { logoUrl: string; name: string }) {
   </table>`
 }
 
-// Helper: convert uploaded File to Resend attachment
+// Convert uploaded File -> Resend attachment
 async function fileToResendAttachment(f: File) {
   const buff = Buffer.from(await f.arrayBuffer())
   return {
@@ -95,13 +129,10 @@ async function fileToResendAttachment(f: File) {
 }
 
 export async function POST(req: NextRequest) {
-  console.log("[API] Contact form submission received")
-
   try {
-    // Parse the form data
     const formData = await req.formData()
 
-    // Extract form fields
+    // Fields
     const name = formData.get("name")?.toString().trim() || ""
     const email = formData.get("email")?.toString().trim() || ""
     const phone = formData.get("phone")?.toString().trim() || ""
@@ -112,21 +143,25 @@ export async function POST(req: NextRequest) {
     const message = formData.get("message")?.toString().trim() || ""
     const privacyAccepted = formData.get("privacyAccepted")?.toString() === "true"
 
-    // Extract files
-    const file = formData.get("file") as File | null
+    // Files (plural)
+    const files = formData.getAll("files") as File[]
     const photos = formData.getAll("photos") as File[]
 
-    const attachments: any[] = []
-    if (file) attachments.push(await fileToResendAttachment(file))
-    for (const p of photos) attachments.push(await fileToResendAttachment(p))
-
-    console.log("[API] Parsed form data:", {
-      name,
-      email,
-      contactType,
-      hasMessage: !!message,
-      attachments: attachments.length,
-    })
+    // Server-side limits
+    const all = [...files, ...photos]
+    if (all.length > MAX_FILES_TOTAL) {
+      return NextResponse.json(
+        { ok: false, message: `Please reduce to ${MAX_FILES_TOTAL} files total.`, fieldErrors: { files: [`Max ${MAX_FILES_TOTAL} files.`] } },
+        { status: 400 },
+      )
+    }
+    const totalBytes = all.reduce((s, f) => s + (f?.size || 0), 0)
+    if (totalBytes > MAX_TOTAL_BYTES) {
+      return NextResponse.json(
+        { ok: false, message: `Total uploads must be ≤ ${MAX_TOTAL_MB} MB.`, fieldErrors: { files: [`Total exceeds ${MAX_TOTAL_MB} MB.`] } },
+        { status: 400 },
+      )
+    }
 
     // Validation
     const fieldErrors: Record<string, string[]> = {}
@@ -137,37 +172,33 @@ export async function POST(req: NextRequest) {
     else if (message.length < 10) fieldErrors.message = ["Message must be at least 10 characters long"]
     if (!contactType) fieldErrors.contactType = ["Please select your contact type"]
     if (!privacyAccepted) fieldErrors.privacyAccepted = ["You must accept the Privacy Policy to continue"]
-
     if (Object.keys(fieldErrors).length > 0) {
-      console.log("[API] Validation errors:", fieldErrors)
       return NextResponse.json({ ok: false, message: "Please fix the errors below.", fieldErrors }, { status: 400 })
     }
 
-    // Environment check
+    // Email env
     const from = process.env.CONTACT_FROM
-    const to = (process.env.CONTACT_TO || "")
-      .split(",")
-      .map((s) => s.trim())
-      .filter(Boolean)
-
+    const to = (process.env.CONTACT_TO || "").split(",").map((s) => s.trim()).filter(Boolean)
     if (!process.env.RESEND_API_KEY || !from || to.length === 0) {
-      console.error("[API] Email service not configured properly")
       return NextResponse.json({ ok: false, message: "Email service not configured." }, { status: 500 })
     }
 
-    console.log("[API] Environment check passed, sending emails...")
-
     const baseUrl = getBaseUrl(req)
     const logoUrl = `${baseUrl}/images/email-logo.png`
+    const submittedAt = new Date().toLocaleString("en-US", { timeZone: "America/New_York", hour12: true })
 
-    // Send team email
-    try {
-      const teamEmail = await resend.emails.send({
-        from,
-        to,
-        subject: `Website Contact – ${name}`,
-        reply_to: email,
-        text: `New contact submission:
+    // Attachments
+    const attachments: any[] = []
+    for (const f of files)  attachments.push(await fileToResendAttachment(f))
+    for (const p of photos) attachments.push(await fileToResendAttachment(p))
+
+    // Team email
+    const teamEmail = await resend.emails.send({
+      from,
+      to,
+      subject: `Website Contact – ${name}`,
+      reply_to: email,
+      text: `New contact submission (submitted ${submittedAt}):
 
 Name: ${name}
 Email: ${email}
@@ -182,48 +213,49 @@ ${message}
 
 Attachments: ${attachments.length} file(s)
 `,
-        html: renderTeamHtml({
-          logoUrl,
-          name,
-          email,
-          phone,
-          company,
-          contactType,
-          tileFamily,
-          tileColor,
-          message,
-        }),
-        attachments: attachments.length ? attachments : undefined,
-      })
-
-      if (teamEmail.error) {
-        console.error("[API] Resend team email error:", teamEmail.error)
-        return NextResponse.json({ ok: false, message: "Failed to send email." }, { status: 502 })
-      }
-
-      console.log("[API] Team email sent:", teamEmail.data?.id)
-    } catch (err) {
-      console.error("[API] Error sending team email:", err)
+      html: renderTeamHtml({
+        logoUrl, name, email, phone, company, contactType, tileFamily, tileColor, message, submittedAt,
+        attachmentsCount: attachments.length,
+      }),
+      attachments: attachments.length ? attachments : undefined,
+    })
+    if (teamEmail.error) {
+      console.error("[API] Resend team email error:", teamEmail.error)
       return NextResponse.json({ ok: false, message: "Failed to send email." }, { status: 502 })
     }
 
-    // Send confirmation email to user (without attachments)
+    // User confirmation (mirrors submission)
     try {
       await resend.emails.send({
         from,
         to: [email],
         reply_to: to,
         subject: "We received your message – Clay Roofing New York",
-        html: renderUserHtml({ logoUrl, name }),
+        html: renderUserHtml({
+          logoUrl, name, email, phone, company, contactType, tileFamily, tileColor, message, submittedAt
+        }),
         text: `Thanks, ${name}!
 
-We received your message and will get back to you shortly.
-If this is urgent, call us at 212-365-4386.
+We received your message on ${submittedAt}.
+Our Client Relations Manager will contact you shortly.
 
+Submission copy:
+Name: ${name}
+Email: ${email}
+Phone: ${phone || "-"}
+Company: ${company || "-"}
+Contact Type: ${contactType || "-"}
+Tile Family: ${tileFamily || "-"}
+Tile Color: ${tileColor || "-"}
+
+Message:
+${message}
+
+If this is urgent, call us at 212-365-4386.
 Clay Roofing New York`,
       })
     } catch (err) {
-      console.warn("[API] Error sending user confirmation email:", err)
+      console.warn("[API] User confirmation email failed:", err)
     }
 
     return NextResponse.json({ ok: true, message: "Thanks—your message was sent." })
