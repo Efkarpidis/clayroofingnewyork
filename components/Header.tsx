@@ -5,7 +5,12 @@ import Image from "next/image"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { Button } from "@/components/ui/button"
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
 import { Phone, ChevronDown } from "lucide-react"
 
 export function Header() {
@@ -25,11 +30,7 @@ export function Header() {
   const currentPage = getCurrentPage()
 
   useEffect(() => {
-    const handleScroll = () => {
-      const scrollPosition = window.scrollY
-      setScrolled(scrollPosition > 50)
-    }
-
+    const handleScroll = () => setScrolled(window.scrollY > 50)
     window.addEventListener("scroll", handleScroll)
     return () => window.removeEventListener("scroll", handleScroll)
   }, [])
@@ -66,15 +67,16 @@ export function Header() {
             {/* Desktop Navigation */}
             <nav className="hidden md:flex items-center justify-center text-center py-2 space-x-8">
               <a
-                href="tel:2123654386"
-                className="flex items-center gap-2 px-3 py-2 text-sm font-medium rounded-md transition-colors text-neutral-800 hover:text-orange-600 hover:bg-orange-100 tappable"
+                href="tel:+12123654386"
+                className="flex items-center gap-2 px-3 py-2 text-sm font-medium rounded-md transition-colors text-neutral-800 hover:text-orange-600 hover:bg-orange-100"
               >
                 <Phone className="w-4 h-4 flex-shrink-0" />
                 <span>212-365-4386</span>
               </a>
+
               <Link
                 href="/gallery"
-                className={`px-3 py-2 text-sm font-medium rounded-md transition-colors tappable ${
+                className={`px-3 py-2 text-sm font-medium rounded-md transition-colors ${
                   currentPage === "gallery"
                     ? "text-orange-600 bg-orange-100"
                     : "text-neutral-800 hover:text-orange-600 hover:bg-orange-100"
@@ -82,9 +84,10 @@ export function Header() {
               >
                 Projects
               </Link>
+
               <Link
                 href="/tile-selection"
-                className={`px-3 py-2 text-sm font-medium rounded-md transition-colors tappable ${
+                className={`px-3 py-2 text-sm font-medium rounded-md transition-colors ${
                   currentPage === "tile-selection"
                     ? "text-orange-600 bg-orange-100"
                     : "text-neutral-800 hover:text-orange-600 hover:bg-orange-100"
@@ -92,9 +95,10 @@ export function Header() {
               >
                 Tile Selection
               </Link>
+
               <Link
                 href="/about"
-                className={`px-3 py-2 text-sm font-medium rounded-md transition-colors tappable ${
+                className={`px-3 py-2 text-sm font-medium rounded-md transition-colors ${
                   currentPage === "about"
                     ? "text-orange-600 bg-orange-100"
                     : "text-neutral-800 hover:text-orange-600 hover:bg-orange-100"
@@ -102,9 +106,10 @@ export function Header() {
               >
                 About
               </Link>
+
               <Link
                 href="/contact"
-                className={`px-3 py-2 text-sm font-medium rounded-md transition-colors tappable ${
+                className={`px-3 py-2 text-sm font-medium rounded-md transition-colors ${
                   currentPage === "contact"
                     ? "text-orange-600 bg-orange-100"
                     : "text-neutral-800 hover:text-orange-600 hover:bg-orange-100"
@@ -112,11 +117,12 @@ export function Header() {
               >
                 Contact
               </Link>
+
               {currentPage !== "contact" && (
-                <Link href="/contact#quote" className="tappable">
+                <Link href="/contact#quote">
                   <Button
                     size="sm"
-                    className="bg-gradient-to-r from-orange-600 to-orange-700 text-white hover:from-orange-700 hover:to-orange-800 text-xs font-semibold transition-all shadow-lg hover:shadow-xl cursor-pointer h-9 px-4"
+                    className="bg-gradient-to-r from-orange-600 to-orange-700 text-white hover:from-orange-700 hover:to-orange-800 text-xs font-semibold transition-colors shadow-lg hover:shadow-xl h-9 px-4"
                   >
                     Request Quote
                   </Button>
@@ -125,27 +131,34 @@ export function Header() {
             </nav>
 
             {/* Mobile Navigation Dropdown */}
-            <div className="md:hidden text-center py-2 flex justify-center">
+            <div className="md:hidden w-full px-4 py-2">
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button
                     variant="outline"
-                    className="flex items-center gap-2 px-4 py-2 text-sm font-medium border-neutral-300 text-neutral-800 hover:bg-orange-100 hover:text-orange-700 hover:border-orange-300 transition-colors tappable bg-white"
+                    className="flex items-center justify-between gap-2 w-full sm:w-auto py-3 text-base font-medium border-neutral-300 text-neutral-800 hover:bg-orange-100 hover:text-orange-700 hover:border-orange-300 bg-white"
                   >
-                    Menu
+                    <ChevronDown className="h-4 w-4" />
+                    <span className="flex-1 text-center">Menu</span>
                     <ChevronDown className="h-4 w-4" />
                   </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="center" className="w-56 mt-2">
+
+                <DropdownMenuContent
+                  align="center"
+                  sideOffset={8}
+                  className="mx-auto mt-2 w-[calc(100vw-2rem)] max-w-sm"
+                >
                   <DropdownMenuItem asChild>
                     <a
-                      href="tel:2123654386"
+                      href="tel:+12123654386"
                       className="flex items-center gap-3 px-3 py-3 text-base font-semibold text-orange-600 bg-orange-50 rounded-md cursor-pointer"
                     >
                       <Phone className="w-5 h-5 flex-shrink-0" />
                       <span>Call: 212-365-4386</span>
                     </a>
                   </DropdownMenuItem>
+
                   <DropdownMenuItem asChild>
                     <Link
                       href="/"
@@ -158,6 +171,7 @@ export function Header() {
                       Home
                     </Link>
                   </DropdownMenuItem>
+
                   <DropdownMenuItem asChild>
                     <Link
                       href="/gallery"
@@ -170,6 +184,7 @@ export function Header() {
                       Projects
                     </Link>
                   </DropdownMenuItem>
+
                   <DropdownMenuItem asChild>
                     <Link
                       href="/tile-selection"
@@ -182,6 +197,7 @@ export function Header() {
                       Tile Selection
                     </Link>
                   </DropdownMenuItem>
+
                   <DropdownMenuItem asChild>
                     <Link
                       href="/about"
@@ -194,6 +210,7 @@ export function Header() {
                       About
                     </Link>
                   </DropdownMenuItem>
+
                   <DropdownMenuItem asChild>
                     <Link
                       href="/contact"
@@ -206,11 +223,12 @@ export function Header() {
                       Contact
                     </Link>
                   </DropdownMenuItem>
+
                   {currentPage !== "contact" && (
                     <DropdownMenuItem asChild>
                       <Link
                         href="/contact#quote"
-                        className="flex items-center px-3 py-3 text-base font-bold text-white bg-gradient-to-r from-orange-600 to-orange-700 hover:from-orange-700 hover:to-orange-800 rounded-md cursor-pointer mt-2"
+                        className="flex items-center justify-center px-3 py-3 text-base font-bold text-white bg-gradient-to-r from-orange-600 to-orange-700 hover:from-orange-700 hover:to-orange-800 rounded-md cursor-pointer mt-2"
                       >
                         Request Quote
                       </Link>
