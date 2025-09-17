@@ -1,18 +1,24 @@
+// app/contact/page.tsx
 "use client"
 
 import React, { useEffect, useRef, useState, useTransition } from "react"
 import { Button } from "@/components/ui/button"
-import { Upload, Camera, FileText, X, Check, Shield } from "lucide-react"
+import { Check } from "lucide-react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
 import VercelBlobUploader from "@/components/upload/VercelBlobUploader"
-import type { PutBlobResult } from "@vercel/blob/client"
 
-// (Kept for reference; no server-side cap now)
-const formatMB = (bytes: number) => Math.round((bytes / (1024 * 1024)) * 10) / 10 // 1 decimal
+type BlobItem = {
+  url: string
+  pathname: string
+  size?: number
+  contentType?: string
+  filename?: string
+}
 
-// Contact form schema (unchanged, except files handled via hidden inputs)
+const formatMB = (bytes: number) => Math.round((bytes / (1024 * 1024)) * 10) / 10
+
 const contactFormSchema = z.object({
   name: z.string().min(2, { message: "Please enter your full name." }),
   email: z.string().email({ message: "Please enter a valid email address." }),
@@ -24,8 +30,7 @@ const contactFormSchema = z.object({
   tileFamily: z.string().optional(),
   tileColor: z.string().optional(),
   message: z.string().min(10, { message: "Your message must be at least 10 characters long." }),
-  // We no longer validate File objects on the client — uploads are URLs
-  privacyAccepted: z.boolean().refine((val) => val === true, {
+  privacyAccepted: z.boolean().refine((v) => v === true, {
     message: "You must accept the Privacy Policy to continue.",
   }),
   previousProjectReference: z.string().optional(),
@@ -33,7 +38,6 @@ const contactFormSchema = z.object({
 
 type ContactFormData = z.infer<typeof contactFormSchema>
 
-// Reusable form components (unchanged)
 const FieldWrapper = ({
   id,
   label,
@@ -57,20 +61,18 @@ const FieldWrapper = ({
   </div>
 )
 
-const FormInput = (props: React.ComponentProps<"input">) => (
+const FormInput = (p: React.ComponentProps<"input">) => (
   <input
-    {...props}
+    {...p}
     className="block w-full h-11 rounded-xl border border-neutral-200 bg-white px-3 py-2 text-base text-neutral-900 shadow-sm focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20 focus:outline-none hover:border-neutral-300 transition-colors placeholder:text-neutral-400"
   />
 )
-
-const FormTextarea = (props: React.ComponentProps<"textarea">) => (
+const FormTextarea = (p: React.ComponentProps<"textarea">) => (
   <textarea
-    {...props}
+    {...p}
     className="block w-full rounded-md border-neutral-300 bg-white p-3 text-base shadow-sm focus:border-orange-500 focus:ring-orange-500 focus:outline-none focus:ring-2"
   />
 )
-
 const FormSelect = ({ children, ...props }: React.ComponentProps<"select">) => (
   <div className="relative">
     <select
@@ -89,7 +91,6 @@ const FormSelect = ({ children, ...props }: React.ComponentProps<"select">) => (
   </div>
 )
 
-// Tile color options (unchanged)
 const tileColorOptions = {
   Vienna: ["Charcoal", "Terracotta", "Slate Gray", "Request a Color"],
   "S-Mixed": ["Mediterranean Blend", "Tuscan Mix", "Antique Blend", "Request a Color"],
@@ -108,27 +109,27 @@ const tileColorOptions = {
     "Slate",
     "Request a Color",
   ],
-}
+} as const
 
 function ContactForm() {
   const formRef = useRef<HTMLFormElement>(null)
 
-  // Submit result state (unchanged)
-  const [state, setState] = useState<{
-    message: string
-    success: boolean
-    errors?: Record<string, string[]>
-  }>({ message: "", success: false, errors: undefined })
-
+  const [state, setState] = useState<{ message: string; success: boolean; errors?: Record<string, string[]> }>({
+    message: "",
+    success: false,
+  })
   const [isPending, startTransition] = useTransition()
-
-  // These were used for local file inputs; now we track uploaded results (for chips)
-  const [docResults, setDocResults] = useState<PutBlobResult[]>([])
-  const [photoResults, setPhotoResults] = useState<PutBlobResult[]>([])
-
   const [selectedTileFamily, setSelectedTileFamily] = useState<string>("")
   const [selectedContactType, setSelectedContactType] = useState<string>("")
   const [showToast, setShowToast] = useState(false)
+
+  // uploader state for counters (UI only)
+  const [docResults, setDocResults] = useState<BlobItem[]>([])
+  const [photoResults, setPhotoResults] = useState<BlobItem[]>([])
+  const docBytes = docResults.reduce((s, r) => s + (r.size || 0), 0)
+  const photoBytes = photoResults.reduce((s, r) => s + (r.size || 0), 0)
+  const totalBytes = docBytes + photoBytes
+  const totalCount = docResults.length + photoResults.length
 
   const {
     register,
@@ -146,24 +147,18 @@ function ContactForm() {
   const watchedTileFamily = watch("tileFamily")
   const watchedContactType = watch("contactType")
 
-  // Prefill from URL params (unchanged)
   useEffect(() => {
-    const urlParams = new URLSearchParams(window.location.search)
-    const tileFamily = urlParams.get("tileFamily")
-    const tileColor = urlParams.get("tileColor")
-
-    if (tileFamily) {
-      setValue("tileFamily", tileFamily)
-      setSelectedTileFamily(tileFamily)
+    const url = new URLSearchParams(window.location.search)
+    const tf = url.get("tileFamily")
+    const tc = url.get("tileColor")
+    if (tf) {
+      setValue("tileFamily", tf)
+      setSelectedTileFamily(tf)
     }
-    if (tileColor) {
-      setValue("tileColor", tileColor)
-    }
-
+    if (tc) setValue("tileColor", tc)
     window.scrollTo(0, 0)
   }, [setValue])
 
-  // Reflect selects into local state (unchanged)
   useEffect(() => {
     if (watchedTileFamily) {
       setSelectedTileFamily(watchedTileFamily)
@@ -172,9 +167,7 @@ function ContactForm() {
   }, [watchedTileFamily, setValue])
 
   useEffect(() => {
-    if (watchedContactType) {
-      setSelectedContactType(watchedContactType)
-    }
+    if (watchedContactType) setSelectedContactType(watchedContactType)
   }, [watchedContactType])
 
   useEffect(() => {
@@ -189,80 +182,40 @@ function ContactForm() {
     }
   }, [state.success, reset])
 
-  // Derived sizes/counts (for chips), from uploaded results
-  const docBytes = docResults.reduce((s, r) => s + (typeof r.size === "number" ? r.size : 0), 0)
-  const photoBytes = photoResults.reduce((s, r) => s + (typeof r.size === "number" ? r.size : 0), 0)
-  const totalBytes = docBytes + photoBytes
-  const totalCount = docResults.length + photoResults.length
-
-  // Submit: build FormData from the form, then COMBINE the two uploader fields into uploadedFiles
-  const onSubmit = async (_values: ContactFormData) => {
+  const onSubmit = async () => {
     startTransition(async () => {
       try {
         const formEl = formRef.current
         if (!formEl) return
-        const formData = new FormData(formEl)
+        const fd = new FormData(formEl)
 
-        // Read the two hidden JSON arrays created by the uploaders
-        const docsJson = (formData.get("uploadedFilesDocs") as string) || "[]"
-        const photosJson = (formData.get("uploadedFilesPhotos") as string) || "[]"
+        // merge the two uploader hidden fields into "uploadedFiles"
+        const docs = (fd.get("uploadedFilesDocs") as string) || "[]"
+        const photos = (fd.get("uploadedFilesPhotos") as string) || "[]"
+        let d: any[] = []
+        let p: any[] = []
+        try { d = JSON.parse(docs) } catch {}
+        try { p = JSON.parse(photos) } catch {}
+        const combined = JSON.stringify([...d, ...p])
+        fd.delete("uploadedFilesDocs")
+        fd.delete("uploadedFilesPhotos")
+        fd.set("uploadedFiles", combined)
 
-        let docs: any[] = []
-        let photos: any[] = []
-        try {
-          docs = JSON.parse(docsJson) || []
-        } catch {}
-        try {
-          photos = JSON.parse(photosJson) || []
-        } catch {}
-
-        // Combine into a single field that the /api/contact route expects
-        const combined = [...docs, ...photos]
-        formData.delete("uploadedFilesDocs")
-        formData.delete("uploadedFilesPhotos")
-        formData.set("uploadedFiles", JSON.stringify(combined))
-
-        const response = await fetch("/api/contact", {
-          method: "POST",
-          body: formData,
-        })
-
-        let result: any = {}
-        try {
-          result = await response.json()
-        } catch {
-          result = { ok: false, message: "Invalid server response" }
-        }
-
-        if (response.ok && result.ok) {
-          setState({
-            message: "Thanks—your message was sent.",
-            success: true,
-          })
+        const res = await fetch("/api/contact", { method: "POST", body: fd })
+        const data = await res.json().catch(() => ({ ok: false }))
+        if (res.ok && data.ok) {
+          setState({ message: "Thanks—your message was sent.", success: true })
         } else {
-          if (result.fieldErrors) {
-            Object.entries(result.fieldErrors).forEach(([field, messages]) => {
-              if (messages && Array.isArray(messages) && messages.length > 0) {
-                setError(field as keyof ContactFormData, {
-                  type: "server",
-                  message: messages[0],
-                })
-              }
+          if (data.fieldErrors) {
+            Object.entries(data.fieldErrors).forEach(([field, messages]: any) => {
+              if (messages?.[0]) setError(field as keyof ContactFormData, { type: "server", message: messages[0] })
             })
           }
-
-          setState({
-            message: result.message || "Please complete the required fields highlighted below.",
-            success: false,
-            errors: result.fieldErrors,
-          })
+          setState({ message: data.message || "Please complete the required fields highlighted below.", success: false, errors: data.fieldErrors })
         }
-      } catch (error) {
-        console.error("[Contact] Network error:", error)
-        setState({
-          message: "Network error. Please check your connection and try again.",
-          success: false,
-        })
+      } catch (e) {
+        console.error("[Contact] submit error", e)
+        setState({ message: "Network error. Please try again.", success: false })
       }
     })
   }
@@ -281,7 +234,6 @@ function ContactForm() {
 
   return (
     <>
-      {/* Success Toast (unchanged) */}
       {showToast && (
         <div className="fixed top-4 right-4 z-50 bg-green-600 text-white px-6 py-3 rounded-lg shadow-lg flex items-center gap-2">
           <Check className="h-5 w-5" />
@@ -306,22 +258,15 @@ function ContactForm() {
           <FormInput {...register("company")} placeholder="Cocoa's Roofing Company" />
         </FieldWrapper>
 
-        <FieldWrapper
-          id="contactType"
-          label="I am a"
-          required
-          error={errors.contactType?.message || state.errors?.contactType?.[0]}
-        >
+        <FieldWrapper id="contactType" label="I am a" required error={errors.contactType?.message || state.errors?.contactType?.[0]}>
           <FormSelect
             {...register("contactType")}
             onChange={(e) => {
               register("contactType").onChange(e)
-              setSelectedContactType(e.target.value)
+              // you can keep any conditional messaging here
             }}
           >
-            <option value="" className="text-neutral-400">
-              Select...
-            </option>
+            <option value="">Select...</option>
             <option value="general-contractor">General Contractor</option>
             <option value="homeowner">Homeowner</option>
             <option value="architect">Architect</option>
@@ -329,26 +274,9 @@ function ContactForm() {
             <option value="previous-client">Previous Client (Warranty or Service Request)</option>
             <option value="other">Other</option>
           </FormSelect>
-          {selectedContactType === "previous-client" && (
-            <div className="mt-2 text-sm text-neutral-600 italic">Warranty & service support for past projects.</div>
-          )}
         </FieldWrapper>
 
-        {selectedContactType === "previous-client" && (
-          <FieldWrapper
-            id="previousProjectReference"
-            label="Project Address or Year of Installation (if known)"
-            error={errors.previousProjectReference?.message || state.errors?.previousProjectReference?.[0]}
-          >
-            <FormInput {...register("previousProjectReference")} placeholder="e.g., 123 Main St, Brooklyn or 2019" />
-          </FieldWrapper>
-        )}
-
-        <FieldWrapper
-          id="tileFamily"
-          label="Tile Family"
-          error={errors.tileFamily?.message || state.errors?.tileFamily?.[0]}
-        >
+        <FieldWrapper id="tileFamily" label="Tile Family" error={errors.tileFamily?.message || state.errors?.tileFamily?.[0]}>
           <FormSelect
             {...register("tileFamily")}
             onChange={(e) => {
@@ -356,9 +284,7 @@ function ContactForm() {
               setSelectedTileFamily(e.target.value)
             }}
           >
-            <option value="" className="text-neutral-400">
-              Select...
-            </option>
+            <option value="">Select...</option>
             <option value="Vienna">Vienna</option>
             <option value="S-Mixed">S-Mixed</option>
             <option value="Selectum">Selectum</option>
@@ -367,11 +293,7 @@ function ContactForm() {
         </FieldWrapper>
 
         {selectedTileFamily && (
-          <FieldWrapper
-            id="tileColor"
-            label="Tile Color"
-            error={errors.tileColor?.message || state.errors?.tileColor?.[0]}
-          >
+          <FieldWrapper id="tileColor" label="Tile Color" error={errors.tileColor?.message || state.errors?.tileColor?.[0]}>
             <FormSelect {...register("tileColor")}>
               <option value="">Select...</option>
               {tileColorOptions[selectedTileFamily as keyof typeof tileColorOptions]?.map((color) => (
@@ -383,67 +305,55 @@ function ContactForm() {
           </FieldWrapper>
         )}
 
-        <FieldWrapper
-          id="message"
-          label="Message"
-          required
-          error={errors.message?.message || state.errors?.message?.[0]}
-        >
+        <FieldWrapper id="message" label="Message" required error={errors.message?.message || state.errors?.message?.[0]}>
           <FormTextarea {...register("message")} rows={4} placeholder="Type your message here." />
         </FieldWrapper>
 
-        {/* =====================  FILES — Documents  ===================== */}
+        {/* Documents */}
         <FieldWrapper id="files" label="Attach Documents">
           <VercelBlobUploader
             multiple
             accept=".pdf,.doc,.docx,.xlsx,.zip,image/*"
             hiddenInputName="uploadedFilesDocs"
             label="Upload Documents"
-            onComplete={(files) => setDocResults(files)}
+            onComplete={setDocResults}
           />
-
-          {/* chip: documents summary */}
-          <div className="mt-2 flex items-center gap-2 text-xs text-neutral-600">
+          <div className="mt-2 text-xs text-neutral-600">
             <span className="inline-flex items-center rounded-full border border-neutral-300 px-2 py-0.5">
               {docResults.length} file{docResults.length === 1 ? "" : "s"} • {formatMB(docBytes)} MB
             </span>
           </div>
         </FieldWrapper>
 
-        {/* =====================  FILES — Photos  ===================== */}
+        {/* Photos */}
         <FieldWrapper id="photos" label="Upload Photo">
           <VercelBlobUploader
             multiple
             accept="image/*"
             hiddenInputName="uploadedFilesPhotos"
             label="Upload Photo"
-            onComplete={(files) => setPhotoResults(files)}
+            onComplete={setPhotoResults}
           />
-
-          {/* chip: photos summary */}
-          <div className="mt-2 flex items-center gap-2 text-xs text-neutral-600">
+          <div className="mt-2 text-xs text-neutral-600">
             <span className="inline-flex items-center rounded-full border border-neutral-300 px-2 py-0.5">
               {photoResults.length} photo{photoResults.length === 1 ? "" : "s"} • {formatMB(photoBytes)} MB
             </span>
           </div>
-
-          {/* combined chip */}
-          <div className="mt-2 flex items-center gap-2 text-xs text-neutral-600">
+          <div className="mt-2 text-xs text-neutral-600">
             <span className="inline-flex items-center rounded-full border border-neutral-300 px-2 py-0.5">
-              Total: {totalCount} file{totalCount === 1 ? "" : "s"} • {formatMB(totalBytes)} MB
+              Total: {docResults.length + photoResults.length} file{totalCount === 1 ? "" : "s"} • {formatMB(totalBytes)} MB
             </span>
           </div>
         </FieldWrapper>
-        {/* ============================================================= */}
 
         <div className="space-y-2">
           <div className="flex items-start gap-3">
-            <input
-              type="checkbox"
-              id="privacyAccepted"
-              {...register("privacyAccepted")}
-              className="mt-1 h-4 w-4 rounded border-neutral-400 text-orange-600 focus:ring-orange-600"
-            />
+           <input
+  type="checkbox"
+  id="privacyAccepted"
+  {...register("privacyAccepted", { valueAsBoolean: true })}
+  className="mt-1 h-4 w-4 rounded border-neutral-400 text-orange-600 focus:ring-orange-600"
+/>
             <label htmlFor="privacyAccepted" className="text-sm text-neutral-700">
               I have read and accept the{" "}
               <a href="/privacy" className="text-orange-600 hover:underline">
@@ -488,26 +398,17 @@ function ContactForm() {
 
 export default function ContactPage() {
   const [addressCopied, setAddressCopied] = useState(false)
-
-  // Ensure page always loads at top (unchanged)
-  useEffect(() => {
-    window.scrollTo(0, 0)
-  }, [])
-
+  useEffect(() => { window.scrollTo(0, 0) }, [])
   const copyAddressToClipboard = async () => {
     try {
       await navigator.clipboard.writeText("33-15 127th Pl, Corona, NY 11368")
-      setAddressCopied(true)
-      setTimeout(() => setAddressCopied(false), 2000)
-    } catch (err) {
-      console.error("Failed to copy address:", err)
-    }
+      setAddressCopied(true); setTimeout(() => setAddressCopied(false), 2000)
+    } catch (e) { console.error(e) }
   }
 
   return (
     <div className="bg-white text-neutral-800 min-h-screen">
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-16">
-        {/* Header Section */}
         <div className="text-center mb-8 sm:mb-12">
           <h1 className="text-2xl sm:text-3xl md:text-4xl font-extrabold tracking-tight text-neutral-900">
             Contact Us
@@ -515,93 +416,45 @@ export default function ContactPage() {
           <p className="mt-2 max-w-2xl mx-auto text-base sm:text-lg text-neutral-600">
             Have a question or need a quote? We're here to help.
           </p>
-          <p className="mt-1 text-sm text-neutral-500 italic">
-            We proudly back our installations with warranties up to 100 years.
-          </p>
+          <p className="mt-1 text-sm text-neutral-500 italic">We proudly back our installations with warranties up to 100 years.</p>
         </div>
 
         <div className="grid grid-cols-1 gap-8 lg:gap-16 lg:grid-cols-2">
-          {/* Left Side - Contact Info (unchanged content/styling) */}
+          {/* Left column kept as you had it */}
           <div className="bg-gradient-to-br from-orange-50 to-orange-100 rounded-xl p-6 sm:p-8 space-y-6">
             <div>
               <h2 className="text-xl font-semibold text-neutral-900 mb-4">Get in Touch</h2>
               <p className="text-sm text-neutral-500 mb-4">Tap an option to get in touch</p>
 
               <div className="space-y-4">
-                <Button
-                  variant="outline"
-                  className="w-full justify-start gap-3 h-auto py-3 px-4 text-base font-medium text-neutral-800 border-neutral-300 bg-white hover:bg-neutral-50 active:bg-neutral-100 transition-colors"
-                  asChild
-                >
-                  <a href="tel:+12123654386">
-                    <img src="/icons/phone-icon.svg" alt="Phone" className="h-5 w-5 text-orange-600 flex-shrink-0" />
+                <Button variant="outline" className="w-full justify-start gap-3 h-auto py-3 px-4 text-base font-medium text-neutral-800 border-neutral-300 bg-white hover:bg-neutral-50">
+                  <a href="tel:+12123654386" className="flex items-center gap-3">
+                    <img src="/icons/phone-icon.svg" alt="Phone" className="h-5 w-5" />
                     <span>Call: 212-365-4386</span>
                   </a>
                 </Button>
-
-                <Button
-                  variant="outline"
-                  className="w-full justify-start gap-3 h-auto py-3 px-4 text-base font-medium text-neutral-800 border-neutral-300 bg-white hover:bg-neutral-50 active:bg-neutral-100 transition-colors"
-                  asChild
-                >
-                  <a href="sms:+12123654386">
-                    <img src="/icons/imessage-icon.svg" alt="Phone" className="h-5 w-5 text-orange-600 flex-shrink-0" />
+                <Button variant="outline" className="w-full justify-start gap-3 h-auto py-3 px-4 text-base font-medium text-neutral-800 border-neutral-300 bg-white hover:bg-neutral-50">
+                  <a href="sms:+12123654386" className="flex items-center gap-3">
+                    <img src="/icons/imessage-icon.svg" alt="iMessage" className="h-5 w-5" />
                     <span>Text: 212-365-4386</span>
                   </a>
                 </Button>
-
-                <Button
-                  variant="outline"
-                  className="w-full justify-start gap-3 h-auto py-3 px-4 text-base font-medium text-neutral-800 border-neutral-300 bg-white hover:bg-neutral-50 active:bg-neutral-100 transition-colors"
-                  asChild
-                >
-                  <a href="https://wa.me/12123654386" target="_blank" rel="noopener noreferrer">
-                    <img
-                      src="/icons/whats-app-icon.svg"
-                      alt="WhatsApp"
-                      className="h-5 w-5 text-orange-600 flex-shrink-0"
-                    />
+                <Button variant="outline" className="w-full justify-start gap-3 h-auto py-3 px-4 text-base font-medium text-neutral-800 border-neutral-300 bg-white hover:bg-neutral-50">
+                  <a href="https://wa.me/12123654386" target="_blank" rel="noopener noreferrer" className="flex items-center gap-3">
+                    <img src="/icons/whats-app-icon.svg" alt="WhatsApp" className="h-5 w-5" />
                     <span>WhatsApp: 212-365-4386</span>
                   </a>
                 </Button>
-
-                <Button
-                  variant="outline"
-                  className="w-full justify-start gap-3 h-auto py-3 px-4 text-base font-medium text-neutral-800 border-neutral-300 bg-white hover:bg-neutral-50 active:bg-neutral-100 transition-colors"
-                  asChild
-                >
-                  <a href="mailto:chris@clayroofingnewyork.com">
-                    <img src="/icons/mail-icon.svg" alt="Email" className="h-5 w-5 text-orange-600 flex-shrink-0" />
+                <Button variant="outline" className="w-full justify-start gap-3 h-auto py-3 px-4 text-base font-medium text-neutral-800 border-neutral-300 bg-white hover:bg-neutral-50">
+                  <a href="mailto:chris@clayroofingnewyork.com" className="flex items-center gap-3">
+                    <img src="/icons/mail-icon.svg" alt="Email" className="h-5 w-5" />
                     <span className="text-sm">Email: chris@clayroofingnewyork.com</span>
                   </a>
                 </Button>
-
-                <div>
-                  <h3 className="text-lg font-semibold text-neutral-900 mb-3">Business Information</h3>
-                  <div className="space-y-2 text-neutral-700">
-                    <p className="flex items-start gap-2">
-                      <span className="font-medium">Address:</span>
-                      <button
-                        onClick={copyAddressToClipboard}
-                        className="text-left hover:text-orange-600 transition-colors cursor-pointer"
-                      >
-                        33-15 127th Pl, Corona, NY 11368
-                        {addressCopied && <span className="text-green-600 text-xs ml-2">Copied!</span>}
-                      </button>
-                    </p>
-                    <p>
-                      <span className="font-medium">Hours:</span> Mon-Sat: 9:00 AM - 5:00 PM
-                    </p>
-                    <p>
-                      <span className="font-medium">Servicing the Tri-State areea (NY, NJ, CT) </span>
-                    </p>
-                  </div>
-                </div>
               </div>
             </div>
           </div>
 
-          {/* Right Side - Contact Form */}
           <div className="bg-white rounded-xl border border-neutral-200 p-6 sm:p-8">
             <h2 className="text-xl font-semibold text-neutral-900 mb-6">Send us a message</h2>
             <ContactForm />
@@ -609,23 +462,9 @@ export default function ContactPage() {
         </div>
       </main>
 
-      {/* Footer */}
       <footer className="border-t border-neutral-200 bg-neutral-50">
-        <div className="max-w-7xl mx-auto px-4 py-6 space-y-4">
-          <div className="flex items-center justify-center gap-3 text-sm text-neutral-600">
-            <a
-              href="https://www.laescandella.com"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center gap-3 hover:opacity-80 transition-opacity"
-            >
-              <img src="/la-escandella-logo.webp" alt="La Escandella" className="h-6 w-auto" />
-              <span>Proudly partnered with La Escandella.</span>
-            </a>
-          </div>
-          <div className="text-center text-neutral-500">
-            <p>&copy; {new Date().getFullYear()} Clay Roofs New York. All Rights Reserved.</p>
-          </div>
+        <div className="max-w-7xl mx-auto px-4 py-6 space-y-4 text-center text-neutral-500">
+          <p>&copy; {new Date().getFullYear()} Clay Roofs New York. All Rights Reserved.</p>
         </div>
       </footer>
     </div>

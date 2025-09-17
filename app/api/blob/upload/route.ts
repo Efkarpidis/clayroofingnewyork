@@ -1,44 +1,39 @@
 // app/api/blob/upload/route.ts
-import { NextResponse } from "next/server";
-import { handleUpload, type HandleUploadBody } from "@vercel/blob/client";
+import { NextResponse } from "next/server"
+import { put } from "@vercel/blob"
 
-// Vercel will auto-inject BLOB_READ_WRITE_TOKEN when you connect a Blob Store
-// Locally, run: `vercel env pull` to get it into .env.local (BLOB_READ_WRITE_TOKEN)
+export const runtime = "edge"
 
-export const runtime = "nodejs";
-
-export async function POST(request: Request): Promise<NextResponse> {
-  const body = (await request.json()) as HandleUploadBody;
-
+export async function POST(req: Request) {
   try {
-    const json = await handleUpload({
-      body,
-      request,
-      // 1) Create a short-lived token the browser will use to upload directly to Vercel Blob
-      onBeforeGenerateToken: async (pathname, clientPayload) => {
-        return {
-          // Don’t restrict content types (accept anything); add a random suffix for uniqueness
-          addRandomSuffix: true,
-          // If you want to restrict types later, add:
-          // allowedContentTypes: ['image/*','application/pdf', ...]
-          // callbackUrl is auto-computed on Vercel; for local dev see VERCEL_BLOB_CALLBACK_URL notes below
-          tokenPayload: JSON.stringify({
-            // You can pass info through (e.g., a leadId) via clientPayload and read it in onUploadCompleted
-            // clientPayload,
-          }),
-        };
-      },
+    const form = await req.formData()
+    const file = form.get("file") as File | null
+    if (!file) {
+      return NextResponse.json({ ok: false, message: "No file provided" }, { status: 400 })
+    }
 
-      // 2) Called by Vercel after the file lands in Blob storage
-      onUploadCompleted: async ({ blob, tokenPayload }) => {
-        // Persist blob.url if you want (DB, email, CRM, etc.)
-        // Example: console log for now
-        console.log("Blob uploaded:", { url: blob.url, size: blob.size, path: blob.pathname, tokenPayload });
-      },
-    });
+    const filename = (form.get("filename") as string) || file.name || "upload"
+    const contentType = file.type || "application/octet-stream"
 
-    return NextResponse.json(json);
+    const result = await put(filename, file, {
+      access: "public",
+      contentType,
+      addRandomSuffix: true,
+    })
+
+    // result includes: url, pathname, size, uploadedAt
+    return NextResponse.json({
+      ok: true,
+      file: {
+        url: result.url,
+        pathname: result.pathname,
+        size: result.size,
+        contentType,
+        filename,
+      },
+    })
   } catch (err: any) {
-    return NextResponse.json({ error: err.message }, { status: 400 });
+    console.error("[blob/upload] error", err)
+    return NextResponse.json({ ok: false, message: "Upload failed" }, { status: 500 })
   }
 }

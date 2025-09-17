@@ -1,131 +1,154 @@
-"use client";
+// components/upload/VercelBlobUploader.tsx
+"use client"
 
-import * as React from "react";
-import { upload, type PutBlobResult } from "@vercel/blob/client";
+import * as React from "react"
+import { Upload, ImageIcon, FileText, X } from "lucide-react"
 
-type Props = {
-  /** Called after all files finish uploading */
-  onComplete?: (files: PutBlobResult[]) => void;
-  /** Optional: restrict file types in the picker (does NOT cap server size) */
-  accept?: string;
-  /** Optional: pass through to <input multiple> */
-  multiple?: boolean;
-  /** Optional: label for the picker button */
-  label?: string;
-  /** Name for the hidden input that contains JSON of uploaded URLs (for forms) */
-  hiddenInputName?: string;
-};
+type UploadedItem = {
+  url: string
+  pathname: string
+  size?: number
+  contentType?: string
+  filename?: string
+}
 
-export default function VercelBlobUploader({
-  onComplete,
-  accept,
-  multiple = true,
-  label = "Add files",
-  hiddenInputName = "uploadedFiles",
-}: Props) {
-  const inputRef = React.useRef<HTMLInputElement>(null);
-  const [queue, setQueue] = React.useState<File[]>([]);
-  const [results, setResults] = React.useState<PutBlobResult[]>([]);
-  const [progress, setProgress] = React.useState<Record<string, number>>({});
-  const [busy, setBusy] = React.useState(false);
-  const [error, setError] = React.useState<string | null>(null);
+function formatMB(bytes = 0) {
+  return Math.round((bytes / (1024 * 1024)) * 10) / 10
+}
 
-  const handlePick = () => inputRef.current?.click();
+export default function VercelBlobUploader(props: {
+  hiddenInputName: string
+  label?: string
+  accept?: string
+  multiple?: boolean
+  onComplete?: (files: UploadedItem[]) => void
+}) {
+  const { hiddenInputName, label = "Add files", accept, multiple = true, onComplete } = props
+  const fileInputRef = React.useRef<HTMLInputElement>(null)
+  const [items, setItems] = React.useState<UploadedItem[]>([])
+  const [uploading, setUploading] = React.useState(false)
 
-  const uploadOne = async (file: File) => {
-    // Basic progress indicator per file using the experimental signal (fallback to indeterminate)
-    let uploaded = 0;
-    const res = await upload(file.name, file, {
-      access: "public", // or "private" if you prefer; URLs will be unguessable either way
-      handleUploadUrl: "/api/blob/upload",
-      // @vercel/blob currently doesn't expose granular progress; we fake it with intervals to show activity
-    });
-    return res;
-  };
+  const totalBytes = items.reduce((s, f) => s + (f.size || 0), 0)
 
-  const handleFiles = async (files: FileList) => {
-    setError(null);
-    const selected = Array.from(files);
-    setQueue(selected);
-    setBusy(true);
+  const openPicker = () => fileInputRef.current?.click()
 
+  const handleFiles = async (files: FileList | null) => {
+    if (!files || files.length === 0) return
+    setUploading(true)
     try {
-      const out: PutBlobResult[] = [];
-      for (const f of selected) {
-        const r = await uploadOne(f);
-        out.push(r);
-        setResults((prev) => [...prev, r]);
+      const selected = Array.from(files)
+
+      const uploaded: UploadedItem[] = []
+      for (const file of selected) {
+        const fd = new FormData()
+        fd.append("file", file)
+        fd.append("filename", file.name)
+
+        const res = await fetch("/api/blob/upload", { method: "POST", body: fd })
+        const data = await res.json()
+        if (!res.ok || !data?.ok) throw new Error(data?.message || "Upload failed")
+
+        uploaded.push({
+          url: data.file.url,
+          pathname: data.file.pathname,
+          size: data.file.size,
+          contentType: data.file.contentType,
+          filename: data.file.filename,
+        })
       }
-      onComplete?.(out);
-    } catch (e: any) {
-      setError(e?.message ?? "Upload failed");
+
+      const next = [...items, ...uploaded]
+      setItems(next)
+      onComplete?.(next)
+    } catch (e) {
+      console.error("[Uploader] error:", e)
+      alert("One of the uploads failed. Please try again.")
     } finally {
-      setBusy(false);
+      setUploading(false)
+      if (fileInputRef.current) fileInputRef.current.value = ""
     }
-  };
+  }
+
+  const removeAt = (i: number) => {
+    const next = items.filter((_, idx) => idx !== i)
+    setItems(next)
+    onComplete?.(next)
+  }
+
+  const isImage = (ct?: string) => (ct ? ct.startsWith("image/") : false)
 
   return (
     <div className="space-y-3">
-      {/* Hidden input so you can submit with a form (JSON array of URLs) */}
+      {/* hidden field with JSON that the form posts */}
       <input
         type="hidden"
         name={hiddenInputName}
-        value={JSON.stringify(results.map((r) => r.url))}
-        readOnly
+        value={JSON.stringify(items.map(({ url, pathname, size, contentType, filename }) => ({ url, pathname, size, contentType, filename })))}
       />
 
+      {/* file input (hidden) */}
       <input
-        ref={inputRef}
+        ref={fileInputRef}
         type="file"
+        className="sr-only"
         accept={accept}
         multiple={multiple}
-        className="hidden"
-        onChange={(e) => e.target.files && handleFiles(e.target.files)}
+        onChange={(e) => handleFiles(e.target.files)}
       />
 
+      {/* button */}
       <button
         type="button"
-        onClick={handlePick}
-        disabled={busy}
-        className="w-full rounded-md border border-neutral-300 bg-white px-4 py-3 text-base font-medium text-neutral-800 hover:bg-brand-50 hover:border-brand-300 disabled:opacity-60"
+        onClick={openPicker}
+        disabled={uploading}
+        className="flex w-full items-center justify-center gap-3 rounded-lg border-2 border-dashed border-neutral-300 bg-neutral-50 p-4 text-base font-medium text-neutral-700 transition-colors hover:border-orange-400 hover:bg-orange-50 disabled:opacity-50"
       >
-        {busy ? "Uploading…" : label}
+        <Upload className="h-5 w-5" />
+        {uploading ? "Uploading…" : label}
       </button>
 
-      {error && (
-        <div className="rounded-md border border-red-300 bg-red-50 px-3 py-2 text-sm text-red-700">
-          {error}
-        </div>
-      )}
-
-      {queue.length > 0 && (
-        <div className="space-y-2">
-          {queue.map((f) => {
-            const p = progress[f.name] ?? (busy ? 50 : 100);
-            return (
-              <div key={f.name} className="rounded-md border border-neutral-200 p-2">
-                <div className="text-sm text-neutral-700">{f.name}</div>
-                <div className="h-2 w-full rounded bg-neutral-100">
-                  <div
-                    className="h-2 rounded bg-brand-600 transition-all"
-                    style={{ width: `${p}%` }}
-                  />
+      {/* list */}
+      {items.length > 0 && (
+        <div className="space-y-3">
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+            {items.map((f, i) => (
+              <div key={f.url} className="relative rounded-lg border border-neutral-200 overflow-hidden bg-white">
+                <div className="aspect-video bg-neutral-100 flex items-center justify-center">
+                  {isImage(f.contentType) ? (
+                    // lightweight preview via the uploaded URL
+                    <img src={f.url} alt={f.filename || "file"} className="h-full w-full object-cover" />
+                  ) : (
+                    <div className="flex items-center justify-center text-neutral-400">
+                      <FileText className="h-8 w-8" />
+                    </div>
+                  )}
                 </div>
+                <div className="p-2">
+                  <div className="text-xs font-medium text-neutral-800 truncate" title={f.filename || f.pathname}>
+                    {f.filename || f.pathname.split("/").pop()}
+                  </div>
+                  <div className="text-[11px] text-neutral-500">{formatMB(f.size)} MB</div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => removeAt(i)}
+                  className="absolute top-1 right-1 inline-flex h-6 w-6 items-center justify-center rounded-full bg-red-500 text-white hover:bg-red-600"
+                  aria-label="Remove file"
+                >
+                  <X className="h-3.5 w-3.5" />
+                </button>
               </div>
-            );
-          })}
-        </div>
-      )}
+            ))}
+          </div>
 
-      {results.length > 0 && (
-        <div className="space-y-1">
-          {results.map((r) => (
-            <div key={r.url} className="truncate text-sm text-neutral-600">
-              Uploaded: <a href={r.url} className="text-brand-700 underline">{r.url}</a>
-            </div>
-          ))}
+          {/* totals chip */}
+          <div className="text-xs text-neutral-600">
+            <span className="inline-flex items-center rounded-full border border-neutral-300 px-2 py-0.5">
+              {items.length} file{items.length === 1 ? "" : "s"} • {formatMB(totalBytes)} MB
+            </span>
+          </div>
         </div>
       )}
     </div>
-  );
+  )
 }
