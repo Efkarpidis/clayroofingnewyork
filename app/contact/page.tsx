@@ -1,20 +1,18 @@
 "use client"
 
-import React, { useEffect, useState, useTransition } from "react"
+import React, { useEffect, useRef, useState, useTransition } from "react"
 import { Button } from "@/components/ui/button"
 import { Upload, Camera, FileText, X, Check, Shield } from "lucide-react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
+import VercelBlobUploader from "@/components/upload/VercelBlobUploader"
+import type { PutBlobResult } from "@vercel/blob/client"
 
-// ---- Upload limits (tweak anytime) ----
-const MAX_FILES_TOTAL = 10          // total # across Documents + Photos
-const MAX_TOTAL_MB = 20             // total size cap across both (MB)
-const MAX_TOTAL_BYTES = MAX_TOTAL_MB * 1024 * 1024
-// --------------------------------------
+// (Kept for reference; no server-side cap now)
 const formatMB = (bytes: number) => Math.round((bytes / (1024 * 1024)) * 10) / 10 // 1 decimal
 
-// Enhanced contact form schema
+// Contact form schema (unchanged, except files handled via hidden inputs)
 const contactFormSchema = z.object({
   name: z.string().min(2, { message: "Please enter your full name." }),
   email: z.string().email({ message: "Please enter a valid email address." }),
@@ -26,10 +24,7 @@ const contactFormSchema = z.object({
   tileFamily: z.string().optional(),
   tileColor: z.string().optional(),
   message: z.string().min(10, { message: "Your message must be at least 10 characters long." }),
-  // CHANGED: single -> multiple docs
-  files: z.array(z.instanceof(File)).optional(),
-  // Photos remain multiple
-  photos: z.array(z.instanceof(File)).optional(),
+  // We no longer validate File objects on the client — uploads are URLs
   privacyAccepted: z.boolean().refine((val) => val === true, {
     message: "You must accept the Privacy Policy to continue.",
   }),
@@ -38,7 +33,7 @@ const contactFormSchema = z.object({
 
 type ContactFormData = z.infer<typeof contactFormSchema>
 
-// Reusable form components
+// Reusable form components (unchanged)
 const FieldWrapper = ({
   id,
   label,
@@ -94,232 +89,7 @@ const FormSelect = ({ children, ...props }: React.ComponentProps<"select">) => (
   </div>
 )
 
-/** Your original single-file button (kept intact in case you reuse it elsewhere) */
-const FileUploadButton = ({
-  file,
-  onChange,
-  accept,
-  label,
-  isPhotos = false,
-}: {
-  file: File | null
-  onChange: (file: File | null) => void
-  accept: string
-  label: string
-  isPhotos?: boolean
-}) => {
-  const [isMobile, setIsMobile] = useState(false)
-  const fileInputRef = React.useRef<HTMLInputElement>(null)
-  const cameraInputRef = React.useRef<HTMLInputElement>(null)
-
-  React.useEffect(() => {
-    setIsMobile(/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent))
-  }, [])
-
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const selectedFile = e.target.files?.[0] || null
-    onChange(selectedFile)
-  }
-
-  const removeFile = () => {
-    onChange(null)
-    if (fileInputRef.current) fileInputRef.current.value = ""
-    if (cameraInputRef.current) cameraInputRef.current.value = ""
-  }
-
-  const getFilePreview = (file: File) => {
-    if (file.type.startsWith("image/")) {
-      return URL.createObjectURL(file)
-    }
-    return null
-  }
-
-  return (
-    <div className="space-y-3">
-      <input ref={fileInputRef} type="file" accept={accept} onChange={handleFileChange} className="sr-only" />
-      {isPhotos && isMobile && (
-        <input
-          ref={cameraInputRef}
-          type="file"
-          accept="image/*"
-          capture="environment"
-          onChange={handleFileChange}
-          className="sr-only"
-        />
-      )}
-
-      <div className="space-y-2">
-        <button
-          type="button"
-          onClick={() => fileInputRef.current?.click()}
-          className="flex w-full items-center justify-center gap-3 rounded-lg border-2 border-dashed border-neutral-300 bg-neutral-50 p-4 text-base font-medium text-neutral-700 transition-colors hover:border-orange-400 hover:bg-orange-50 tappable"
-        >
-          {isPhotos ? <Camera className="h-5 w-5" /> : <Upload className="h-5 w-5" />}
-          {file ? file.name : label}
-        </button>
-
-        {isPhotos && isMobile && (
-          <button
-            type="button"
-            onClick={() => cameraInputRef.current?.click()}
-            className="flex w-full items-center justify-center gap-3 rounded-lg border border-neutral-300 bg-white p-3 text-base font-medium text-neutral-700 transition-colors hover:border-orange-400 hover:bg-orange-50 tappable"
-          >
-            <Camera className="h-4 w-4" />
-            Take Photo
-          </button>
-        )}
-      </div>
-
-      {file && (
-        <div className="relative">
-          <div className="aspect-video overflow-hidden rounded-lg border border-neutral-200 bg-neutral-100 max-w-xs">
-            {getFilePreview(file) ? (
-              <img
-                src={getFilePreview(file)! || "/placeholder.svg"}
-                alt={file.name}
-                className="h-full w-full object-cover"
-              />
-            ) : (
-              <div className="flex h-full items-center justify-center">
-                <div className="text-center">
-                  <FileText className="mx-auto h-8 w-8 text-neutral-400" />
-                  <p className="mt-1 text-sm text-neutral-500 truncate px-2">{file.name}</p>
-                </div>
-              </div>
-            )}
-          </div>
-          <button
-            type="button"
-            onClick={removeFile}
-            className="absolute -right-2 -top-2 flex h-6 w-6 items-center justify-center rounded-full bg-red-500 text-white hover:bg-red-600 tappable"
-          >
-            <X className="h-4 w-4" />
-          </button>
-        </div>
-      )}
-
-      {!file && <p className="text-sm text-neutral-500">No file selected</p>}
-    </div>
-  )
-}
-
-/** Multi file picker with optional camera (camera only when isPhotos=true) */
-const MultiFileUploadButton = ({
-  files,
-  onChange,
-  accept,
-  label,
-  isPhotos = false,
-}: {
-  files: File[]
-  onChange: (files: File[]) => void
-  accept: string
-  label: string
-  isPhotos?: boolean
-}) => {
-  const [isMobile, setIsMobile] = useState(false)
-  const fileInputRef = React.useRef<HTMLInputElement>(null)
-  const cameraInputRef = React.useRef<HTMLInputElement>(null)
-
-  React.useEffect(() => {
-    setIsMobile(/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent))
-  }, [])
-
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const selectedFiles = Array.from(e.target.files || [])
-    onChange([...files, ...selectedFiles])
-  }
-
-  const removeFile = (index: number) => {
-    const newFiles = files.filter((_, i) => i !== index)
-    onChange(newFiles)
-  }
-
-  const getFilePreview = (file: File) => {
-    if (file.type.startsWith("image/")) {
-      return URL.createObjectURL(file)
-    }
-    return null
-  }
-
-  return (
-    <div className="space-y-3">
-      <input ref={fileInputRef} type="file" accept={accept} multiple onChange={handleFileChange} className="sr-only" />
-      {isPhotos && (
-        <input
-          ref={cameraInputRef}
-          type="file"
-          accept="image/*"
-          capture="environment"
-          multiple
-          onChange={handleFileChange}
-          className="sr-only"
-        />
-      )}
-
-      <div className="space-y-2">
-        <button
-          type="button"
-          onClick={() => fileInputRef.current?.click()}
-          className="flex w-full items-center justify-center gap-3 rounded-lg border-2 border-dashed border-neutral-300 bg-neutral-50 p-4 text-base font-medium text-neutral-700 transition-colors hover:border-orange-400 hover:bg-orange-50 tappable"
-        >
-          {isPhotos ? <Camera className="h-5 w-5" /> : <Upload className="h-5 w-5" />}
-          {label}
-        </button>
-
-        {isPhotos && (
-          <button
-            type="button"
-            onClick={() => cameraInputRef.current?.click()}
-            className="flex w-full items-center justify-center gap-3 rounded-lg border border-neutral-300 bg-white p-3 text-base font-medium text-neutral-700 transition-colors hover:border-orange-400 hover:bg-orange-50 tappable"
-          >
-            <Camera className="h-4 w-4" />
-            Take Photo
-          </button>
-        )}
-      </div>
-
-      {files.length > 0 && (
-        <div className="grid grid-cols-2 gap-3">
-          {files.map((file, index) => (
-            <div key={index} className="relative">
-              <div className="aspect-square overflow-hidden rounded-lg border border-neutral-200 bg-neutral-100">
-                {getFilePreview(file) ? (
-                  <img
-                    src={getFilePreview(file)! || "/placeholder.svg"}
-                    alt={file.name}
-                    className="h-full w-full object-cover"
-                  />
-                ) : (
-                  <div className="flex h-full items-center justify-center">
-                    <div className="text-center">
-                      <FileText className="mx-auto h-6 w-6 text-neutral-400" />
-                    </div>
-                  </div>
-                )}
-              </div>
-              {/* Filename caption */}
-              <p className="mt-1 text-xs text-neutral-600 truncate px-1">{file.name}</p>
-              <button
-                type="button"
-                onClick={() => removeFile(index)}
-                className="absolute -right-2 -top-2 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-white hover:bg-red-600 tappable"
-              >
-                <X className="h-3 w-3" />
-              </button>
-            </div>
-          ))}
-        </div>
-      )}
-
-      {files.length === 0 && (
-        <p className="text-sm text-neutral-500">{isPhotos ? "No photos selected" : "No files selected"}</p>
-      )}
-    </div>
-  )
-}
-
-// Tile color options based on family
+// Tile color options (unchanged)
 const tileColorOptions = {
   Vienna: ["Charcoal", "Terracotta", "Slate Gray", "Request a Color"],
   "S-Mixed": ["Mediterranean Blend", "Tuscan Mix", "Antique Blend", "Request a Color"],
@@ -341,24 +111,25 @@ const tileColorOptions = {
 }
 
 function ContactForm() {
-  // Form submit result state
+  const formRef = useRef<HTMLFormElement>(null)
+
+  // Submit result state (unchanged)
   const [state, setState] = useState<{
     message: string
     success: boolean
     errors?: Record<string, string[]>
   }>({ message: "", success: false, errors: undefined })
 
-  // Pending state for the submit button
   const [isPending, startTransition] = useTransition()
 
-  // Local UI state (CHANGED: arrays for docs & photos)
-  const [files, setFiles] = useState<File[]>([])
-  const [photos, setPhotos] = useState<File[]>([])
+  // These were used for local file inputs; now we track uploaded results (for chips)
+  const [docResults, setDocResults] = useState<PutBlobResult[]>([])
+  const [photoResults, setPhotoResults] = useState<PutBlobResult[]>([])
+
   const [selectedTileFamily, setSelectedTileFamily] = useState<string>("")
   const [selectedContactType, setSelectedContactType] = useState<string>("")
   const [showToast, setShowToast] = useState(false)
 
-  // React Hook Form
   const {
     register,
     handleSubmit,
@@ -375,13 +146,7 @@ function ContactForm() {
   const watchedTileFamily = watch("tileFamily")
   const watchedContactType = watch("contactType")
 
-  // Derived sizes/counts for chips
-  const filesBytes = (files || []).reduce((s, f) => s + (f?.size || 0), 0)
-  const photosBytes = (photos || []).reduce((s, f) => s + (f?.size || 0), 0)
-  const totalBytes = filesBytes + photosBytes
-  const totalCount = (files?.length || 0) + (photos?.length || 0)
-
-  // Handle URL parameters for prefilled tile data
+  // Prefill from URL params (unchanged)
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search)
     const tileFamily = urlParams.get("tileFamily")
@@ -398,7 +163,7 @@ function ContactForm() {
     window.scrollTo(0, 0)
   }, [setValue])
 
-  // Update selected tile family when form value changes
+  // Reflect selects into local state (unchanged)
   useEffect(() => {
     if (watchedTileFamily) {
       setSelectedTileFamily(watchedTileFamily)
@@ -406,99 +171,68 @@ function ContactForm() {
     }
   }, [watchedTileFamily, setValue])
 
-  // Update selected contact type when form value changes
   useEffect(() => {
     if (watchedContactType) {
       setSelectedContactType(watchedContactType)
     }
   }, [watchedContactType])
 
-  // Keep RHF in sync with arrays
-  useEffect(() => {
-    setValue("files", files)
-  }, [files, setValue])
-
-  useEffect(() => {
-    setValue("photos", photos)
-  }, [photos, setValue])
-
   useEffect(() => {
     if (state.success) {
       setShowToast(true)
       reset()
-      setFiles([])
-      setPhotos([])
       setSelectedTileFamily("")
       setSelectedContactType("")
+      setDocResults([])
+      setPhotoResults([])
       setTimeout(() => setShowToast(false), 5000)
     }
   }, [state.success, reset])
 
-  // Submit
-  const onSubmit = async (values: ContactFormData) => {
-    console.log("[Contact] Form submission started", {
-      name: values.name,
-      email: values.email,
-      contactType: values.contactType,
-    })
+  // Derived sizes/counts (for chips), from uploaded results
+  const docBytes = docResults.reduce((s, r) => s + (typeof r.size === "number" ? r.size : 0), 0)
+  const photoBytes = photoResults.reduce((s, r) => s + (typeof r.size === "number" ? r.size : 0), 0)
+  const totalBytes = docBytes + photoBytes
+  const totalCount = docResults.length + photoResults.length
 
+  // Submit: build FormData from the form, then COMBINE the two uploader fields into uploadedFiles
+  const onSubmit = async (_values: ContactFormData) => {
     startTransition(async () => {
       try {
-        // --- Upload limits check ---
-        const all = [...(files || []), ...(photos || [])]
-        if (all.length > MAX_FILES_TOTAL) {
-          setError("files" as any, { type: "validate", message: `Too many files. Max ${MAX_FILES_TOTAL} total.` })
-          setState({ message: `Please reduce to ${MAX_FILES_TOTAL} files total.`, success: false })
-          return
-        }
-        const total = all.reduce((sum, f) => sum + (f?.size || 0), 0)
-        if (total > MAX_TOTAL_BYTES) {
-          setError("files" as any, { type: "validate", message: `Total size exceeds ${MAX_TOTAL_MB} MB.` })
-          setState({ message: `Total uploads must be ≤ ${MAX_TOTAL_MB} MB.`, success: false })
-          return
-        }
-        // ---------------------------
+        const formEl = formRef.current
+        if (!formEl) return
+        const formData = new FormData(formEl)
 
-        // Build FormData
-        const formData = new FormData()
-        formData.append("name", values.name || "")
-        formData.append("email", values.email || "")
-        formData.append("phone", values.phone || "")
-        formData.append("company", values.company || "")
-        formData.append("contactType", values.contactType || "")
-        formData.append("tileFamily", values.tileFamily || "")
-        formData.append("tileColor", values.tileColor || "")
-        formData.append("message", values.message || "")
-        formData.append("previousProjectReference", values.previousProjectReference || "")
-        formData.append("privacyAccepted", values.privacyAccepted ? "true" : "false")
+        // Read the two hidden JSON arrays created by the uploaders
+        const docsJson = (formData.get("uploadedFilesDocs") as string) || "[]"
+        const photosJson = (formData.get("uploadedFilesPhotos") as string) || "[]"
 
-        // Add documents (plural)
-        if (values.files && values.files.length > 0) {
-          values.files.forEach((f) => formData.append("files", f))
-        }
-        // Add photos (plural)
-        if (values.photos && values.photos.length > 0) {
-          values.photos.forEach((p) => formData.append("photos", p))
-        }
+        let docs: any[] = []
+        let photos: any[] = []
+        try {
+          docs = JSON.parse(docsJson) || []
+        } catch {}
+        try {
+          photos = JSON.parse(photosJson) || []
+        } catch {}
 
-        console.log("[Contact] Sending request to /api/contact")
+        // Combine into a single field that the /api/contact route expects
+        const combined = [...docs, ...photos]
+        formData.delete("uploadedFilesDocs")
+        formData.delete("uploadedFilesPhotos")
+        formData.set("uploadedFiles", JSON.stringify(combined))
 
         const response = await fetch("/api/contact", {
           method: "POST",
           body: formData,
         })
 
-        console.log("[Contact] Response status:", response.status)
-
-        let result
+        let result: any = {}
         try {
           result = await response.json()
-        } catch (e) {
-          console.error("[Contact] Failed to parse JSON response:", e)
+        } catch {
           result = { ok: false, message: "Invalid server response" }
         }
-
-        console.log("[Contact] Response data:", result)
 
         if (response.ok && result.ok) {
           setState({
@@ -547,7 +281,7 @@ function ContactForm() {
 
   return (
     <>
-      {/* Success Toast */}
+      {/* Success Toast (unchanged) */}
       {showToast && (
         <div className="fixed top-4 right-4 z-50 bg-green-600 text-white px-6 py-3 rounded-lg shadow-lg flex items-center gap-2">
           <Check className="h-5 w-5" />
@@ -555,7 +289,7 @@ function ContactForm() {
         </div>
       )}
 
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-6" id="quote" noValidate>
+      <form ref={formRef} onSubmit={handleSubmit(onSubmit)} className="space-y-6" id="quote" noValidate>
         <FieldWrapper id="name" label="Name" required error={errors.name?.message || state.errors?.name?.[0]}>
           <FormInput {...register("name")} placeholder="Cocoa Clay" />
         </FieldWrapper>
@@ -615,7 +349,13 @@ function ContactForm() {
           label="Tile Family"
           error={errors.tileFamily?.message || state.errors?.tileFamily?.[0]}
         >
-          <FormSelect {...register("tileFamily")}>
+          <FormSelect
+            {...register("tileFamily")}
+            onChange={(e) => {
+              register("tileFamily").onChange(e)
+              setSelectedTileFamily(e.target.value)
+            }}
+          >
             <option value="" className="text-neutral-400">
               Select...
             </option>
@@ -652,41 +392,41 @@ function ContactForm() {
           <FormTextarea {...register("message")} rows={4} placeholder="Type your message here." />
         </FieldWrapper>
 
-        {/* DOCUMENTS: multi-file, no camera */}
-        <FieldWrapper id="files" label="Attach Documents" error={state.errors?.files?.[0]}>
-          <MultiFileUploadButton
-            files={files}
-            onChange={setFiles}
-            accept=".pdf,.doc,.docx,image/*"
+        {/* =====================  FILES — Documents  ===================== */}
+        <FieldWrapper id="files" label="Attach Documents">
+          <VercelBlobUploader
+            multiple
+            accept=".pdf,.doc,.docx,.xlsx,.zip,image/*"
+            hiddenInputName="uploadedFilesDocs"
             label="Upload Documents"
-            isPhotos={false}
+            onComplete={(files) => setDocResults(files)}
           />
-          {/* chip: documents only */}
+
+          {/* chip: documents summary */}
           <div className="mt-2 flex items-center gap-2 text-xs text-neutral-600">
             <span className="inline-flex items-center rounded-full border border-neutral-300 px-2 py-0.5">
-              {files.length} file{files.length === 1 ? "" : "s"} • {formatMB(filesBytes)} MB
+              {docResults.length} file{docResults.length === 1 ? "" : "s"} • {formatMB(docBytes)} MB
             </span>
           </div>
-          <p className="text-xs text-neutral-500 mt-1">
-            Up to {MAX_FILES_TOTAL} files combined (documents + photos), total ≤ {MAX_TOTAL_MB} MB.
-          </p>
         </FieldWrapper>
 
-        {/* PHOTOS: multi-file, with camera on mobile */}
-        <FieldWrapper id="photos" label="Upload Photo" error={state.errors?.photos?.[0]}>
-          <MultiFileUploadButton
-            files={photos}
-            onChange={setPhotos}
+        {/* =====================  FILES — Photos  ===================== */}
+        <FieldWrapper id="photos" label="Upload Photo">
+          <VercelBlobUploader
+            multiple
             accept="image/*"
+            hiddenInputName="uploadedFilesPhotos"
             label="Upload Photo"
-            isPhotos={true}
+            onComplete={(files) => setPhotoResults(files)}
           />
-          {/* chip: photos only */}
+
+          {/* chip: photos summary */}
           <div className="mt-2 flex items-center gap-2 text-xs text-neutral-600">
             <span className="inline-flex items-center rounded-full border border-neutral-300 px-2 py-0.5">
-              {photos.length} photo{photos.length === 1 ? "" : "s"} • {formatMB(photosBytes)} MB
+              {photoResults.length} photo{photoResults.length === 1 ? "" : "s"} • {formatMB(photoBytes)} MB
             </span>
           </div>
+
           {/* combined chip */}
           <div className="mt-2 flex items-center gap-2 text-xs text-neutral-600">
             <span className="inline-flex items-center rounded-full border border-neutral-300 px-2 py-0.5">
@@ -694,6 +434,7 @@ function ContactForm() {
             </span>
           </div>
         </FieldWrapper>
+        {/* ============================================================= */}
 
         <div className="space-y-2">
           <div className="flex items-start gap-3">
@@ -748,7 +489,7 @@ function ContactForm() {
 export default function ContactPage() {
   const [addressCopied, setAddressCopied] = useState(false)
 
-  // Ensure page always loads at top
+  // Ensure page always loads at top (unchanged)
   useEffect(() => {
     window.scrollTo(0, 0)
   }, [])
@@ -780,18 +521,13 @@ export default function ContactPage() {
         </div>
 
         <div className="grid grid-cols-1 gap-8 lg:gap-16 lg:grid-cols-2">
-          {/* Left Side - Contact Info */}
+          {/* Left Side - Contact Info (unchanged content/styling) */}
           <div className="bg-gradient-to-br from-orange-50 to-orange-100 rounded-xl p-6 sm:p-8 space-y-6">
-            {/* Get in Touch Section */}
             <div>
               <h2 className="text-xl font-semibold text-neutral-900 mb-4">Get in Touch</h2>
-
-              {/* Helper Text */}
               <p className="text-sm text-neutral-500 mb-4">Tap an option to get in touch</p>
 
-              {/* Contact Buttons */}
               <div className="space-y-4">
-                {/* Phone Call */}
                 <Button
                   variant="outline"
                   className="w-full justify-start gap-3 h-auto py-3 px-4 text-base font-medium text-neutral-800 border-neutral-300 bg-white hover:bg-neutral-50 active:bg-neutral-100 transition-colors"
@@ -803,7 +539,6 @@ export default function ContactPage() {
                   </a>
                 </Button>
 
-                {/* Text/SMS */}
                 <Button
                   variant="outline"
                   className="w-full justify-start gap-3 h-auto py-3 px-4 text-base font-medium text-neutral-800 border-neutral-300 bg-white hover:bg-neutral-50 active:bg-neutral-100 transition-colors"
@@ -815,7 +550,6 @@ export default function ContactPage() {
                   </a>
                 </Button>
 
-                {/* WhatsApp */}
                 <Button
                   variant="outline"
                   className="w-full justify-start gap-3 h-auto py-3 px-4 text-base font-medium text-neutral-800 border-neutral-300 bg-white hover:bg-neutral-50 active:bg-neutral-100 transition-colors"
@@ -831,7 +565,6 @@ export default function ContactPage() {
                   </a>
                 </Button>
 
-                {/* Email */}
                 <Button
                   variant="outline"
                   className="w-full justify-start gap-3 h-auto py-3 px-4 text-base font-medium text-neutral-800 border-neutral-300 bg-white hover:bg-neutral-50 active:bg-neutral-100 transition-colors"
@@ -843,7 +576,6 @@ export default function ContactPage() {
                   </a>
                 </Button>
 
-                {/* Business Info */}
                 <div>
                   <h3 className="text-lg font-semibold text-neutral-900 mb-3">Business Information</h3>
                   <div className="space-y-2 text-neutral-700">

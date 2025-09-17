@@ -10,7 +10,7 @@ importers:
     dependencies:
       '@hookform/resolvers':
         specifier: latest
-        version: 5.2.1(react-hook-form@7.62.0(react@19.0.0))
+        version: 5.2.2(react-hook-form@7.62.0(react@19.0.0))
       '@radix-ui/react-accordion':
         specifier: 1.2.2
         version: 1.2.2(@types/react-dom@19.0.0)(@types/react@19.0.0)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
@@ -98,6 +98,9 @@ importers:
       '@react-email/render':
         specifier: latest
         version: 1.2.3(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
+      '@vercel/blob':
+        specifier: latest
+        version: 2.0.0
       autoprefixer:
         specifier: ^10.4.20
         version: 10.4.20(postcss@8.5.0)
@@ -151,7 +154,7 @@ importers:
         version: 2.15.4(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
       resend:
         specifier: latest
-        version: 6.0.3(@react-email/render@1.2.3(react-dom@19.0.0(react@19.0.0))(react@19.0.0))
+        version: 6.1.0(@react-email/render@1.2.3(react-dom@19.0.0(react@19.0.0))(react@19.0.0))
       sonner:
         specifier: ^1.7.4
         version: 1.7.4(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
@@ -213,6 +216,10 @@ packages:
   '@emnapi/runtime@1.4.5':
     resolution: {integrity: sha512-++LApOtY0pEEz1zrd9vy1/zXVaVJJ/EbAF3u0fXIzPJEDtnITsBGbbK0EkM72amhl/R5b+5xx0Y/QhcVOpuulg==}
 
+  '@fastify/busboy@2.1.1':
+    resolution: {integrity: sha512-vBZP4NlzfOlerQTnba4aqZoMhE/a9HY7HRqoOPaETQcSQuWEIyZMHGfVu6w9wGtGK5fED5qRs2DteVCjOH60sA==}
+    engines: {node: '>=14'}
+
   '@floating-ui/core@1.7.3':
     resolution: {integrity: sha512-sGnvb5dmrJaKEZ+LDIpguvdX3bDlEllmv4/ClQ9awcmCZrlx5jQyyMWFM5kBI+EyNOCDDiKk8il0zeuX3Zlg/w==}
 
@@ -228,8 +235,8 @@ packages:
   '@floating-ui/utils@0.2.10':
     resolution: {integrity: sha512-aGTxbpbg8/b5JfU1HXSrbH3wXZuLPJcNEcZQFMxLs3oSzgtVu6nFPkbbGGUvBcUjKV2YyB9Wxxabo+HEH9tcRQ==}
 
-  '@hookform/resolvers@5.2.1':
-    resolution: {integrity: sha512-u0+6X58gkjMcxur1wRWokA7XsiiBJ6aK17aPZxhkoYiK5J+HcTx0Vhu9ovXe6H+dVpO6cjrn2FkJTryXEMlryQ==}
+  '@hookform/resolvers@5.2.2':
+    resolution: {integrity: sha512-A/IxlMLShx3KjV/HeTcTfaMxdwy690+L/ZADoeaTltLx+CVuzkeVIPuybK3jrRfw7YZnmdKsVVHAlEPIAEUNlA==}
     peerDependencies:
       react-hook-form: ^7.55.0
 
@@ -1452,9 +1459,16 @@ packages:
   '@types/react@19.0.0':
     resolution: {integrity: sha512-MY3oPudxvMYyesqs/kW1Bh8y9VqSmf+tzqw3ae8a9DZW68pUe3zAdHeI1jc6iAysuRdACnVknHP8AhwD4/dxtg==}
 
+  '@vercel/blob@2.0.0':
+    resolution: {integrity: sha512-oAj7Pdy83YKSwIaMFoM7zFeLYWRc+qUpW3PiDSblxQMnGFb43qs4bmfq7dr/+JIfwhs6PTwe1o2YBwKhyjWxXw==}
+    engines: {node: '>=20.0.0'}
+
   aria-hidden@1.2.6:
     resolution: {integrity: sha512-ik3ZgC9dY/lYVVM++OISsaYDeg1tb0VtP5uL3ouh1koGOaUMDPpbFIei4JkFimWUFPn90sbMNMXQAIVOlnYKJA==}
     engines: {node: '>=10'}
+
+  async-retry@1.3.3:
+    resolution: {integrity: sha512-wfr/jstw9xNi/0teMHrRW7dsz3Lt5ARhYNZ2ewpadnhaIp5mbALhOAP+EAdsC7t4Z6wqsDVv9+W6gm1Dk9mEyw==}
 
   autoprefixer@10.4.20:
     resolution: {integrity: sha512-XY25y5xSv/wEoqzDyXXME4AFfkZI0P23z6Fs3YgymDnKJkCGOnkL0iTxCa85UTqaSgfcqyf3UA6+c7wUvx/16g==}
@@ -1664,6 +1678,13 @@ packages:
 
   is-arrayish@0.3.2:
     resolution: {integrity: sha512-eVRqCvVlZbuw3GrM63ovNSNAeA1K16kaR/LRY/92w0zxQ5/1YzwblUX652i4Xs9RwAGjW9d9y6X88t8OaAJfWQ==}
+
+  is-buffer@2.0.5:
+    resolution: {integrity: sha512-i2R6zNFDwgEHJyQUtJEk0XFi1i0dPFn/oqjK3/vPCcDeJvW5NQ83V8QbicfF1SupOaB0h8ntgBC2YiE7dfyctQ==}
+    engines: {node: '>=4'}
+
+  is-node-process@1.2.0:
+    resolution: {integrity: sha512-Vg4o6/fqPxIjtxgUH5QLJhwZ7gW5diGCVlXpuUfELC62CuxM1iHcRe51f2W1FDy04Ai4KJkagKjx3XaqyfRKXw==}
 
   jiti@2.5.1:
     resolution: {integrity: sha512-twQoecYPiVA5K/h6SxtORw/Bs3ar+mLUtoPSc7iMXzQzK8d7eJ/R09wmTwAjiamETn1cXYPGfNnu7DMoHgu12w==}
@@ -1926,14 +1947,18 @@ packages:
       react: ^16.0.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
       react-dom: ^16.0.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
 
-  resend@6.0.3:
-    resolution: {integrity: sha512-Yb7o2n52v91LjkUjq5vIZQbJrGiaPoMo2VPAyS0QTKA73tmvHMUQ7P1M56J1ux/Cw9Lf68PeaKidTl6GuS8DTA==}
+  resend@6.1.0:
+    resolution: {integrity: sha512-H0cJI2pcLk5/dGwyvZUHu+O7X/q6arvc40EWm+pRPuy+PSWojH5utZtmDBUZ2L0+gVwYZiWs6y2lw6GQA1z1rg==}
     engines: {node: '>=18'}
     peerDependencies:
       '@react-email/render': ^1.1.0
     peerDependenciesMeta:
       '@react-email/render':
         optional: true
+
+  retry@0.13.1:
+    resolution: {integrity: sha512-XQBQ3I8W1Cge0Seh+6gjj03LbmRFWuoszgK9ooCpwYIrhhoO80pfq4cUkU5DkknwfOfFteRwlZ56PYOGYyFWdg==}
+    engines: {node: '>= 4'}
 
   scheduler@0.25.0:
     resolution: {integrity: sha512-xFVuu11jh+xcO7JOAGJNOXld8/TcEHK/4CituBUeUb5hqxJLj9YuemAEuvm9gQ/+pgXYfbQuqAkiYu+u7YEsNA==}
@@ -1999,6 +2024,10 @@ packages:
     resolution: {integrity: sha512-5S7Va8hKfV7W5U6g3aYxXmlPoZVAwUMy9AOKyF2fVuZa2UD3qZjg578OrLRt8PcNN1PleVaL/5/yYATNL0ICUw==}
     engines: {node: '>=18'}
 
+  throttleit@2.1.0:
+    resolution: {integrity: sha512-nt6AMGKW1p/70DF/hGBdJB57B8Tspmbp5gfJ8ilhLnt7kkr2ye7hzD6NVG8GGErk2HWF34igrL2CXmNIkzKqKw==}
+    engines: {node: '>=18'}
+
   tiny-invariant@1.3.3:
     resolution: {integrity: sha512-+FbBPE1o9QAYvviau/qC5SE3caw21q3xkvWKBtja5vgqOWIHHJ3ioaq1VPfn/Szqctz2bU/oYeKd9/z5BL+PVg==}
 
@@ -2015,6 +2044,10 @@ packages:
 
   undici-types@6.11.1:
     resolution: {integrity: sha512-mIDEX2ek50x0OlRgxryxsenE5XaQD4on5U2inY7RApK3SOJpofyw7uW2AyfMKkhAxXIceo2DeWGVGwyvng1GNQ==}
+
+  undici@5.29.0:
+    resolution: {integrity: sha512-raqeBD6NQK4SkWhQzeYKd1KmIG6dllBOTt55Rmkt4HtI9mwdWtJljnrXjAFUBLTSN67HWrOIZ3EPF4kjUw80Bg==}
+    engines: {node: '>=14.0'}
 
   update-browserslist-db@1.1.3:
     resolution: {integrity: sha512-UxhIZQ+QInVdunkDAaiazvvT/+fXL5Osr0JZlJulepYu6Jd7qJtDZjlur0emRlT71EN3ScPoE7gvsuIKKNavKw==}
@@ -2081,6 +2114,8 @@ snapshots:
       tslib: 2.8.1
     optional: true
 
+  '@fastify/busboy@2.1.1': {}
+
   '@floating-ui/core@1.7.3':
     dependencies:
       '@floating-ui/utils': 0.2.10
@@ -2098,7 +2133,7 @@ snapshots:
 
   '@floating-ui/utils@0.2.10': {}
 
-  '@hookform/resolvers@5.2.1(react-hook-form@7.62.0(react@19.0.0))':
+  '@hookform/resolvers@5.2.2(react-hook-form@7.62.0(react@19.0.0))':
     dependencies:
       '@standard-schema/utils': 0.3.0
       react-hook-form: 7.62.0(react@19.0.0)
@@ -3276,9 +3311,21 @@ snapshots:
     dependencies:
       csstype: 3.1.3
 
+  '@vercel/blob@2.0.0':
+    dependencies:
+      async-retry: 1.3.3
+      is-buffer: 2.0.5
+      is-node-process: 1.2.0
+      throttleit: 2.1.0
+      undici: 5.29.0
+
   aria-hidden@1.2.6:
     dependencies:
       tslib: 2.8.1
+
+  async-retry@1.3.3:
+    dependencies:
+      retry: 0.13.1
 
   autoprefixer@10.4.20(postcss@8.5.0):
     dependencies:
@@ -3483,6 +3530,10 @@ snapshots:
 
   is-arrayish@0.3.2:
     optional: true
+
+  is-buffer@2.0.5: {}
+
+  is-node-process@1.2.0: {}
 
   jiti@2.5.1: {}
 
@@ -3718,9 +3769,11 @@ snapshots:
       tiny-invariant: 1.3.3
       victory-vendor: 36.9.2
 
-  resend@6.0.3(@react-email/render@1.2.3(react-dom@19.0.0(react@19.0.0))(react@19.0.0)):
+  resend@6.1.0(@react-email/render@1.2.3(react-dom@19.0.0(react@19.0.0))(react@19.0.0)):
     optionalDependencies:
       '@react-email/render': 1.2.3(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
+
+  retry@0.13.1: {}
 
   scheduler@0.25.0: {}
 
@@ -3796,6 +3849,8 @@ snapshots:
       mkdirp: 3.0.1
       yallist: 5.0.0
 
+  throttleit@2.1.0: {}
+
   tiny-invariant@1.3.3: {}
 
   tslib@2.8.1: {}
@@ -3805,6 +3860,10 @@ snapshots:
   typescript@5.0.2: {}
 
   undici-types@6.11.1: {}
+
+  undici@5.29.0:
+    dependencies:
+      '@fastify/busboy': 2.1.1
 
   update-browserslist-db@1.1.3(browserslist@4.25.2):
     dependencies:
