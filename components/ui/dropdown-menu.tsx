@@ -1,38 +1,52 @@
 "use client"
 
-import type * as React from "react"
+import * as React from "react"
 import * as DropdownMenuPrimitive from "@radix-ui/react-dropdown-menu"
 import { CheckIcon, DotFilledIcon } from "@radix-ui/react-icons"
 import { cn } from "@/lib/utils"
 
+/**
+ * Full-width dropdown menu
+ * - Panel spans the viewport width (w-screen)
+ * - Collisions disabled (no auto-shrink)
+ * - No auto-focus on open (no pre-highlight)
+ * - Single-row highlight via data-[highlighted] (background + ring only)
+ */
+
 function DropdownMenu(
-  { ...props }: React.ComponentProps<typeof DropdownMenuPrimitive.Root>
+  props: React.ComponentProps<typeof DropdownMenuPrimitive.Root>
 ) {
   return <DropdownMenuPrimitive.Root data-slot="dropdown-menu" {...props} />
 }
 
 function DropdownMenuTrigger(
-  { ...props }: React.ComponentProps<typeof DropdownMenuPrimitive.Trigger>
+  props: React.ComponentProps<typeof DropdownMenuPrimitive.Trigger>
 ) {
   return <DropdownMenuPrimitive.Trigger data-slot="dropdown-menu-trigger" {...props} />
 }
 
 function DropdownMenuContent({
   className,
-  sideOffset = 8, // a touch more space from trigger
+  sideOffset = 0,
+  onOpenAutoFocus,
   ...props
 }: React.ComponentProps<typeof DropdownMenuPrimitive.Content>) {
   return (
     <DropdownMenuPrimitive.Portal>
       <DropdownMenuPrimitive.Content
         data-slot="dropdown-menu-content"
+        avoidCollisions={false}
+        side="bottom"
+        align="center"
         sideOffset={sideOffset}
+        onOpenAutoFocus={(e) => {
+          // prevent first-item auto focus → nothing looks selected until hover
+          e.preventDefault()
+          onOpenAutoFocus?.(e)
+        }}
         className={cn(
-          // Responsive width (mobile-friendly), capped for larger screens
-          "z-50 w-[calc(100vw-2rem)] max-w-sm overflow-hidden",
-          // Card styling
-          "rounded-lg border bg-popover p-1 text-popover-foreground shadow-lg",
-          // Nice open/close animations
+          "z-50 w-screen max-w-none overflow-hidden",
+          "rounded-lg border border-neutral-200 bg-white p-1 text-neutral-900 shadow-lg",
           "data-[state=open]:animate-in data-[state=closed]:animate-out",
           "data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",
           "data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95",
@@ -50,16 +64,14 @@ function DropdownMenuItem({
   className,
   inset,
   ...props
-}: React.ComponentProps<typeof DropdownMenuPrimitive.Item> & {
-  inset?: boolean
-}) {
+}: React.ComponentProps<typeof DropdownMenuPrimitive.Item> & { inset?: boolean }) {
   return (
     <DropdownMenuPrimitive.Item
       data-slot="dropdown-menu-item"
       className={cn(
-        // Larger touch target + clean focus colors
         "relative flex cursor-default select-none items-center rounded-md px-3 py-3 text-base outline-none transition-colors",
-        "focus:bg-neutral-100 focus:text-neutral-900",
+        // Only background + ring on highlight; DO NOT force text color (keeps white text on CTA white)
+        "data-[highlighted]:bg-brand-50 data-[highlighted]:ring-2 data-[highlighted]:ring-brand-300 data-[highlighted]:ring-offset-0",
         "data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
         inset && "pl-8",
         className
@@ -80,7 +92,7 @@ function DropdownMenuCheckboxItem({
       data-slot="dropdown-menu-checkbox-item"
       className={cn(
         "relative flex cursor-default select-none items-center rounded-md py-3 pl-8 pr-3 text-base outline-none transition-colors",
-        "focus:bg-neutral-100 focus:text-neutral-900",
+        "data-[highlighted]:bg-brand-50 data-[highlighted]:ring-2 data-[highlighted]:ring-brand-300 data-[highlighted]:ring-offset-0",
         "data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
         className
       )}
@@ -107,7 +119,7 @@ function DropdownMenuRadioItem({
       data-slot="dropdown-menu-radio-item"
       className={cn(
         "relative flex cursor-default select-none items-center rounded-md py-3 pl-8 pr-3 text-base outline-none transition-colors",
-        "focus:bg-neutral-100 focus:text-neutral-900",
+        "data-[highlighted]:bg-brand-50 data-[highlighted]:ring-2 data-[highlighted]:ring-brand-300 data-[highlighted]:ring-offset-0",
         "data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
         className
       )}
@@ -127,9 +139,7 @@ function DropdownMenuLabel({
   className,
   inset,
   ...props
-}: React.ComponentProps<typeof DropdownMenuPrimitive.Label> & {
-  inset?: boolean
-}) {
+}: React.ComponentProps<typeof DropdownMenuPrimitive.Label> & { inset?: boolean }) {
   return (
     <DropdownMenuPrimitive.Label
       data-slot="dropdown-menu-label"
@@ -151,10 +161,7 @@ function DropdownMenuSeparator(
   )
 }
 
-function DropdownMenuShortcut({
-  className,
-  ...props
-}: React.HTMLAttributes<HTMLSpanElement>) {
+function DropdownMenuShortcut({ className, ...props }: React.HTMLAttributes<HTMLSpanElement>) {
   return (
     <span
       data-slot="dropdown-menu-shortcut"

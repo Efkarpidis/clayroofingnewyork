@@ -37,6 +37,18 @@
   --sidebar-accent-foreground: oklch(0.205 0 0);
   --sidebar-border: oklch(0.922 0 0);
   --sidebar-ring: oklch(0.708 0 0);
+
+  /* Brand palette (terracotta + sand) */
+  --brand-50:  #FFF3EA;
+  --brand-100: #FFE6D6;
+  --brand-200: #FFD1B8;
+  --brand-300: #FFB38F; /* rings / subtle accents */
+  --brand-400: #FF8F5E;
+  --brand-500: #F76D3B;
+  --brand-600: #E4572E; /* primary button bg */
+  --brand-700: #C84A26; /* hover */
+  --brand-800: #A63D1F;
+  --brand-900: #7A2C16;
 }
 
 .dark {
@@ -72,6 +84,18 @@
   --sidebar-accent-foreground: oklch(0.985 0 0);
   --sidebar-border: oklch(0.269 0 0);
   --sidebar-ring: oklch(0.439 0 0);
+
+  /* Dark-mode brand palette (slightly deeper) */
+  --brand-50:  #3b241c;
+  --brand-100: #4a2c22;
+  --brand-200: #5a3427;
+  --brand-300: #6b3c2c;
+  --brand-400: #86422a;
+  --brand-500: #a14a2b;
+  --brand-600: #c4582f;
+  --brand-700: #df6a3a;
+  --brand-800: #f27e4c;
+  --brand-900: #ff996b;
 }
 
 @theme inline {
@@ -111,20 +135,26 @@
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
+
+  /* Expose brand scale to Tailwind as bg/text/ring classes */
+  --color-brand-50:  var(--brand-50);
+  --color-brand-100: var(--brand-100);
+  --color-brand-200: var(--brand-200);
+  --color-brand-300: var(--brand-300);
+  --color-brand-400: var(--brand-400);
+  --color-brand-500: var(--brand-500);
+  --color-brand-600: var(--brand-600);
+  --color-brand-700: var(--brand-700);
+  --color-brand-800: var(--brand-800);
+  --color-brand-900: var(--brand-900);
 }
 
 @layer base {
-  * {
-    @apply border-border outline-ring/50;
-  }
-  body {
-    @apply bg-background text-foreground;
-  }
+  * { @apply border-border outline-ring/50; }
+  body { @apply bg-background text-foreground; }
 }
 
 /* Safe area insets for iOS devices */
 @supports (padding: env(safe-area-inset-bottom)) {
-  .pb-safe {
-    padding-bottom: env(safe-area-inset-bottom);
-  }
+  .pb-safe { padding-bottom: env(safe-area-inset-bottom); }
 }

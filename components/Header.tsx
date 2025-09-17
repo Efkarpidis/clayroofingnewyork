@@ -17,7 +17,6 @@ export function Header() {
   const [scrolled, setScrolled] = useState(false)
   const pathname = usePathname()
 
-  // Determine current page based on pathname
   const getCurrentPage = () => {
     if (pathname === "/") return "home"
     if (pathname === "/about") return "about"
@@ -68,7 +67,7 @@ export function Header() {
             <nav className="hidden md:flex items-center justify-center text-center py-2 space-x-8">
               <a
                 href="tel:+12123654386"
-                className="flex items-center gap-2 px-3 py-2 text-sm font-medium rounded-md transition-colors text-neutral-800 hover:text-orange-600 hover:bg-orange-100"
+                className="flex items-center gap-2 px-3 py-2 text-sm font-medium rounded-md transition-colors text-neutral-800 hover:text-brand-700 hover:bg-brand-50"
               >
                 <Phone className="w-4 h-4 flex-shrink-0" />
                 <span>212-365-4386</span>
@@ -78,8 +77,8 @@ export function Header() {
                 href="/gallery"
                 className={`px-3 py-2 text-sm font-medium rounded-md transition-colors ${
                   currentPage === "gallery"
-                    ? "text-orange-600 bg-orange-100"
-                    : "text-neutral-800 hover:text-orange-600 hover:bg-orange-100"
+                    ? "text-brand-700"
+                    : "text-neutral-800 hover:text-brand-700 hover:bg-brand-50"
                 }`}
               >
                 Projects
@@ -89,8 +88,8 @@ export function Header() {
                 href="/tile-selection"
                 className={`px-3 py-2 text-sm font-medium rounded-md transition-colors ${
                   currentPage === "tile-selection"
-                    ? "text-orange-600 bg-orange-100"
-                    : "text-neutral-800 hover:text-orange-600 hover:bg-orange-100"
+                    ? "text-brand-700"
+                    : "text-neutral-800 hover:text-brand-700 hover:bg-brand-50"
                 }`}
               >
                 Tile Selection
@@ -100,8 +99,8 @@ export function Header() {
                 href="/about"
                 className={`px-3 py-2 text-sm font-medium rounded-md transition-colors ${
                   currentPage === "about"
-                    ? "text-orange-600 bg-orange-100"
-                    : "text-neutral-800 hover:text-orange-600 hover:bg-orange-100"
+                    ? "text-brand-700"
+                    : "text-neutral-800 hover:text-brand-700 hover:bg-brand-50"
                 }`}
               >
                 About
@@ -111,8 +110,8 @@ export function Header() {
                 href="/contact"
                 className={`px-3 py-2 text-sm font-medium rounded-md transition-colors ${
                   currentPage === "contact"
-                    ? "text-orange-600 bg-orange-100"
-                    : "text-neutral-800 hover:text-orange-600 hover:bg-orange-100"
+                    ? "text-brand-700"
+                    : "text-neutral-800 hover:text-brand-700 hover:bg-brand-50"
                 }`}
               >
                 Contact
@@ -122,7 +121,7 @@ export function Header() {
                 <Link href="/contact#quote">
                   <Button
                     size="sm"
-                    className="bg-gradient-to-r from-orange-600 to-orange-700 text-white hover:from-orange-700 hover:to-orange-800 text-xs font-semibold transition-colors shadow-lg hover:shadow-xl h-9 px-4"
+                    className="bg-gradient-to-r from-brand-600 to-brand-700 text-white hover:from-brand-700 hover:to-brand-800 text-xs font-semibold transition-colors shadow-lg hover:shadow-xl h-9 px-4"
                   >
                     Request Quote
                   </Button>
@@ -136,7 +135,7 @@ export function Header() {
                 <DropdownMenuTrigger asChild>
                   <Button
                     variant="outline"
-                    className="flex items-center justify-between gap-2 w-full sm:w-auto py-3 text-base font-medium border-neutral-300 text-neutral-800 hover:bg-orange-100 hover:text-orange-700 hover:border-orange-300 bg-white"
+                    className="flex items-center justify-between gap-2 w-full py-3 text-base font-medium border-neutral-300 text-neutral-800 hover:bg-brand-50 hover:text-neutral-900 hover:border-brand-300 bg-white"
                   >
                     <ChevronDown className="h-4 w-4" />
                     <span className="flex-1 text-center">Menu</span>
@@ -144,15 +143,11 @@ export function Header() {
                   </Button>
                 </DropdownMenuTrigger>
 
-                <DropdownMenuContent
-                  align="center"
-                  sideOffset={8}
-                  className="mx-auto mt-2 w-[calc(100vw-2rem)] max-w-sm"
-                >
+                <DropdownMenuContent align="center" sideOffset={8}>
                   <DropdownMenuItem asChild>
                     <a
                       href="tel:+12123654386"
-                      className="flex items-center gap-3 px-3 py-3 text-base font-semibold text-orange-600 bg-orange-50 rounded-md cursor-pointer"
+                      className="flex items-center gap-3 px-3 py-3 text-base font-semibold text-brand-700 rounded-md cursor-pointer hover:bg-brand-50"
                     >
                       <Phone className="w-5 h-5 flex-shrink-0" />
                       <span>Call: 212-365-4386</span>
@@ -163,9 +158,7 @@ export function Header() {
                     <Link
                       href="/"
                       className={`flex items-center px-3 py-3 text-base font-medium rounded-md cursor-pointer ${
-                        currentPage === "home"
-                          ? "text-orange-600 bg-orange-50"
-                          : "text-neutral-700 hover:text-neutral-900 hover:bg-neutral-50"
+                        currentPage === "home" ? "text-brand-700" : "text-neutral-700 hover:text-neutral-900"
                       }`}
                     >
                       Home
@@ -176,9 +169,7 @@ export function Header() {
                     <Link
                       href="/gallery"
                       className={`flex items-center px-3 py-3 text-base font-medium rounded-md cursor-pointer ${
-                        currentPage === "gallery"
-                          ? "text-orange-600 bg-orange-50"
-                          : "text-neutral-700 hover:text-neutral-900 hover:bg-neutral-50"
+                        currentPage === "gallery" ? "text-brand-700" : "text-neutral-700 hover:text-neutral-900"
                       }`}
                     >
                       Projects
@@ -189,9 +180,7 @@ export function Header() {
                     <Link
                       href="/tile-selection"
                       className={`flex items-center px-3 py-3 text-base font-medium rounded-md cursor-pointer ${
-                        currentPage === "tile-selection"
-                          ? "text-orange-600 bg-orange-50"
-                          : "text-neutral-700 hover:text-neutral-900 hover:bg-neutral-50"
+                        currentPage === "tile-selection" ? "text-brand-700" : "text-neutral-700 hover:text-neutral-900"
                       }`}
                     >
                       Tile Selection
@@ -202,9 +191,7 @@ export function Header() {
                     <Link
                       href="/about"
                       className={`flex items-center px-3 py-3 text-base font-medium rounded-md cursor-pointer ${
-                        currentPage === "about"
-                          ? "text-orange-600 bg-orange-50"
-                          : "text-neutral-700 hover:text-neutral-900 hover:bg-neutral-50"
+                        currentPage === "about" ? "text-brand-700" : "text-neutral-700 hover:text-neutral-900"
                       }`}
                     >
                       About
@@ -215,9 +202,7 @@ export function Header() {
                     <Link
                       href="/contact"
                       className={`flex items-center px-3 py-3 text-base font-medium rounded-md cursor-pointer ${
-                        currentPage === "contact"
-                          ? "text-orange-600 bg-orange-50"
-                          : "text-neutral-700 hover:text-neutral-900 hover:bg-neutral-50"
+                        currentPage === "contact" ? "text-brand-700" : "text-neutral-700 hover:text-neutral-900"
                       }`}
                     >
                       Contact
@@ -228,7 +213,9 @@ export function Header() {
                     <DropdownMenuItem asChild>
                       <Link
                         href="/contact#quote"
-                        className="flex items-center justify-center px-3 py-3 text-base font-bold text-white bg-gradient-to-r from-orange-600 to-orange-700 hover:from-orange-700 hover:to-orange-800 rounded-md cursor-pointer mt-2"
+                        className="flex items-center justify-center px-3 py-3 text-base font-bold text-white rounded-md cursor-pointer mt-2
+                                   bg-gradient-to-r from-brand-600 to-brand-700 hover:from-brand-700 hover:to-brand-800
+                                   data-[highlighted]:!bg-brand-700 data-[highlighted]:!text-white"
                       >
                         Request Quote
                       </Link>
