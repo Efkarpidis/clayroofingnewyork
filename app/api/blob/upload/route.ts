@@ -15,13 +15,18 @@ export async function POST(req: Request) {
     const filename = (form.get("filename") as string) || file.name || "upload"
     const contentType = file.type || "application/octet-stream"
 
+    // You can optionally reject certain sizes/types here and return a friendly message.
+    // Example:
+    // if (file.size > 5 * 1024 * 1024 * 1024) {
+    //   return NextResponse.json({ ok: false, message: "File is larger than 5GB limit." }, { status: 413 })
+    // }
+
     const result = await put(filename, file, {
       access: "public",
       contentType,
       addRandomSuffix: true,
     })
 
-    // result includes: url, pathname, size, uploadedAt
     return NextResponse.json({
       ok: true,
       file: {
@@ -33,7 +38,10 @@ export async function POST(req: Request) {
       },
     })
   } catch (err: any) {
-    console.error("[blob/upload] error", err)
-    return NextResponse.json({ ok: false, message: "Upload failed" }, { status: 500 })
+    // Try to surface a helpful message
+    const msg =
+      (err?.message as string) ||
+      "Upload failed. The file may be too large or the network interrupted."
+    return NextResponse.json({ ok: false, message: msg }, { status: 500 })
   }
 }
