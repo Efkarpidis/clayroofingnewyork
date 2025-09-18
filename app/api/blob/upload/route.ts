@@ -1,12 +1,11 @@
 // app/api/blob/upload/route.ts
 import { handleUpload } from "@vercel/blob/client"
 
-// Use Node runtime to avoid any edge/env weirdness.
-// (Edge works too, but Node is the most forgiving with env resolution.)
-export const runtime = "nodejs"
-export const dynamic = "force-dynamic" // never cache the token route
+export const runtime = "nodejs"          // robust env resolution
+export const dynamic = "force-dynamic"   // never cache
+export const revalidate = 0
 
-// Health check: visit /api/blob/upload in the browser (GET).
+// Health check: GET /api/blob/upload -> { ok: true, hasToken: true }
 export async function GET() {
   const hasToken = Boolean(process.env.BLOB_READ_WRITE_TOKEN)
   return new Response(JSON.stringify({ ok: hasToken, hasToken }), {
@@ -15,12 +14,12 @@ export async function GET() {
   })
 }
 
-// This POST only mints a client token so the browser can upload directly to Vercel Blob.
-export const POST = handleUpload({
+// Wrap handleUpload so we always return JSON even on errors
+const base = handleUpload({
   access: "public",
   onBeforeGenerateToken: async (_pathname, req) => {
     if (!process.env.BLOB_READ_WRITE_TOKEN) {
-      throw new Error("Missing BLOB_READ_WRITE_TOKEN in this environment")
+      throw new Error("Missing BLOB_READ_WRITE_TOKEN in this environment.")
     }
     return {
       allowedContentTypes: ["*/*"],
@@ -31,3 +30,22 @@ export const POST = handleUpload({
     console.log("[blob] completed:", blob.url, tokenPayload?.ua || "")
   },
 })
+
+export async function POST(request: Request) {
+  try {
+    if (!process.env.BLOB_READ_WRITE_TOKEN) {
+      return new Response(
+        JSON.stringify({ ok: false, error: "BLOB_READ_WRITE_TOKEN not found" }),
+        { status: 500, headers: { "content-type": "application/json" } }
+      )
+    }
+    // Delegate to the official handler
+    return await base(request)
+  } catch (err: any) {
+    console.error("[blob] token error:", err)
+    return new Response(
+      JSON.stringify({ ok: false, error: String(err?.message || err) }),
+      { status: 500, headers: { "content-type": "application/json" } }
+    )
+  }
+}
