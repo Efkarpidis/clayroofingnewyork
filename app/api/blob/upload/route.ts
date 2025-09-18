@@ -1,27 +1,25 @@
 // app/api/blob/upload/route.ts
 import { handleUpload } from "@vercel/blob/client"
 
-export const runtime = "edge"
-export const dynamic = "force-dynamic" // avoid any caching surprises
+// Use Node runtime to avoid any edge/env weirdness.
+// (Edge works too, but Node is the most forgiving with env resolution.)
+export const runtime = "nodejs"
+export const dynamic = "force-dynamic" // never cache the token route
 
-// Quick health check: visit /api/blob/upload in the browser (GET)
-// If this returns { ok: true }, the token env var is visible in this deployment.
+// Health check: visit /api/blob/upload in the browser (GET).
 export async function GET() {
-  const hasToken = !!process.env.BLOB_READ_WRITE_TOKEN
-  const body = JSON.stringify({ ok: hasToken, hasToken })
-  return new Response(body, {
+  const hasToken = Boolean(process.env.BLOB_READ_WRITE_TOKEN)
+  return new Response(JSON.stringify({ ok: hasToken, hasToken }), {
     status: hasToken ? 200 : 500,
     headers: { "content-type": "application/json" },
   })
 }
 
-// This POST does NOT receive file bodies. It only mints a client token so the browser
-// can upload directly to Vercel Blob (no request-size limits).
+// This POST only mints a client token so the browser can upload directly to Vercel Blob.
 export const POST = handleUpload({
   access: "public",
   onBeforeGenerateToken: async (_pathname, req) => {
     if (!process.env.BLOB_READ_WRITE_TOKEN) {
-      // Surface a clear error in logs and to the client
       throw new Error("Missing BLOB_READ_WRITE_TOKEN in this environment")
     }
     return {
