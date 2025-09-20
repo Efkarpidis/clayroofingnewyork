@@ -1,6 +1,5 @@
 // app/contact/page.tsx
 "use client"
-
 import React, { useEffect, useRef, useState, useTransition } from "react"
 import { Button } from "@/components/ui/button"
 import { Check } from "lucide-react"
@@ -67,12 +66,14 @@ const FormInput = (p: React.ComponentProps<"input">) => (
     className="block w-full h-11 rounded-xl border border-neutral-200 bg-white px-3 py-2 text-base text-neutral-900 shadow-sm focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20 focus:outline-none hover:border-neutral-300 transition-colors placeholder:text-neutral-400"
   />
 )
+
 const FormTextarea = (p: React.ComponentProps<"textarea">) => (
   <textarea
     {...p}
     className="block w-full rounded-md border-neutral-300 bg-white p-3 text-base shadow-sm focus:border-orange-500 focus:ring-orange-500 focus:outline-none focus:ring-2"
   />
 )
+
 const FormSelect = ({ children, ...props }: React.ComponentProps<"select">) => (
   <div className="relative">
     <select
@@ -113,7 +114,6 @@ const tileColorOptions = {
 
 function ContactForm() {
   const formRef = useRef<HTMLFormElement>(null)
-
   const [state, setState] = useState<{ message: string; success: boolean; errors?: Record<string, string[]> }>({
     message: "",
     success: false,
@@ -122,15 +122,12 @@ function ContactForm() {
   const [selectedTileFamily, setSelectedTileFamily] = useState<string>("")
   const [selectedContactType, setSelectedContactType] = useState<string>("")
   const [showToast, setShowToast] = useState(false)
-
-  // uploader state for counters (UI only)
   const [docResults, setDocResults] = useState<BlobItem[]>([])
   const [photoResults, setPhotoResults] = useState<BlobItem[]>([])
   const docBytes = docResults.reduce((s, r) => s + (r.size || 0), 0)
   const photoBytes = photoResults.reduce((s, r) => s + (r.size || 0), 0)
   const totalBytes = docBytes + photoBytes
   const totalCount = docResults.length + photoResults.length
-
   const {
     register,
     handleSubmit,
@@ -143,7 +140,6 @@ function ContactForm() {
     resolver: zodResolver(contactFormSchema),
     shouldUnregister: false,
   })
-
   const watchedTileFamily = watch("tileFamily")
   const watchedContactType = watch("contactType")
 
@@ -188,19 +184,9 @@ function ContactForm() {
         const formEl = formRef.current
         if (!formEl) return
         const fd = new FormData(formEl)
-
-        // merge the two uploader hidden fields into "uploadedFiles"
-        const docs = (fd.get("uploadedFilesDocs") as string) || "[]"
-        const photos = (fd.get("uploadedFilesPhotos") as string) || "[]"
-        let d: any[] = []
-        let p: any[] = []
-        try { d = JSON.parse(docs) } catch {}
-        try { p = JSON.parse(photos) } catch {}
-        const combined = JSON.stringify([...d, ...p])
-        fd.delete("uploadedFilesDocs")
-        fd.delete("uploadedFilesPhotos")
+        // Use direct state for all uploaded files
+        const combined = JSON.stringify([...docResults, ...photoResults])
         fd.set("uploadedFiles", combined)
-
         const res = await fetch("/api/contact", { method: "POST", body: fd })
         const data = await res.json().catch(() => ({ ok: false }))
         if (res.ok && data.ok) {
@@ -240,30 +226,24 @@ function ContactForm() {
           <span>Thanks—your message was sent.</span>
         </div>
       )}
-
       <form ref={formRef} onSubmit={handleSubmit(onSubmit)} className="space-y-6" id="quote" noValidate>
         <FieldWrapper id="name" label="Name" required error={errors.name?.message || state.errors?.name?.[0]}>
           <FormInput {...register("name")} placeholder="Cocoa Clay" />
         </FieldWrapper>
-
         <FieldWrapper id="email" label="Email" required error={errors.email?.message || state.errors?.email?.[0]}>
           <FormInput {...register("email")} type="email" placeholder="cocoa@example.com" />
         </FieldWrapper>
-
         <FieldWrapper id="phone" label="Phone" error={errors.phone?.message || state.errors?.phone?.[0]}>
           <FormInput {...register("phone")} type="tel" placeholder="(718) 000-0000" />
         </FieldWrapper>
-
         <FieldWrapper id="company" label="Company" error={errors.company?.message || state.errors?.company?.[0]}>
           <FormInput {...register("company")} placeholder="Cocoa's Roofing Company" />
         </FieldWrapper>
-
         <FieldWrapper id="contactType" label="I am a" required error={errors.contactType?.message || state.errors?.contactType?.[0]}>
           <FormSelect
             {...register("contactType")}
             onChange={(e) => {
               register("contactType").onChange(e)
-              // you can keep any conditional messaging here
             }}
           >
             <option value="">Select...</option>
@@ -275,7 +255,6 @@ function ContactForm() {
             <option value="other">Other</option>
           </FormSelect>
         </FieldWrapper>
-
         <FieldWrapper id="tileFamily" label="Tile Family" error={errors.tileFamily?.message || state.errors?.tileFamily?.[0]}>
           <FormSelect
             {...register("tileFamily")}
@@ -291,7 +270,6 @@ function ContactForm() {
             <option value="Request">Request</option>
           </FormSelect>
         </FieldWrapper>
-
         {selectedTileFamily && (
           <FieldWrapper id="tileColor" label="Tile Color" error={errors.tileColor?.message || state.errors?.tileColor?.[0]}>
             <FormSelect {...register("tileColor")}>
@@ -304,12 +282,9 @@ function ContactForm() {
             </FormSelect>
           </FieldWrapper>
         )}
-
         <FieldWrapper id="message" label="Message" required error={errors.message?.message || state.errors?.message?.[0]}>
           <FormTextarea {...register("message")} rows={4} placeholder="Type your message here." />
         </FieldWrapper>
-
-        {/* Documents */}
         <FieldWrapper id="files" label="Attach Documents">
           <VercelBlobUploader
             multiple
@@ -324,8 +299,6 @@ function ContactForm() {
             </span>
           </div>
         </FieldWrapper>
-
-        {/* Photos */}
         <FieldWrapper id="photos" label="Upload Photo">
           <VercelBlobUploader
             multiple
@@ -341,19 +314,19 @@ function ContactForm() {
           </div>
           <div className="mt-2 text-xs text-neutral-600">
             <span className="inline-flex items-center rounded-full border border-neutral-300 px-2 py-0.5">
-              Total: {docResults.length + photoResults.length} file{totalCount === 1 ? "" : "s"} • {formatMB(totalBytes)} MB
+              Total: {totalCount} file{totalCount === 1 ? "" : "s"} • {formatMB(totalBytes)} MB
             </span>
           </div>
         </FieldWrapper>
-
         <div className="space-y-2">
           <div className="flex items-start gap-3">
-           <input
-  type="checkbox"
-  id="privacyAccepted"
-  {...register("privacyAccepted", { valueAsBoolean: true })}
-  className="mt-1 h-4 w-4 rounded border-neutral-400 text-orange-600 focus:ring-orange-600"
-/>
+            <input
+              type="checkbox"
+              id="privacyAccepted"
+              {...register("privacyAccepted", { valueAsBoolean: true })}
+              onChange={(e) => setValue("privacyAccepted", e.target.checked)}
+              className="mt-1 h-4 w-4 rounded border-neutral-400 text-orange-600 focus:ring-orange-600"
+            />
             <label htmlFor="privacyAccepted" className="text-sm text-neutral-700">
               I have read and accept the{" "}
               <a href="/privacy" className="text-orange-600 hover:underline">
@@ -368,7 +341,6 @@ function ContactForm() {
             </p>
           )}
         </div>
-
         <button
           type="submit"
           disabled={isPending}
@@ -383,7 +355,6 @@ function ContactForm() {
             "Submit"
           )}
         </button>
-
         {!state.success && state.message && (
           <p className="text-center text-sm text-red-600">
             {state.message === "Please fix the errors below."
@@ -405,7 +376,6 @@ export default function ContactPage() {
       setAddressCopied(true); setTimeout(() => setAddressCopied(false), 2000)
     } catch (e) { console.error(e) }
   }
-
   return (
     <div className="bg-white text-neutral-800 min-h-screen">
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-16">
@@ -418,14 +388,11 @@ export default function ContactPage() {
           </p>
           <p className="mt-1 text-sm text-neutral-500 italic">We proudly back our installations with warranties up to 100 years.</p>
         </div>
-
         <div className="grid grid-cols-1 gap-8 lg:gap-16 lg:grid-cols-2">
-          {/* Left column kept as you had it */}
           <div className="bg-gradient-to-br from-orange-50 to-orange-100 rounded-xl p-6 sm:p-8 space-y-6">
             <div>
               <h2 className="text-xl font-semibold text-neutral-900 mb-4">Get in Touch</h2>
               <p className="text-sm text-neutral-500 mb-4">Tap an option to get in touch</p>
-
               <div className="space-y-4">
                 <Button variant="outline" className="w-full justify-start gap-3 h-auto py-3 px-4 text-base font-medium text-neutral-800 border-neutral-300 bg-white hover:bg-neutral-50">
                   <a href="tel:+12123654386" className="flex items-center gap-3">
@@ -454,14 +421,12 @@ export default function ContactPage() {
               </div>
             </div>
           </div>
-
           <div className="bg-white rounded-xl border border-neutral-200 p-6 sm:p-8">
             <h2 className="text-xl font-semibold text-neutral-900 mb-6">Send us a message</h2>
             <ContactForm />
           </div>
         </div>
       </main>
-
       <footer className="border-t border-neutral-200 bg-neutral-50">
         <div className="max-w-7xl mx-auto px-4 py-6 space-y-4 text-center text-neutral-500">
           <p>&copy; {new Date().getFullYear()} Clay Roofs New York. All Rights Reserved.</p>
