@@ -29,7 +29,6 @@ function renderTeamHtml(params: {
   const {
     logoUrl, name, email, phone, company, contactType, tileFamily, tileColor, message, submittedAt, attachmentsCount,
   } = params
-
   return `
   <table width="100%" cellpadding="0" cellspacing="0" style="background:#f6f6f6;padding:24px 0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;">
     <tr><td align="center">
@@ -53,10 +52,8 @@ function renderTeamHtml(params: {
               <tr><td style="padding:6px 0;color:#666">Tile Color</td><td>${tileColor || "-"}</td></tr>
               <tr><td style="padding:6px 0;color:#666">Attachments</td><td>${attachmentsCount} file(s)</td></tr>
             </table>
-
             <h3 style="margin:20px 0 8px 0;color:#111">Message</h3>
             <p style="white-space:pre-wrap;margin:0;color:#222">${(message || "").replace(/</g, "&lt;")}</p>
-
             <p style="margin-top:24px;font-size:12px;color:#666">Sent automatically from clayroofingnewyork.com</p>
           </td>
         </tr>
@@ -94,7 +91,6 @@ function renderUserHtml(params: {
             <p style="margin:0 0 12px 0;color:#444">
               Our Client Relations Manager will contact you shortly. Below is a copy of what you sent:
             </p>
-
             <table cellpadding="0" cellspacing="0" style="width:100%;font-size:14px;color:#111;margin:12px 0 0 0">
               <tr><td style="padding:6px 0;width:160px;color:#666">Name</td><td>${name || "-"}</td></tr>
               <tr><td style="padding:6px 0;color:#666">Email</td><td>${email || "-"}</td></tr>
@@ -104,10 +100,8 @@ function renderUserHtml(params: {
               <tr><td style="padding:6px 0;color:#666">Tile Family</td><td>${tileFamily || "-"}</td></tr>
               <tr><td style="padding:6px 0;color:#666">Tile Color</td><td>${tileColor || "-"}</td></tr>
             </table>
-
             <h3 style="margin:16px 0 8px 0;color:#111">Your Message</h3>
             <p style="white-space:pre-wrap;margin:0;color:#222">${(message || "").replace(/</g, "&lt;")}</p>
-
             <p style="margin-top:24px;font-size:12px;color:#666">
               If this is urgent, call us at <a href="tel:+12123654386" style="color:#ea580c;text-decoration:none">212-365-4386</a>.
             </p>
@@ -131,7 +125,6 @@ async function fileToResendAttachment(f: File) {
 export async function POST(req: NextRequest) {
   try {
     const formData = await req.formData()
-
     // Fields
     const name = formData.get("name")?.toString().trim() || ""
     const email = formData.get("email")?.toString().trim() || ""
@@ -141,24 +134,39 @@ export async function POST(req: NextRequest) {
     const tileFamily = formData.get("tileFamily")?.toString().trim() || ""
     const tileColor = formData.get("tileColor")?.toString().trim() || ""
     const message = formData.get("message")?.toString().trim() || ""
-    const privacyAccepted = formData.get("privacyAccepted")?.toString() === "true"
-
-    // Files (plural)
-    const files = formData.getAll("files") as File[]
-    const photos = formData.getAll("photos") as File[]
+    const privacyAccepted = formData.get("privacyAccepted") === "true" || formData.get("privacyAccepted") === "on" // Handle boolean input
+    // Files (from uploadedFiles JSON string)
+    const uploadedFiles = formData.get("uploadedFiles")
+    let attachments: any[] = []
+    if (uploadedFiles) {
+      try {
+        const filesData = JSON.parse(uploadedFiles.toString())
+        if (Array.isArray(filesData)) {
+          for (const file of filesData) {
+            attachments.push({
+              filename: file.filename || file.pathname.split("/").pop() || "unknown",
+              content: "", // Placeholder; not needed for URLs
+              contentType: file.contentType || "application/octet-stream",
+              path: file.url, // Use URL from Blob storage
+            })
+          }
+        }
+      } catch (e) {
+        console.warn("[API] Failed to parse uploadedFiles:", e)
+      }
+    }
 
     // Server-side limits
-    const all = [...files, ...photos]
-    if (all.length > MAX_FILES_TOTAL) {
+    if (attachments.length > MAX_FILES_TOTAL) {
       return NextResponse.json(
-        { ok: false, message: `Please reduce to ${MAX_FILES_TOTAL} files total.`, fieldErrors: { files: [`Max ${MAX_FILES_TOTAL} files.`] } },
+        { ok: false, message: `Please reduce to ${MAX_FILES_TOTAL} files total.`, fieldErrors: { uploadedFiles: [`Max ${MAX_FILES_TOTAL} files.`] } },
         { status: 400 },
       )
     }
-    const totalBytes = all.reduce((s, f) => s + (f?.size || 0), 0)
+    const totalBytes = attachments.reduce((s, f) => s + (f.size || 0), 0)
     if (totalBytes > MAX_TOTAL_BYTES) {
       return NextResponse.json(
-        { ok: false, message: `Total uploads must be ≤ ${MAX_TOTAL_MB} MB.`, fieldErrors: { files: [`Total exceeds ${MAX_TOTAL_MB} MB.`] } },
+        { ok: false, message: `Total uploads must be ≤ ${MAX_TOTAL_MB} MB.`, fieldErrors: { uploadedFiles: [`Total exceeds ${MAX_TOTAL_MB} MB.`] } },
         { status: 400 },
       )
     }
@@ -187,11 +195,6 @@ export async function POST(req: NextRequest) {
     const logoUrl = `${baseUrl}/images/email-logo.png`
     const submittedAt = new Date().toLocaleString("en-US", { timeZone: "America/New_York", hour12: true })
 
-    // Attachments
-    const attachments: any[] = []
-    for (const f of files)  attachments.push(await fileToResendAttachment(f))
-    for (const p of photos) attachments.push(await fileToResendAttachment(p))
-
     // Team email
     const teamEmail = await resend.emails.send({
       from,
@@ -199,7 +202,6 @@ export async function POST(req: NextRequest) {
       subject: `Website Contact – ${name}`,
       reply_to: email,
       text: `New contact submission (submitted ${submittedAt}):
-
 Name: ${name}
 Email: ${email}
 Phone: ${phone || "-"}
@@ -207,10 +209,8 @@ Company: ${company || "-"}
 Contact Type: ${contactType || "-"}
 Tile Family: ${tileFamily || "-"}
 Tile Color: ${tileColor || "-"}
-
 Message:
 ${message}
-
 Attachments: ${attachments.length} file(s)
 `,
       html: renderTeamHtml({
@@ -219,6 +219,7 @@ Attachments: ${attachments.length} file(s)
       }),
       attachments: attachments.length ? attachments : undefined,
     })
+
     if (teamEmail.error) {
       console.error("[API] Resend team email error:", teamEmail.error)
       return NextResponse.json({ ok: false, message: "Failed to send email." }, { status: 502 })
@@ -235,10 +236,8 @@ Attachments: ${attachments.length} file(s)
           logoUrl, name, email, phone, company, contactType, tileFamily, tileColor, message, submittedAt
         }),
         text: `Thanks, ${name}!
-
 We received your message on ${submittedAt}.
 Our Client Relations Manager will contact you shortly.
-
 Submission copy:
 Name: ${name}
 Email: ${email}
@@ -247,10 +246,8 @@ Company: ${company || "-"}
 Contact Type: ${contactType || "-"}
 Tile Family: ${tileFamily || "-"}
 Tile Color: ${tileColor || "-"}
-
 Message:
 ${message}
-
 If this is urgent, call us at 212-365-4386.
 Clay Roofing New York`,
       })
