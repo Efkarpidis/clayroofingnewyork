@@ -1,7 +1,6 @@
 // app/api/blob/upload/route.ts
 import { handleUpload, type HandleUploadBody } from "@vercel/blob/client";
 import { NextResponse, type NextRequest } from "next/server";
-
 export const runtime = "edge"; // Recommended for Vercel Blob (faster, global)
 
 // Simple health check: GET /api/blob/upload
@@ -31,7 +30,16 @@ export async function POST(request: NextRequest) {
         // Optional: Add auth here (e.g., check session/cookies from request)
         // if (!authorized) throw new Error('Unauthorized');
         return {
-          allowedContentTypes: ["*/*"], // No limitations: allow any file type
+          allowedContentTypes: [
+            "image/jpeg",
+            "image/png",
+            "image/gif",
+            "image/webp",
+            "application/pdf",  // Explicitly allow PDFs
+            "text/plain",
+            "application/msword",  // .doc
+            "application/vnd.openxmlformats-officedocument.wordprocessingml.document"  // .docx
+          ],
           addRandomSuffix: true, // Prevents overwrites
           tokenPayload: JSON.stringify({ ua, clientPayload }), // Include UA and any client data
         };
