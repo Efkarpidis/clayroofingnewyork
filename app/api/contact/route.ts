@@ -1,13 +1,7 @@
+// app/api/contact/route.ts
 import { NextResponse, type NextRequest } from "next/server"
 import { Resend } from "resend"
-
 const resend = new Resend(process.env.RESEND_API_KEY)
-
-// ---- Limits (match UI) ----
-const MAX_FILES_TOTAL = 10
-const MAX_TOTAL_MB = 20
-const MAX_TOTAL_BYTES = MAX_TOTAL_MB * 1024 * 1024
-// ---------------------------
 
 function getBaseUrl(req: NextRequest) {
   return req.nextUrl.origin.replace(/\/$/, "")
@@ -112,13 +106,13 @@ function renderUserHtml(params: {
   </table>`
 }
 
-// Convert uploaded File -> Resend attachment
-async function fileToResendAttachment(f: File) {
-  const buff = Buffer.from(await f.arrayBuffer())
+// Convert uploaded File -> Resend attachment (using URLs)
+async function fileToResendAttachment(fileData: { url: string; filename?: string; contentType?: string }) {
   return {
-    filename: f.name,
-    content: buff.toString("base64"),
-    contentType: f.type || "application/octet-stream",
+    filename: fileData.filename || fileData.url.split("/").pop() || "unknown",
+    content: "", // Not needed for URLs
+    contentType: fileData.contentType || "application/octet-stream",
+    path: fileData.url, // Use Blob URL
   }
 }
 
@@ -134,7 +128,7 @@ export async function POST(req: NextRequest) {
     const tileFamily = formData.get("tileFamily")?.toString().trim() || ""
     const tileColor = formData.get("tileColor")?.toString().trim() || ""
     const message = formData.get("message")?.toString().trim() || ""
-    const privacyAccepted = formData.get("privacyAccepted") === "true" || formData.get("privacyAccepted") === "on" // Handle boolean input
+    const privacyAccepted = formData.get("privacyAccepted") === "true" || formData.get("privacyAccepted") === "on"
     // Files (from uploadedFiles JSON string)
     const uploadedFiles = formData.get("uploadedFiles")
     let attachments: any[] = []
@@ -143,34 +137,13 @@ export async function POST(req: NextRequest) {
         const filesData = JSON.parse(uploadedFiles.toString())
         if (Array.isArray(filesData)) {
           for (const file of filesData) {
-            attachments.push({
-              filename: file.filename || file.pathname.split("/").pop() || "unknown",
-              content: "", // Placeholder; not needed for URLs
-              contentType: file.contentType || "application/octet-stream",
-              path: file.url, // Use URL from Blob storage
-            })
+            attachments.push(await fileToResendAttachment(file))
           }
         }
       } catch (e) {
         console.warn("[API] Failed to parse uploadedFiles:", e)
       }
     }
-
-    // Server-side limits
-    if (attachments.length > MAX_FILES_TOTAL) {
-      return NextResponse.json(
-        { ok: false, message: `Please reduce to ${MAX_FILES_TOTAL} files total.`, fieldErrors: { uploadedFiles: [`Max ${MAX_FILES_TOTAL} files.`] } },
-        { status: 400 },
-      )
-    }
-    const totalBytes = attachments.reduce((s, f) => s + (f.size || 0), 0)
-    if (totalBytes > MAX_TOTAL_BYTES) {
-      return NextResponse.json(
-        { ok: false, message: `Total uploads must be ≤ ${MAX_TOTAL_MB} MB.`, fieldErrors: { uploadedFiles: [`Total exceeds ${MAX_TOTAL_MB} MB.`] } },
-        { status: 400 },
-      )
-    }
-
     // Validation
     const fieldErrors: Record<string, string[]> = {}
     if (!name) fieldErrors.name = ["Name is required"]
@@ -183,18 +156,15 @@ export async function POST(req: NextRequest) {
     if (Object.keys(fieldErrors).length > 0) {
       return NextResponse.json({ ok: false, message: "Please fix the errors below.", fieldErrors }, { status: 400 })
     }
-
     // Email env
     const from = process.env.CONTACT_FROM
     const to = (process.env.CONTACT_TO || "").split(",").map((s) => s.trim()).filter(Boolean)
     if (!process.env.RESEND_API_KEY || !from || to.length === 0) {
       return NextResponse.json({ ok: false, message: "Email service not configured." }, { status: 500 })
     }
-
     const baseUrl = getBaseUrl(req)
     const logoUrl = `${baseUrl}/images/email-logo.png`
     const submittedAt = new Date().toLocaleString("en-US", { timeZone: "America/New_York", hour12: true })
-
     // Team email
     const teamEmail = await resend.emails.send({
       from,
@@ -219,12 +189,10 @@ Attachments: ${attachments.length} file(s)
       }),
       attachments: attachments.length ? attachments : undefined,
     })
-
     if (teamEmail.error) {
       console.error("[API] Resend team email error:", teamEmail.error)
       return NextResponse.json({ ok: false, message: "Failed to send email." }, { status: 502 })
     }
-
     // User confirmation (mirrors submission)
     try {
       await resend.emails.send({
@@ -254,7 +222,6 @@ Clay Roofing New York`,
     } catch (err) {
       console.warn("[API] User confirmation email failed:", err)
     }
-
     return NextResponse.json({ ok: true, message: "Thanks—your message was sent." })
   } catch (err) {
     console.error("[API] Unexpected error:", err)
