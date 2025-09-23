@@ -1,22 +1,22 @@
 // app/contact/page.tsx
-"use client"
-import React, { useEffect, useRef, useState, useTransition } from "react"
-import { Button } from "@/components/ui/button"
-import { Check } from "lucide-react"
-import { useForm } from "react-hook-form"
-import { zodResolver } from "@hookform/resolvers/zod"
-import { z } from "zod"
-import VercelBlobUploader from "@/components/upload/VercelBlobUploader"
+"use client";
+import React, { useEffect, useRef, useState, useTransition } from "react";
+import { Button } from "@/components/ui/button";
+import { Check } from "lucide-react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+import VercelBlobUploader from "@/components/upload/VercelBlobUploader";
 
 type BlobItem = {
-  url: string
-  pathname: string
-  size?: number
-  contentType?: string
-  filename?: string
-}
+  url: string;
+  pathname: string;
+  size?: number;
+  contentType?: string;
+  filename?: string;
+};
 
-const formatMB = (bytes: number) => Math.round((bytes / (1024 * 1024)) * 10) / 10
+const formatMB = (bytes: number) => Math.round((bytes / (1024 * 1024)) * 10) / 10;
 
 const contactFormSchema = z.object({
   name: z.string().min(2, { message: "Please enter your full name." }),
@@ -33,9 +33,9 @@ const contactFormSchema = z.object({
     message: "You must accept the Privacy Policy to continue.",
   }),
   previousProjectReference: z.string().optional(),
-})
+});
 
-type ContactFormData = z.infer<typeof contactFormSchema>
+type ContactFormData = z.infer<typeof contactFormSchema>;
 
 const FieldWrapper = ({
   id,
@@ -44,11 +44,11 @@ const FieldWrapper = ({
   children,
   required = false,
 }: {
-  id: string
-  label: string
-  error?: string
-  children: React.ReactNode
-  required?: boolean
+  id: string;
+  label: string;
+  error?: string;
+  children: React.ReactNode;
+  required?: boolean;
 }) => (
   <div className="space-y-2">
     <label htmlFor={id} className="block text-base font-medium text-neutral-700">
@@ -58,21 +58,21 @@ const FieldWrapper = ({
     {children}
     {error && <p className="mt-1 text-sm text-red-600">{error}</p>}
   </div>
-)
+);
 
 const FormInput = (p: React.ComponentProps<"input">) => (
   <input
     {...p}
     className="block w-full h-11 rounded-xl border border-neutral-200 bg-white px-3 py-2 text-base text-neutral-900 shadow-sm focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20 focus:outline-none hover:border-neutral-300 transition-colors placeholder:text-neutral-400"
   />
-)
+);
 
 const FormTextarea = (p: React.ComponentProps<"textarea">) => (
   <textarea
     {...p}
     className="block w-full rounded-md border-neutral-300 bg-white p-3 text-base shadow-sm focus:border-orange-500 focus:ring-orange-500 focus:outline-none focus:ring-2"
   />
-)
+);
 
 const FormSelect = ({ children, ...props }: React.ComponentProps<"select">) => (
   <div className="relative">
@@ -90,7 +90,7 @@ const FormSelect = ({ children, ...props }: React.ComponentProps<"select">) => (
       {children}
     </select>
   </div>
-)
+);
 
 const tileColorOptions = {
   Vienna: ["Charcoal", "Terracotta", "Slate Gray", "Request a Color"],
@@ -110,24 +110,24 @@ const tileColorOptions = {
     "Slate",
     "Request a Color",
   ],
-} as const
+} as const;
 
 function ContactForm() {
-  const formRef = useRef<HTMLFormElement>(null)
+  const formRef = useRef<HTMLFormElement>(null);
   const [state, setState] = useState<{ message: string; success: boolean; errors?: Record<string, string[]> }>({
     message: "",
     success: false,
-  })
-  const [isPending, startTransition] = useTransition()
-  const [selectedTileFamily, setSelectedTileFamily] = useState<string>("")
-  const [selectedContactType, setSelectedContactType] = useState<string>("")
-  const [showToast, setShowToast] = useState(false)
-  const [docResults, setDocResults] = useState<BlobItem[]>([])
-  const [photoResults, setPhotoResults] = useState<BlobItem[]>([])
-  const docBytes = docResults.reduce((s, r) => s + (r.size || 0), 0)
-  const photoBytes = photoResults.reduce((s, r) => s + (r.size || 0), 0)
-  const totalBytes = docBytes + photoBytes
-  const totalCount = docResults.length + photoResults.length
+  });
+  const [isPending, startTransition] = useTransition();
+  const [selectedTileFamily, setSelectedTileFamily] = useState<string>("");
+  const [selectedContactType, setSelectedContactType] = useState<string>("");
+  const [showToast, setShowToast] = useState(false);
+  const [docResults, setDocResults] = useState<BlobItem[]>([]);
+  const [photoResults, setPhotoResults] = useState<BlobItem[]>([]);
+  const docBytes = docResults.reduce((s, r) => s + (r.size || 0), 0);
+  const photoBytes = photoResults.reduce((s, r) => s + (r.size || 0), 0);
+  const totalBytes = docBytes + photoBytes;
+  const totalCount = docResults.length + photoResults.length;
   const {
     register,
     handleSubmit,
@@ -139,72 +139,72 @@ function ContactForm() {
   } = useForm<ContactFormData>({
     resolver: zodResolver(contactFormSchema),
     shouldUnregister: false,
-    defaultValues: { privacyAccepted: false }, // Initialize with false
-  })
-  const watchedTileFamily = watch("tileFamily")
-  const watchedContactType = watch("contactType")
+    defaultValues: { privacyAccepted: false },
+  });
+  const watchedTileFamily = watch("tileFamily");
+  const watchedContactType = watch("contactType");
 
   useEffect(() => {
-    const url = new URLSearchParams(window.location.search)
-    const tf = url.get("tileFamily")
-    const tc = url.get("tileColor")
+    const url = new URLSearchParams(window.location.search);
+    const tf = url.get("tileFamily");
+    const tc = url.get("tileColor");
     if (tf) {
-      setValue("tileFamily", tf)
-      setSelectedTileFamily(tf)
+      setValue("tileFamily", tf);
+      setSelectedTileFamily(tf);
     }
-    if (tc) setValue("tileColor", tc)
-    window.scrollTo(0, 0)
-  }, [setValue])
+    if (tc) setValue("tileColor", tc);
+    window.scrollTo(0, 0);
+  }, [setValue]);
 
   useEffect(() => {
     if (watchedTileFamily) {
-      setSelectedTileFamily(watchedTileFamily)
-      setValue("tileColor", "")
+      setSelectedTileFamily(watchedTileFamily);
+      setValue("tileColor", "");
     }
-  }, [watchedTileFamily, setValue])
+  }, [watchedTileFamily, setValue]);
 
   useEffect(() => {
-    if (watchedContactType) setSelectedContactType(watchedContactType)
-  }, [watchedContactType])
+    if (watchedContactType) setSelectedContactType(watchedContactType);
+  }, [watchedContactType]);
 
   useEffect(() => {
     if (state.success) {
-      setShowToast(true)
-      reset()
-      setSelectedTileFamily("")
-      setSelectedContactType("")
-      setDocResults([])
-      setPhotoResults([])
-      setTimeout(() => setShowToast(false), 5000)
+      setShowToast(true);
+      reset();
+      setSelectedTileFamily("");
+      setSelectedContactType("");
+      setDocResults([]);
+      setPhotoResults([]);
+      setTimeout(() => setShowToast(false), 5000);
     }
-  }, [state.success, reset])
+  }, [state.success, reset]);
 
   const onSubmit = async () => {
     startTransition(async () => {
       try {
-        const formEl = formRef.current
-        if (!formEl) return
-        const fd = new FormData(formEl)
-        const combined = JSON.stringify([...docResults, ...photoResults])
-        fd.set("uploadedFiles", combined)
-        const res = await fetch("/api/contact", { method: "POST", body: fd })
-        const data = await res.json().catch(() => ({ ok: false }))
+        const formEl = formRef.current;
+        if (!formEl) return;
+        const fd = new FormData(formEl);
+        const combined = JSON.stringify([...docResults, ...photoResults]);
+        fd.set("uploadedFiles", combined); // This was the original intent—now handled in route.ts
+        const res = await fetch("/api/contact", { method: "POST", body: fd });
+        const data = await res.json().catch(() => ({ ok: false }));
         if (res.ok && data.ok) {
-          setState({ message: "Thanks—your message was sent.", success: true })
+          setState({ message: "Thanks—your message was sent.", success: true });
         } else {
           if (data.fieldErrors) {
             Object.entries(data.fieldErrors).forEach(([field, messages]: any) => {
-              if (messages?.[0]) setError(field as keyof ContactFormData, { type: "server", message: messages[0] })
-            })
+              if (messages?.[0]) setError(field as keyof ContactFormData, { type: "server", message: messages[0] });
+            });
           }
-          setState({ message: data.message || "Please complete the required fields highlighted below.", success: false, errors: data.fieldErrors })
+          setState({ message: data.message || "Please complete the required fields highlighted below.", success: false, errors: data.fieldErrors });
         }
       } catch (e) {
-        console.error("[Contact] submit error", e)
-        setState({ message: "Network error. Please try again.", success: false })
+        console.error("[Contact] submit error", e);
+        setState({ message: "Network error. Please try again.", success: false });
       }
-    })
-  }
+    });
+  };
 
   if (state.success && !showToast) {
     return (
@@ -215,7 +215,7 @@ function ContactForm() {
         <h3 className="text-xl font-semibold text-neutral-800 mb-2">Message Sent!</h3>
         <p className="text-neutral-600">Thank you for reaching out. We'll get back to you shortly.</p>
       </div>
-    )
+    );
   }
 
   return (
@@ -243,7 +243,7 @@ function ContactForm() {
           <FormSelect
             {...register("contactType")}
             onChange={(e) => {
-              register("contactType").onChange(e)
+              register("contactType").onChange(e);
             }}
           >
             <option value="">Select...</option>
@@ -259,8 +259,8 @@ function ContactForm() {
           <FormSelect
             {...register("tileFamily")}
             onChange={(e) => {
-              register("tileFamily").onChange(e)
-              setSelectedTileFamily(e.target.value)
+              register("tileFamily").onChange(e);
+              setSelectedTileFamily(e.target.value);
             }}
           >
             <option value="">Select...</option>
@@ -342,6 +342,17 @@ function ContactForm() {
             </p>
           )}
         </div>
+        <div className="space-y-2">
+          <label className="flex items-center text-sm text-neutral-700">
+            <input
+              type="checkbox"
+              name="smsOptIn"
+              value="true"
+              className="mr-2 h-4 w-4 rounded border-neutral-400 text-orange-600 focus:ring-orange-600"
+            />
+            Yes, send me updates via text (Reply STOP to unsubscribe)
+          </label>
+        </div>
         <button
           type="submit"
           disabled={isPending}
@@ -365,18 +376,26 @@ function ContactForm() {
         )}
       </form>
     </>
-  )
+  );
 }
 
 export default function ContactPage() {
-  const [addressCopied, setAddressCopied] = useState(false)
-  useEffect(() => { window.scrollTo(0, 0) }, [])
+  const [addressCopied, setAddressCopied] = useState(false);
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+
   const copyAddressToClipboard = async () => {
     try {
-      await navigator.clipboard.writeText("33-15 127th Pl, Corona, NY 11368")
-      setAddressCopied(true); setTimeout(() => setAddressCopied(false), 2000)
-    } catch (e) { console.error(e) }
-  }
+      await navigator.clipboard.writeText("33-15 127th Pl, Corona, NY 11368");
+      setAddressCopied(true);
+      setTimeout(() => setAddressCopied(false), 2000);
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
   return (
     <div className="bg-white text-neutral-800 min-h-screen">
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-16">
@@ -434,5 +453,5 @@ export default function ContactPage() {
         </div>
       </footer>
     </div>
-  )
+  );
 }

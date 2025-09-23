@@ -1,39 +1,53 @@
 // app/api/contact/route.ts
-import { NextResponse, type NextRequest } from "next/server"
-import { Resend } from "resend"
-import { Pool } from "pg"
+import { NextResponse, type NextRequest } from "next/server";
+import { Resend } from "resend";
+import { Pool } from "pg";
+import twilio from "twilio";
 
-const resend = new Resend(process.env.RESEND_API_KEY)
-const pool = new Pool({ connectionString: process.env.DATABASE_URL })
+const resend = new Resend(process.env.RESEND_API_KEY);
+const pool = new Pool({ connectionString: process.env.DATABASE_URL });
+const smsClient = twilio(process.env.TWILIO_ACCOUNT_SID!, process.env.TWILIO_AUTH_TOKEN!);
 
 function getBaseUrl(req: NextRequest) {
-  return req.nextUrl.origin.replace(/\/$/, "")
+  return req.nextUrl.origin.replace(/\/$/, "");
 }
 
-async function saveSubmission(name: string, email: string, phone: string, company: string, contactType: string, tileFamily: string, tileColor: string, message: string, uploadedFiles: string[], submittedAt: string) {
+async function saveSubmission(
+  name: string,
+  email: string,
+  phone: string,
+  company: string,
+  contactType: string,
+  tileFamily: string,
+  tileColor: string,
+  message: string,
+  uploadedFiles: string[],
+  submittedAt: string,
+  optInSms: boolean
+) {
   const query = `
-    INSERT INTO submissions (name, email, phone, company, contact_type, tile_family, tile_color, message, uploaded_files, submitted_at)
-    VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
-    RETURNING id`
-  const values = [name, email, phone, company, contactType, tileFamily, tileColor, message, JSON.stringify(uploadedFiles), submittedAt]
-  const result = await pool.query(query, values)
-  return result.rows[0].id
+    INSERT INTO submissions (name, email, phone, company, contact_type, tile_family, tile_color, message, uploaded_files, submitted_at, opt_in_sms)
+    VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
+    RETURNING id`;
+  const values = [name, email, phone, company, contactType, tileFamily, tileColor, message, JSON.stringify(uploadedFiles), submittedAt, optInSms];
+  const result = await pool.query(query, values);
+  return result.rows[0].id;
 }
 
 function renderTeamHtml(params: {
-  logoUrl: string
-  name: string
-  email: string
-  phone?: string
-  company?: string
-  contactType?: string
-  tileFamily?: string
-  tileColor?: string
-  message: string
-  submittedAt: string
-  attachmentsCount: number
+  logoUrl: string;
+  name: string;
+  email: string;
+  phone?: string;
+  company?: string;
+  contactType?: string;
+  tileFamily?: string;
+  tileColor?: string;
+  message: string;
+  submittedAt: string;
+  attachmentsCount: number;
 }) {
-  const { logoUrl, name, email, phone, company, contactType, tileFamily, tileColor, message, submittedAt, attachmentsCount } = params
+  const { logoUrl, name, email, phone, company, contactType, tileFamily, tileColor, message, submittedAt, attachmentsCount } = params;
   return `
   <table width="100%" cellpadding="0" cellspacing="0" style="background:#f6f6f6;padding:24px 0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;">
     <tr><td align="center">
@@ -64,22 +78,22 @@ function renderTeamHtml(params: {
         </tr>
       </table>
     </td></tr>
-  </table>`
+  </table>`;
 }
 
 function renderUserHtml(params: {
-  logoUrl: string
-  name: string
-  email: string
-  phone?: string
-  company?: string
-  contactType?: string
-  tileFamily?: string
-  tileColor?: string
-  message: string
-  submittedAt: string
+  logoUrl: string;
+  name: string;
+  email: string;
+  phone?: string;
+  company?: string;
+  contactType?: string;
+  tileFamily?: string;
+  tileColor?: string;
+  message: string;
+  submittedAt: string;
 }) {
-  const { logoUrl, name, email, phone, company, contactType, tileFamily, tileColor, message, submittedAt } = params
+  const { logoUrl, name, email, phone, company, contactType, tileFamily, tileColor, message, submittedAt } = params;
   return `
   <table width="100%" cellpadding="0" cellspacing="0" style="background:#f6f6f6;padding:24px 0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;">
     <tr><td align="center">
@@ -110,7 +124,7 @@ function renderUserHtml(params: {
         </tr>
       </table>
     </td></tr>
-  </table>`
+  </table>`;
 }
 
 // Convert uploaded File -> Resend attachment (using URLs)
@@ -120,69 +134,80 @@ async function fileToResendAttachment(fileData: { url: string; filename?: string
     content: "", // Not needed for URLs
     contentType: fileData.contentType || "application/octet-stream",
     path: fileData.url, // Use Blob URL
-  }
+  };
 }
 
 export async function POST(req: NextRequest) {
   try {
-    const formData = await req.formData()
+    const formData = await req.formData();
     // Fields
-    const name = formData.get("name")?.toString().trim() || ""
-    const email = formData.get("email")?.toString().trim() || ""
-    const phone = formData.get("phone")?.toString().trim() || ""
-    const company = formData.get("company")?.toString().trim() || ""
-    const contactType = formData.get("contactType")?.toString().trim() || ""
-    const tileFamily = formData.get("tileFamily")?.toString().trim() || ""
-    const tileColor = formData.get("tileColor")?.toString().trim() || ""
-    const message = formData.get("message")?.toString().trim() || ""
-    const privacyAccepted = formData.get("privacyAccepted") === "true" || formData.get("privacyAccepted") === "on"
-    // Files (from uploadedFiles JSON string)
-    const uploadedFiles = formData.get("uploadedFiles")
-    let attachments: any[] = []
-    const fileUrls: string[] = []
-    if (uploadedFiles) {
-      try {
-        const filesData = JSON.parse(uploadedFiles.toString())
-        if (Array.isArray(filesData)) {
-          for (const file of filesData) {
-            const attachment = await fileToResendAttachment(file)
-            attachments.push(attachment)
-            fileUrls.push(file.url)
+    const name = formData.get("name")?.toString().trim() || "";
+    const email = formData.get("email")?.toString().trim() || "";
+    const phone = formData.get("phone")?.toString().trim() || "";
+    const company = formData.get("company")?.toString().trim() || "";
+    const contactType = formData.get("contactType")?.toString().trim() || "";
+    const tileFamily = formData.get("tileFamily")?.toString().trim() || "";
+    const tileColor = formData.get("tileColor")?.toString().trim() || "";
+    const message = formData.get("message")?.toString().trim() || "";
+    const privacyAccepted = formData.get("privacyAccepted") === "true" || formData.get("privacyAccepted") === "on";
+    const smsOptIn = formData.get("smsOptIn") === "true" || formData.get("smsOptIn") === "on";
+
+    // Handle file uploads
+    const files = formData.getAll("uploadedFiles") as File[]; // Get all files from form
+    const fileUrls: string[] = [];
+    for (const file of files) {
+      if (file.size > 0) {
+        const form = new FormData();
+        form.append("file", file);
+        const uploadResponse = await fetch(`${getBaseUrl(req)}/api/blob/upload`, {
+          method: "POST",
+          body: form,
+        });
+        if (uploadResponse.ok) {
+          const result = await uploadResponse.json();
+          if (result.ok && result.url) {
+            fileUrls.push(result.url);
+          } else {
+            console.warn("[API] Blob upload failed:", result.error);
           }
+        } else {
+          console.warn("[API] Blob upload failed with status:", uploadResponse.status);
         }
-      } catch (e) {
-        console.warn("[API] Failed to parse uploadedFiles:", e)
       }
     }
+
     // Validation
-    const fieldErrors: Record<string, string[]> = {}
-    if (!name) fieldErrors.name = ["Name is required"]
-    if (!email) fieldErrors.email = ["Email is required"]
-    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) fieldErrors.email = ["Please enter a valid email address"]
-    if (!message) fieldErrors.message = ["Message is required"]
-    else if (message.length < 10) fieldErrors.message = ["Message must be at least 10 characters long"]
-    if (!contactType) fieldErrors.contactType = ["Please select your contact type"]
-    if (!privacyAccepted) fieldErrors.privacyAccepted = ["You must accept the Privacy Policy to continue"]
+    const fieldErrors: Record<string, string[]> = {};
+    if (!name) fieldErrors.name = ["Name is required"];
+    if (!email) fieldErrors.email = ["Email is required"];
+    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) fieldErrors.email = ["Please enter a valid email address"];
+    if (!message) fieldErrors.message = ["Message is required"];
+    else if (message.length < 10) fieldErrors.message = ["Message must be at least 10 characters long"];
+    if (!contactType) fieldErrors.contactType = ["Please select your contact type"];
+    if (!privacyAccepted) fieldErrors.privacyAccepted = ["You must accept the Privacy Policy to continue"];
     if (Object.keys(fieldErrors).length > 0) {
-      return NextResponse.json({ ok: false, message: "Please fix the errors below.", fieldErrors }, { status: 400 })
+      return NextResponse.json({ ok: false, message: "Please fix the errors below.", fieldErrors }, { status: 400 });
     }
+
     // Email env
-    const from = process.env.CONTACT_FROM
-    const to = (process.env.CONTACT_TO || "").split(",").map((s) => s.trim()).filter(Boolean)
+    const from = process.env.CONTACT_FROM;
+    const to = (process.env.CONTACT_TO || "").split(",").map((s) => s.trim()).filter(Boolean);
     if (!process.env.RESEND_API_KEY || !from || to.length === 0) {
-      return NextResponse.json({ ok: false, message: "Email service not configured." }, { status: 500 })
+      return NextResponse.json({ ok: false, message: "Email service not configured." }, { status: 500 });
     }
-    const baseUrl = getBaseUrl(req)
-    const logoUrl = `${baseUrl}/images/email-logo.png`
-    const submittedAt = new Date().toLocaleString("en-US", { timeZone: "America/New_York", hour12: true })
+    const baseUrl = getBaseUrl(req);
+    const logoUrl = `${baseUrl}/images/email-logo.png`;
+    const submittedAt = new Date().toLocaleString("en-US", { timeZone: "America/New_York", hour12: true });
+
     // Save to database
-    const submissionId = await saveSubmission(name, email, phone, company, contactType, tileFamily, tileColor, message, fileUrls, submittedAt)
-    console.log(`Submission saved with ID: ${submissionId}`)
+    const submissionId = await saveSubmission(name, email, phone, company, contactType, tileFamily, tileColor, message, fileUrls, submittedAt, smsOptIn);
+    console.log(`Submission saved with ID: ${submissionId}`);
+
     // Team email
     const teamEmail = await resend.emails.send({
       from,
       to,
-      subject: `Website Contact – ${name} (ID: ${submissionId})`,
+      subject: `Thank you ${name} - New Contact (ID: ${submissionId})`,
       reply_to: email,
       text: `New contact submission (submitted ${submittedAt}, ID: ${submissionId}):
 Name: ${name}
@@ -194,27 +219,51 @@ Tile Family: ${tileFamily || "-"}
 Tile Color: ${tileColor || "-"}
 Message:
 ${message}
-Attachments: ${attachments.length} file(s)
+Attachments: ${fileUrls.length} file(s)
 `,
       html: renderTeamHtml({
-        logoUrl, name, email, phone, company, contactType, tileFamily, tileColor, message, submittedAt,
-        attachmentsCount: attachments.length,
+        logoUrl,
+        name,
+        email,
+        phone,
+        company,
+        contactType,
+        tileFamily,
+        tileColor,
+        message,
+        submittedAt,
+        attachmentsCount: fileUrls.length,
       }),
-      attachments: attachments.length ? attachments : undefined,
-    })
+      attachments: fileUrls.length
+        ? fileUrls.map((url) =>
+            fileToResendAttachment({ url, filename: url.split("/").pop() || "unknown" })
+          )
+        : undefined,
+    });
+
     if (teamEmail.error) {
-      console.error("[API] Resend team email error:", teamEmail.error)
-      return NextResponse.json({ ok: false, message: "Failed to send email." }, { status: 502 })
+      console.error("[API] Resend team email error:", teamEmail.error);
+      return NextResponse.json({ ok: false, message: "Failed to send email." }, { status: 502 });
     }
-    // User confirmation (mirrors submission)
+
+    // User confirmation
     try {
       await resend.emails.send({
         from,
         to: [email],
         reply_to: to,
-        subject: "We received your message – Clay Roofing New York",
+        subject: `Thank you ${name} - Contact Received`,
         html: renderUserHtml({
-          logoUrl, name, email, phone, company, contactType, tileFamily, tileColor, message, submittedAt
+          logoUrl,
+          name,
+          email,
+          phone,
+          company,
+          contactType,
+          tileFamily,
+          tileColor,
+          message,
+          submittedAt,
         }),
         text: `Thanks, ${name}!
 We received your message on ${submittedAt} (ID: ${submissionId}).
@@ -231,16 +280,31 @@ Message:
 ${message}
 If this is urgent, call us at 212-365-4386.
 Clay Roofing New York`,
-      })
+      });
     } catch (err) {
-      console.warn("[API] User confirmation email failed:", err)
+      console.warn("[API] User confirmation email failed:", err);
     }
-    return NextResponse.json({ ok: true, message: "Thanks—your message was sent." })
+
+    // SMS opt-in handling
+    if (smsOptIn && phone) {
+      try {
+        await smsClient.messages.create({
+          body: `Thank you, ${name}! We'll send updates to ${phone}. Reply STOP to unsubscribe.`,
+          from: process.env.TWILIO_PHONE_NUMBER!,
+          to: phone,
+        });
+        console.log(`SMS sent to ${phone} (ID: ${submissionId})`);
+      } catch (smsError) {
+        console.error("SMS send failed:", smsError);
+      }
+    }
+
+    return NextResponse.json({ ok: true, message: "Thanks—your message was sent." });
   } catch (err) {
-    console.error("[API] Unexpected error:", err)
-    return NextResponse.json({ ok: false, message: "Something went wrong. Please try again later." }, { status: 500 })
+    console.error("[API] Unexpected error:", err);
+    return NextResponse.json({ ok: false, message: "Something went wrong. Please try again later." }, { status: 500 });
   }
 }
 
-export const dynamic = "force-dynamic"
-export const runtime = "nodejs"
+export const dynamic = "force-dynamic";
+export const runtime = "nodejs";
