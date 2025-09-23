@@ -139,6 +139,7 @@ function ContactForm() {
   } = useForm<ContactFormData>({
     resolver: zodResolver(contactFormSchema),
     shouldUnregister: false,
+    defaultValues: { privacyAccepted: false }, // Initialize with false
   })
   const watchedTileFamily = watch("tileFamily")
   const watchedContactType = watch("contactType")
@@ -184,7 +185,6 @@ function ContactForm() {
         const formEl = formRef.current
         if (!formEl) return
         const fd = new FormData(formEl)
-        // Use direct state for all uploaded files
         const combined = JSON.stringify([...docResults, ...photoResults])
         fd.set("uploadedFiles", combined)
         const res = await fetch("/api/contact", { method: "POST", body: fd })
@@ -326,6 +326,7 @@ function ContactForm() {
               {...register("privacyAccepted", { valueAsBoolean: true })}
               onChange={(e) => setValue("privacyAccepted", e.target.checked)}
               className="mt-1 h-4 w-4 rounded border-neutral-400 text-orange-600 focus:ring-orange-600"
+              defaultChecked={false}
             />
             <label htmlFor="privacyAccepted" className="text-sm text-neutral-700">
               I have read and accept the{" "}
