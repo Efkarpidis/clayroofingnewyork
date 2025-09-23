@@ -1,10 +1,23 @@
 // app/api/contact/route.ts
 import { NextResponse, type NextRequest } from "next/server"
 import { Resend } from "resend"
+import { Pool } from "pg"
+
 const resend = new Resend(process.env.RESEND_API_KEY)
+const pool = new Pool({ connectionString: process.env.DATABASE_URL })
 
 function getBaseUrl(req: NextRequest) {
   return req.nextUrl.origin.replace(/\/$/, "")
+}
+
+async function saveSubmission(name: string, email: string, phone: string, company: string, contactType: string, tileFamily: string, tileColor: string, message: string, uploadedFiles: string[], submittedAt: string) {
+  const query = `
+    INSERT INTO submissions (name, email, phone, company, contact_type, tile_family, tile_color, message, uploaded_files, submitted_at)
+    VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+    RETURNING id`
+  const values = [name, email, phone, company, contactType, tileFamily, tileColor, message, JSON.stringify(uploadedFiles), submittedAt]
+  const result = await pool.query(query, values)
+  return result.rows[0].id
 }
 
 function renderTeamHtml(params: {
@@ -20,9 +33,7 @@ function renderTeamHtml(params: {
   submittedAt: string
   attachmentsCount: number
 }) {
-  const {
-    logoUrl, name, email, phone, company, contactType, tileFamily, tileColor, message, submittedAt, attachmentsCount,
-  } = params
+  const { logoUrl, name, email, phone, company, contactType, tileFamily, tileColor, message, submittedAt, attachmentsCount } = params
   return `
   <table width="100%" cellpadding="0" cellspacing="0" style="background:#f6f6f6;padding:24px 0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;">
     <tr><td align="center">
@@ -82,9 +93,7 @@ function renderUserHtml(params: {
           <td style="padding:24px">
             <h2 style="margin:0 0 12px 0;color:#111">Thanks, ${name || "there"}!</h2>
             <p style="margin:0 0 12px 0;color:#444">We received your message on <strong>${submittedAt}</strong>.</p>
-            <p style="margin:0 0 12px 0;color:#444">
-              Our Client Relations Manager will contact you shortly. Below is a copy of what you sent:
-            </p>
+            <p style="margin:0 0 12px 0;color:#444">Our Client Relations Manager will contact you shortly. Below is a copy of what you sent:</p>
             <table cellpadding="0" cellspacing="0" style="width:100%;font-size:14px;color:#111;margin:12px 0 0 0">
               <tr><td style="padding:6px 0;width:160px;color:#666">Name</td><td>${name || "-"}</td></tr>
               <tr><td style="padding:6px 0;color:#666">Email</td><td>${email || "-"}</td></tr>
@@ -96,9 +105,7 @@ function renderUserHtml(params: {
             </table>
             <h3 style="margin:16px 0 8px 0;color:#111">Your Message</h3>
             <p style="white-space:pre-wrap;margin:0;color:#222">${(message || "").replace(/</g, "&lt;")}</p>
-            <p style="margin-top:24px;font-size:12px;color:#666">
-              If this is urgent, call us at <a href="tel:+12123654386" style="color:#ea580c;text-decoration:none">212-365-4386</a>.
-            </p>
+            <p style="margin-top:24px;font-size:12px;color:#666">If this is urgent, call us at <a href="tel:+12123654386" style="color:#ea580c;text-decoration:none">212-365-4386</a>.</p>
           </td>
         </tr>
       </table>
@@ -132,12 +139,15 @@ export async function POST(req: NextRequest) {
     // Files (from uploadedFiles JSON string)
     const uploadedFiles = formData.get("uploadedFiles")
     let attachments: any[] = []
+    const fileUrls: string[] = []
     if (uploadedFiles) {
       try {
         const filesData = JSON.parse(uploadedFiles.toString())
         if (Array.isArray(filesData)) {
           for (const file of filesData) {
-            attachments.push(await fileToResendAttachment(file))
+            const attachment = await fileToResendAttachment(file)
+            attachments.push(attachment)
+            fileUrls.push(file.url)
           }
         }
       } catch (e) {
@@ -165,13 +175,16 @@ export async function POST(req: NextRequest) {
     const baseUrl = getBaseUrl(req)
     const logoUrl = `${baseUrl}/images/email-logo.png`
     const submittedAt = new Date().toLocaleString("en-US", { timeZone: "America/New_York", hour12: true })
+    // Save to database
+    const submissionId = await saveSubmission(name, email, phone, company, contactType, tileFamily, tileColor, message, fileUrls, submittedAt)
+    console.log(`Submission saved with ID: ${submissionId}`)
     // Team email
     const teamEmail = await resend.emails.send({
       from,
       to,
-      subject: `Website Contact – ${name}`,
+      subject: `Website Contact – ${name} (ID: ${submissionId})`,
       reply_to: email,
-      text: `New contact submission (submitted ${submittedAt}):
+      text: `New contact submission (submitted ${submittedAt}, ID: ${submissionId}):
 Name: ${name}
 Email: ${email}
 Phone: ${phone || "-"}
@@ -204,7 +217,7 @@ Attachments: ${attachments.length} file(s)
           logoUrl, name, email, phone, company, contactType, tileFamily, tileColor, message, submittedAt
         }),
         text: `Thanks, ${name}!
-We received your message on ${submittedAt}.
+We received your message on ${submittedAt} (ID: ${submissionId}).
 Our Client Relations Manager will contact you shortly.
 Submission copy:
 Name: ${name}
