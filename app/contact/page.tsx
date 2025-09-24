@@ -408,7 +408,7 @@ function ContactForm() {
               ? "Please complete the required fields highlighted below."
               : state.message}
           </p>
-        )}
+        )
       </form>
     </>
   );
