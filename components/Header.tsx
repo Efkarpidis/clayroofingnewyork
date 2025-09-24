@@ -1,38 +1,37 @@
-"use client"
-
-import { useState, useEffect } from "react"
-import Image from "next/image"
-import Link from "next/link"
-import { usePathname } from "next/navigation"
-import { Button } from "@/components/ui/button"
+"use client";
+import { useState, useEffect } from "react";
+import Image from "next/image";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-import { Phone, ChevronDown } from "lucide-react"
+} from "@/components/ui/dropdown-menu";
+import { Phone, ChevronDown } from "lucide-react";
 
 export function Header() {
-  const [scrolled, setScrolled] = useState(false)
-  const pathname = usePathname()
+  const [scrolled, setScrolled] = useState(false);
+  const pathname = usePathname();
 
   const getCurrentPage = () => {
-    if (pathname === "/") return "home"
-    if (pathname === "/about") return "about"
-    if (pathname === "/contact") return "contact"
-    if (pathname === "/gallery") return "gallery"
-    if (pathname.startsWith("/tile-selection")) return "tile-selection"
-    return "home"
-  }
+    if (pathname === "/") return "home";
+    if (pathname === "/about") return "about";
+    if (pathname === "/contact") return "contact";
+    if (pathname === "/gallery") return "gallery";
+    if (pathname.startsWith("/tile-selection")) return "tile-selection";
+    return "home";
+  };
 
-  const currentPage = getCurrentPage()
+  const currentPage = getCurrentPage();
 
   useEffect(() => {
-    const handleScroll = () => setScrolled(window.scrollY > 50)
-    window.addEventListener("scroll", handleScroll)
-    return () => window.removeEventListener("scroll", handleScroll)
-  }, [])
+    const handleScroll = () => setScrolled(window.scrollY > 50);
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   return (
     <header className="sticky top-0 left-0 right-0 z-[1000]">
@@ -59,7 +58,6 @@ export function Header() {
             </Link>
           </div>
         </div>
-
         {/* Navigation Subheader - Full Width */}
         <div className="border-t border-gray-300 w-full bg-white shadow-md">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -72,7 +70,6 @@ export function Header() {
                 <Phone className="w-4 h-4 flex-shrink-0" />
                 <span>212-365-4386</span>
               </a>
-
               <Link
                 href="/gallery"
                 className={`px-3 py-2 text-sm font-medium rounded-md transition-colors ${
@@ -83,7 +80,6 @@ export function Header() {
               >
                 Projects
               </Link>
-
               <Link
                 href="/tile-selection"
                 className={`px-3 py-2 text-sm font-medium rounded-md transition-colors ${
@@ -94,7 +90,6 @@ export function Header() {
               >
                 Tile Selection
               </Link>
-
               <Link
                 href="/about"
                 className={`px-3 py-2 text-sm font-medium rounded-md transition-colors ${
@@ -105,7 +100,6 @@ export function Header() {
               >
                 About
               </Link>
-
               <Link
                 href="/contact"
                 className={`px-3 py-2 text-sm font-medium rounded-md transition-colors ${
@@ -116,7 +110,6 @@ export function Header() {
               >
                 Contact
               </Link>
-
               {currentPage !== "contact" && (
                 <Link href="/contact#quote">
                   <Button
@@ -128,7 +121,6 @@ export function Header() {
                 </Link>
               )}
             </nav>
-
             {/* Mobile Navigation Dropdown */}
             <div className="md:hidden w-full px-4 py-2">
               <DropdownMenu>
@@ -142,7 +134,6 @@ export function Header() {
                     <ChevronDown className="h-4 w-4" />
                   </Button>
                 </DropdownMenuTrigger>
-
                 <DropdownMenuContent align="center" sideOffset={8}>
                   <DropdownMenuItem asChild>
                     <a
@@ -153,7 +144,6 @@ export function Header() {
                       <span>Call: 212-365-4386</span>
                     </a>
                   </DropdownMenuItem>
-
                   <DropdownMenuItem asChild>
                     <Link
                       href="/"
@@ -164,7 +154,6 @@ export function Header() {
                       Home
                     </Link>
                   </DropdownMenuItem>
-
                   <DropdownMenuItem asChild>
                     <Link
                       href="/gallery"
@@ -175,7 +164,6 @@ export function Header() {
                       Projects
                     </Link>
                   </DropdownMenuItem>
-
                   <DropdownMenuItem asChild>
                     <Link
                       href="/tile-selection"
@@ -186,7 +174,6 @@ export function Header() {
                       Tile Selection
                     </Link>
                   </DropdownMenuItem>
-
                   <DropdownMenuItem asChild>
                     <Link
                       href="/about"
@@ -197,7 +184,6 @@ export function Header() {
                       About
                     </Link>
                   </DropdownMenuItem>
-
                   <DropdownMenuItem asChild>
                     <Link
                       href="/contact"
@@ -208,14 +194,14 @@ export function Header() {
                       Contact
                     </Link>
                   </DropdownMenuItem>
-
                   {currentPage !== "contact" && (
                     <DropdownMenuItem asChild>
                       <Link
                         href="/contact#quote"
                         className="flex items-center justify-center px-3 py-3 text-base font-bold text-white rounded-md cursor-pointer mt-2
-                                   bg-gradient-to-r from-brand-600 to-brand-700 hover:from-brand-700 hover:to-brand-800
-                                   data-[highlighted]:!bg-brand-700 data-[highlighted]:!text-white"
+                                 bg-gradient-to-r from-brand-600 to-brand-700 hover:from-brand-700 hover:to-brand-800
+                                 !important:bg-gradient-to-r !important:from-brand-600 !important:to-brand-700
+                                 !important:text-white min-h-[44px]"
                       >
                         Request Quote
                       </Link>
@@ -228,5 +214,5 @@ export function Header() {
         </div>
       </div>
     </header>
-  )
+  );
 }
