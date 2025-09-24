@@ -473,6 +473,12 @@ export default function ContactPage() {
                     <span className="text-sm">Email: chris@clayroofingnewyork.com</span>
                   </a>
                 </Button>
+                <Button variant="outline" className="w-full justify-start gap-3 h-auto py-3 px-4 text-base font-medium text-neutral-800 border-neutral-300 bg-white hover:bg-neutral-50">
+                  <a href="/api/vcard" download="clay_roofing_new_york.vcf" className="flex items-center gap-3">
+                    <img src="/icons/contact-icon.svg" alt="Contact" className="h-5 w-5" />
+                    <span>Save our contact</span>
+                  </a>
+                </Button>
               </div>
             </div>
           </div>
