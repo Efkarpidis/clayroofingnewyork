@@ -20,6 +20,10 @@ type BlobItem = {
 
 const formatMB = (bytes: number) => Math.round((bytes / (1024 * 1024)) * 10) / 10;
 
+// ---- Phone constants (single source of truth) ----
+const PHONE_E164 = "+12123654386"; // tel/sms use +E.164
+const PHONE_DIGITS = "12123654386"; // WhatsApp wa.me requires digits only (no +)
+
 const contactFormSchema = z.object({
   name: z.string().min(2, { message: "Please enter your full name." }),
   email: z.string().email({ message: "Please enter a valid email address." }),
@@ -82,7 +86,7 @@ const FormSelect = ({ children, ...props }: React.ComponentProps<"select">) => (
       {...props}
       className="block w-full h-11 rounded-xl border border-neutral-200 bg-white px-3 py-2 text-base text-neutral-900 shadow-sm appearance-none focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20 focus:outline-none hover:border-neutral-300 transition-colors cursor-pointer"
       style={{
-        backgroundImage: `url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' strokeLinecap='round' strokeLinejoin='round' strokeWidth='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e")`,
+        backgroundImage: `url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e")`,
         backgroundPosition: "right 12px center",
         backgroundRepeat: "no-repeat",
         backgroundSize: "16px",
@@ -132,6 +136,7 @@ function ContactForm() {
   const photoBytes = photoResults.reduce((s, r) => s + (r.size || 0), 0);
   const totalBytes = docBytes + photoBytes;
   const totalCount = docResults.length + photoResults.length;
+
   const {
     register,
     handleSubmit,
@@ -145,6 +150,7 @@ function ContactForm() {
     shouldUnregister: false,
     defaultValues: { privacyAccepted: false },
   });
+
   const watchedTileFamily = watch("tileFamily");
   const watchedContactType = watch("contactType");
 
@@ -192,7 +198,7 @@ function ContactForm() {
         const res = await fetch("/api/contact", { method: "POST", body: fd });
         const data = await res.json().catch(() => ({ ok: false }));
         if (res.ok && data.ok && fd.get("smsOptIn") === "true" && fd.get("phone")) {
-          setShowCodeInput(true); // Show code input for SMS opt-in
+          setShowCodeInput(true);
         } else if (data.fieldErrors) {
           Object.entries(data.fieldErrors).forEach(([field, messages]: any) => {
             if (messages?.[0]) setError(field as keyof ContactFormData, { type: "server", message: messages[0] });
@@ -259,9 +265,11 @@ function ContactForm() {
         <FieldWrapper id="name" label="Name" required error={errors.name?.message || state.errors?.name?.[0]}>
           <FormInput {...register("name")} placeholder="Cocoa Clay" />
         </FieldWrapper>
+
         <FieldWrapper id="email" label="Email" required error={errors.email?.message || state.errors?.email?.[0]}>
           <FormInput {...register("email")} type="email" placeholder="cocoa@example.com" />
         </FieldWrapper>
+
         <FieldWrapper id="phone" label="Phone" error={errors.phone?.message || state.errors?.phone?.[0]}>
           <PhoneInput
             {...register("phone")}
@@ -271,9 +279,11 @@ function ContactForm() {
             className="block w-full h-11 rounded-xl border border-neutral-200 bg-white px-3 py-2 text-base text-neutral-900 shadow-sm focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20 focus:outline-none hover:border-neutral-300 transition-colors placeholder:text-neutral-400"
           />
         </FieldWrapper>
+
         <FieldWrapper id="company" label="Company" error={errors.company?.message || state.errors?.company?.[0]}>
           <FormInput {...register("company")} placeholder="Cocoa's Roofing Company" />
         </FieldWrapper>
+
         <FieldWrapper id="contactType" label="I am a" required error={errors.contactType?.message || state.errors?.contactType?.[0]}>
           <FormSelect
             {...register("contactType")}
@@ -290,6 +300,7 @@ function ContactForm() {
             <option value="other">Other</option>
           </FormSelect>
         </FieldWrapper>
+
         <FieldWrapper id="tileFamily" label="Tile Family" error={errors.tileFamily?.message || state.errors?.tileFamily?.[0]}>
           <FormSelect
             {...register("tileFamily")}
@@ -305,6 +316,7 @@ function ContactForm() {
             <option value="Request">Request</option>
           </FormSelect>
         </FieldWrapper>
+
         {selectedTileFamily && (
           <FieldWrapper id="tileColor" label="Tile Color" error={errors.tileColor?.message || state.errors?.tileColor?.[0]}>
             <FormSelect {...register("tileColor")}>
@@ -317,9 +329,11 @@ function ContactForm() {
             </FormSelect>
           </FieldWrapper>
         )}
+
         <FieldWrapper id="message" label="Message" required error={errors.message?.message || state.errors?.message?.[0]}>
           <FormTextarea {...register("message")} rows={4} placeholder="Type your message here." />
         </FieldWrapper>
+
         <FieldWrapper id="files" label="Attach Documents">
           <VercelBlobUploader
             multiple
@@ -334,6 +348,7 @@ function ContactForm() {
             </span>
           </div>
         </FieldWrapper>
+
         <FieldWrapper id="photos" label="Upload Photo">
           <VercelBlobUploader
             multiple
@@ -353,6 +368,7 @@ function ContactForm() {
             </span>
           </div>
         </FieldWrapper>
+
         <div className="space-y-2">
           <div className="flex items-start gap-3">
             <input
@@ -377,6 +393,7 @@ function ContactForm() {
             </p>
           )}
         </div>
+
         <div className="space-y-2">
           <label className="flex items-center text-sm text-neutral-700">
             <input
@@ -388,6 +405,7 @@ function ContactForm() {
             Yes, send me updates via text (Reply STOP to unsubscribe)
           </label>
         </div>
+
         <button
           type="submit"
           disabled={isPending}
@@ -402,6 +420,7 @@ function ContactForm() {
             "Submit"
           )}
         </button>
+
         {!state.success && state.message && (
           <p className="text-center text-sm text-red-600">
             {state.message === "Please fix the errors below."
@@ -441,53 +460,105 @@ export default function ContactPage() {
           <p className="mt-2 max-w-2xl mx-auto text-base sm:text-lg text-neutral-600">
             Have a question or need a quote? We're here to help.
           </p>
-          <p className="mt-1 text-sm text-neutral-500 italic">We proudly back our installations with warranties up to 100 years.</p>
+          <p className="mt-1 text-sm text-neutral-500 italic">
+            We proudly back our installations with warranties up to 100 years.
+          </p>
         </div>
+
         <div className="grid grid-cols-1 gap-8 lg:gap-16 lg:grid-cols-2">
+          {/* Left: Quick actions */}
           <div className="bg-gradient-to-br from-orange-50 to-orange-100 rounded-xl p-6 sm:p-8 space-y-6">
             <div>
               <h2 className="text-xl font-semibold text-neutral-900 mb-4">Get in Touch</h2>
               <p className="text-sm text-neutral-500 mb-4">Tap an option to get in touch</p>
+
               <div className="space-y-4">
-                <Button variant="outline" className="w-full justify-start gap-3 h-auto py-3 px-4 text-base font-medium text-neutral-800 border-neutral-300 bg-white hover:bg-neutral-50">
-                  <a href="tel:+12123654386" className="flex items-center gap-3">
-                    <img src="/icons/phone-icon.svg" alt="Phone" className="h-5 w-5" />
-                    <span>Call: 212-365-4386</span>
+                {/* Call */}
+                <Button
+                  asChild
+                  variant="outline"
+                  className="w-full justify-start gap-3 h-auto py-3 px-4 text-base font-medium text-neutral-800 border-neutral-300 bg-white hover:bg-neutral-50"
+                >
+                  <a href={`tel:${PHONE_E164}`} aria-label="Call Clay Roofing New York">
+                    <div className="flex items-center gap-3">
+                      <img src="/icons/phone-icon.svg" alt="" className="h-5 w-5" />
+                      <span>212-365-4386</span>
+                    </div>
                   </a>
                 </Button>
-                <Button variant="outline" className="w-full justify-start gap-3 h-auto py-3 px-4 text-base font-medium text-neutral-800 border-neutral-300 bg-white hover:bg-neutral-50">
-                  <a href="sms:+12123654386" className="flex items-center gap-3">
-                    <img src="/icons/imessage-icon.svg" alt="iMessage" className="h-5 w-5" />
-                    <span>Text: 212-365-4386</span>
+
+                {/* Text / SMS */}
+                <Button
+                  asChild
+                  variant="outline"
+                  className="w-full justify-start gap-3 h-auto py-3 px-4 text-base font-medium text-neutral-800 border-neutral-300 bg-white hover:bg-neutral-50"
+                >
+                  <a href={`sms:${PHONE_E164}`} aria-label="Text Clay Roofing New York">
+                    <div className="flex items-center gap-3">
+                      <img src="/icons/imessage-icon.svg" alt="" className="h-5 w-5" />
+                      <span>212-365-4386</span>
+                    </div>
                   </a>
                 </Button>
-                <Button variant="outline" className="w-full justify-start gap-3 h-auto py-3 px-4 text-base font-medium text-neutral-800 border-neutral-300 bg-white hover:bg-neutral-50">
-                  <a href="https://wa.me/12123654386" target="_blank" rel="noopener noreferrer" className="flex items-center gap-3">
-                    <img src="/icons/whats-app-icon.svg" alt="WhatsApp" className="h-5 w-5" />
-                    <span>WhatsApp: 212-365-4386</span>
+
+                {/* WhatsApp (digits only) */}
+                <Button
+                  asChild
+                  variant="outline"
+                  className="w-full justify-start gap-3 h-auto py-3 px-4 text-base font-medium text-neutral-800 border-neutral-300 bg-white hover:bg-neutral-50"
+                >
+                  <a
+                    href={`https://wa.me/${PHONE_DIGITS}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label="WhatsApp Clay Roofing New York"
+                  >
+                    <div className="flex items-center gap-3">
+                      <img src="/icons/whats-app-icon.svg" alt="" className="h-5 w-5" />
+                      <span>212-365-4386</span>
+                    </div>
                   </a>
                 </Button>
-                <Button variant="outline" className="w-full justify-start gap-3 h-auto py-3 px-4 text-base font-medium text-neutral-800 border-neutral-300 bg-white hover:bg-neutral-50">
-                  <a href="mailto:chris@clayroofingnewyork.com" className="flex items-center gap-3">
-                    <img src="/icons/mail-icon.svg" alt="Email" className="h-5 w-5" />
-                    <span>Email: chris@clayroofingnewyork.com</span>
+
+                {/* Email */}
+                <Button
+                  asChild
+                  variant="outline"
+                  className="w-full justify-start gap-3 h-auto py-3 px-4 text-base font-medium text-neutral-800 border-neutral-300 bg-white hover:bg-neutral-50"
+                >
+                  <a href="mailto:chris@clayroofingnewyork.com" aria-label="Email Clay Roofing New York">
+                    <div className="flex items-center gap-3">
+                      <img src="/icons/mail-icon.svg" alt="" className="h-5 w-5" />
+                      <span>chris@clayroofingnewyork.com</span>
+                    </div>
                   </a>
                 </Button>
-                <Button variant="outline" className="w-full justify-start gap-3 h-auto py-3 px-4 text-base font-medium text-neutral-800 border-neutral-300 bg-white hover:bg-neutral-50">
-                  <a href="/api/vcard" download="clay_roofing_new_york.vcf" className="flex items-center gap-3">
-                    <img src="/images/CRNY_Logo_1.png" alt="Contact" className="h-5 w-5" />
-                    <span>Save our contact</span>
+
+                {/* vCard download */}
+                <Button
+                  asChild
+                  variant="outline"
+                  className="w-full justify-start gap-3 h-auto py-3 px-4 text-base font-medium text-neutral-800 border-neutral-300 bg-white hover:bg-neutral-50"
+                >
+                  <a href="/api/vcard" download="clay_roofing_new_york.vcf" aria-label="Add Clay Roofing New York to contacts">
+                    <div className="flex items-center gap-3">
+                      <img src="/images/CRNY_Logo_1.png" alt="" className="h-5 w-5" />
+                      <span>Add our full contact</span>
+                    </div>
                   </a>
                 </Button>
               </div>
             </div>
           </div>
+
+          {/* Right: Contact form */}
           <div className="bg-white rounded-xl border border-neutral-200 p-6 sm:p-8">
             <h2 className="text-xl font-semibold text-neutral-900 mb-6">Send us a message</h2>
             <ContactForm />
           </div>
         </div>
       </main>
+
       <footer className="border-t border-neutral-200 bg-neutral-50">
         <div className="max-w-7xl mx-auto px-4 py-6 space-y-4 text-center text-neutral-500">
           <p>&copy; {new Date().getFullYear()} Clay Roofs New York. All Rights Reserved.</p>
