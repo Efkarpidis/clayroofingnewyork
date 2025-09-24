@@ -1,5 +1,5 @@
 // app/api/contact/route.ts
-import { NextResponse, type NextRequest } from "next/server";
+import { NextResponse, NextRequest } from "next/server";
 import { Resend } from "resend";
 import { Pool } from "pg";
 import twilio from "twilio";
@@ -30,8 +30,13 @@ async function saveSubmission(
     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
     RETURNING id`;
   const values = [name, email, phone, company, contactType, tileFamily, tileColor, message, JSON.stringify(uploadedFiles), submittedAt, optInSms];
-  const result = await pool.query(query, values);
-  return result.rows[0].id;
+  try {
+    const result = await pool.query(query, values);
+    return result.rows[0].id;
+  } catch (dbError) {
+    console.error("Database error:", dbError);
+    throw dbError;
+  }
 }
 
 function renderTeamHtml(params: {
@@ -52,30 +57,24 @@ function renderTeamHtml(params: {
   <table width="100%" cellpadding="0" cellspacing="0" style="background:#f6f6f6;padding:24px 0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;">
     <tr><td align="center">
       <table width="640" cellpadding="0" cellspacing="0" style="background:#ffffff;border-radius:12px;overflow:hidden">
-        <tr>
-          <td style="background:#111;padding:16px 24px" align="left">
-            <img src="${logoUrl}" alt="Clay Roofing New York" height="40" style="display:block">
-          </td>
-        </tr>
-        <tr>
-          <td style="padding:24px">
-            <h2 style="margin:0 0 12px 0;color:#111">New Contact Submission</h2>
-            <p style="margin:0 0 16px 0;color:#444">Submitted ${submittedAt}</p>
-            <table cellpadding="0" cellspacing="0" style="width:100%;font-size:14px;color:#111">
-              <tr><td style="padding:6px 0;width:160px;color:#666">Name</td><td>${name || "-"}</td></tr>
-              <tr><td style="padding:6px 0;color:#666">Email</td><td>${email || "-"}</td></tr>
-              <tr><td style="padding:6px 0;color:#666">Phone</td><td>${phone || "-"}</td></tr>
-              <tr><td style="padding:6px 0;color:#666">Company</td><td>${company || "-"}</td></tr>
-              <tr><td style="padding:6px 0;color:#666">Contact Type</td><td>${contactType || "-"}</td></tr>
-              <tr><td style="padding:6px 0;color:#666">Tile Family</td><td>${tileFamily || "-"}</td></tr>
-              <tr><td style="padding:6px 0;color:#666">Tile Color</td><td>${tileColor || "-"}</td></tr>
-              <tr><td style="padding:6px 0;color:#666">Attachments</td><td>${attachmentsCount} file(s)</td></tr>
-            </table>
-            <h3 style="margin:20px 0 8px 0;color:#111">Message</h3>
-            <p style="white-space:pre-wrap;margin:0;color:#222">${(message || "").replace(/</g, "&lt;")}</p>
-            <p style="margin-top:24px;font-size:12px;color:#666">Sent automatically from clayroofingnewyork.com</p>
-          </td>
-        </tr>
+        <tr><td style="background:#111;padding:16px 24px" align="left"><img src="${logoUrl}" alt="Clay Roofing New York" height="40" style="display:block"></td></tr>
+        <tr><td style="padding:24px">
+          <h2 style="margin:0 0 12px 0;color:#111">New Contact Submission</h2>
+          <p style="margin:0 0 16px 0;color:#444">Submitted ${submittedAt}</p>
+          <table cellpadding="0" cellspacing="0" style="width:100%;font-size:14px;color:#111">
+            <tr><td style="padding:6px 0;width:160px;color:#666">Name</td><td>${name || "-"}</td></tr>
+            <tr><td style="padding:6px 0;color:#666">Email</td><td>${email || "-"}</td></tr>
+            <tr><td style="padding:6px 0;color:#666">Phone</td><td>${phone || "-"}</td></tr>
+            <tr><td style="padding:6px 0;color:#666">Company</td><td>${company || "-"}</td></tr>
+            <tr><td style="padding:6px 0;color:#666">Contact Type</td><td>${contactType || "-"}</td></tr>
+            <tr><td style="padding:6px 0;color:#666">Tile Family</td><td>${tileFamily || "-"}</td></tr>
+            <tr><td style="padding:6px 0;color:#666">Tile Color</td><td>${tileColor || "-"}</td></tr>
+            <tr><td style="padding:6px 0;color:#666">Attachments</td><td>${attachmentsCount} file(s)</td></tr>
+          </table>
+          <h3 style="margin:20px 0 8px 0;color:#111">Message</h3>
+          <p style="white-space:pre-wrap;margin:0;color:#222">${(message || "").replace(/</g, "&lt;")}</p>
+          <p style="margin-top:24px;font-size:12px;color:#666">Sent automatically from clayroofingnewyork.com</p>
+        </td></tr>
       </table>
     </td></tr>
   </table>`;
@@ -98,49 +97,42 @@ function renderUserHtml(params: {
   <table width="100%" cellpadding="0" cellspacing="0" style="background:#f6f6f6;padding:24px 0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;">
     <tr><td align="center">
       <table width="640" cellpadding="0" cellspacing="0" style="background:#ffffff;border-radius:12px;overflow:hidden">
-        <tr>
-          <td style="background:#111;padding:16px 24px" align="left">
-            <img src="${logoUrl}" alt="Clay Roofing New York" height="40" style="display:block">
-          </td>
-        </tr>
-        <tr>
-          <td style="padding:24px">
-            <h2 style="margin:0 0 12px 0;color:#111">Thanks, ${name || "there"}!</h2>
-            <p style="margin:0 0 12px 0;color:#444">We received your message on <strong>${submittedAt}</strong>.</p>
-            <p style="margin:0 0 12px 0;color:#444">Our Client Relations Manager will contact you shortly. Below is a copy of what you sent:</p>
-            <table cellpadding="0" cellspacing="0" style="width:100%;font-size:14px;color:#111;margin:12px 0 0 0">
-              <tr><td style="padding:6px 0;width:160px;color:#666">Name</td><td>${name || "-"}</td></tr>
-              <tr><td style="padding:6px 0;color:#666">Email</td><td>${email || "-"}</td></tr>
-              <tr><td style="padding:6px 0;color:#666">Phone</td><td>${phone || "-"}</td></tr>
-              <tr><td style="padding:6px 0;color:#666">Company</td><td>${company || "-"}</td></tr>
-              <tr><td style="padding:6px 0;color:#666">Contact Type</td><td>${contactType || "-"}</td></tr>
-              <tr><td style="padding:6px 0;color:#666">Tile Family</td><td>${tileFamily || "-"}</td></tr>
-              <tr><td style="padding:6px 0;color:#666">Tile Color</td><td>${tileColor || "-"}</td></tr>
-            </table>
-            <h3 style="margin:16px 0 8px 0;color:#111">Your Message</h3>
-            <p style="white-space:pre-wrap;margin:0;color:#222">${(message || "").replace(/</g, "&lt;")}</p>
-            <p style="margin-top:24px;font-size:12px;color:#666">If this is urgent, call us at <a href="tel:+12123654386" style="color:#ea580c;text-decoration:none">212-365-4386</a>.</p>
-          </td>
-        </tr>
+        <tr><td style="background:#111;padding:16px 24px" align="left"><img src="${logoUrl}" alt="Clay Roofing New York" height="40" style="display:block"></td></tr>
+        <tr><td style="padding:24px">
+          <h2 style="margin:0 0 12px 0;color:#111">Thanks, ${name || "there"}!</h2>
+          <p style="margin:0 0 12px 0;color:#444">We received your message on <strong>${submittedAt}</strong>.</p>
+          <p style="margin:0 0 12px 0;color:#444">Our Client Relations Manager will contact you shortly. Below is a copy of what you sent:</p>
+          <table cellpadding="0" cellspacing="0" style="width:100%;font-size:14px;color:#111;margin:12px 0 0 0">
+            <tr><td style="padding:6px 0;width:160px;color:#666">Name</td><td>${name || "-"}</td></tr>
+            <tr><td style="padding:6px 0;color:#666">Email</td><td>${email || "-"}</td></tr>
+            <tr><td style="padding:6px 0;color:#666">Phone</td><td>${phone || "-"}</td></tr>
+            <tr><td style="padding:6px 0;color:#666">Company</td><td>${company || "-"}</td></tr>
+            <tr><td style="padding:6px 0;color:#666">Contact Type</td><td>${contactType || "-"}</td></tr>
+            <tr><td style="padding:6px 0;color:#666">Tile Family</td><td>${tileFamily || "-"}</td></tr>
+            <tr><td style="padding:6px 0;color:#666">Tile Color</td><td>${tileColor || "-"}</td></tr>
+          </table>
+          <h3 style="margin:16px 0 8px 0;color:#111">Your Message</h3>
+          <p style="white-space:pre-wrap;margin:0;color:#222">${(message || "").replace(/</g, "&lt;")}</p>
+          <p style="margin-top:24px;font-size:12px;color:#666">If this is urgent, call us at <a href="tel:+12123654386" style="color:#ea580c;text-decoration:none">212-365-4386</a>.</p>
+        </td></tr>
       </table>
     </td></tr>
   </table>`;
 }
 
-// Convert uploaded File -> Resend attachment (using URLs)
 async function fileToResendAttachment(fileData: { url: string; filename?: string; contentType?: string }) {
   return {
     filename: fileData.filename || fileData.url.split("/").pop() || "unknown",
-    content: "", // Not needed for URLs
+    content: "",
     contentType: fileData.contentType || "application/octet-stream",
-    path: fileData.url, // Use Blob URL
+    path: fileData.url,
   };
 }
 
 export async function POST(req: NextRequest) {
   try {
     const formData = await req.formData();
-    // Fields
+    console.log("FormData received:", Object.fromEntries(formData)); // Debug
     const name = formData.get("name")?.toString().trim() || "";
     const email = formData.get("email")?.toString().trim() || "";
     const phone = formData.get("phone")?.toString().trim() || "";
@@ -153,7 +145,7 @@ export async function POST(req: NextRequest) {
     const smsOptIn = formData.get("smsOptIn") === "true" || formData.get("smsOptIn") === "on";
 
     // Handle file uploads
-    const files = formData.getAll("uploadedFiles") as File[]; // Get all files from form
+    const files = formData.getAll("uploadedFiles") as File[];
     const fileUrls: string[] = [];
     for (const file of files) {
       if (file.size > 0) {
@@ -175,6 +167,7 @@ export async function POST(req: NextRequest) {
         }
       }
     }
+    console.log("File URLs:", fileUrls); // Debug
 
     // Validation
     const fieldErrors: Record<string, string[]> = {};
@@ -203,24 +196,28 @@ export async function POST(req: NextRequest) {
     const submissionId = await saveSubmission(name, email, phone, company, contactType, tileFamily, tileColor, message, fileUrls, submittedAt, smsOptIn);
     console.log(`Submission saved with ID: ${submissionId}`);
 
+    // Twilio Verify for user phone
+    let isVerified = false;
+    if (smsOptIn && phone) {
+      try {
+        // Start verification
+        await smsClient.verify.v2.services("VA0aba966fb38fe81d6f1556ab02ef1d80").verifications.create({ to: phone, channel: "sms" });
+        console.log(`Verification sent to ${phone}`);
+        // For now, assume manual verification (update page.tsx to automate)
+        isVerified = true; // Placeholder—will be set via user code entry
+      } catch (verifyError) {
+        console.error("Verification failed:", verifyError);
+        return NextResponse.json({ ok: false, message: "Phone verification failed. Try again." }, { status: 400 });
+      }
+    }
+
     // Team email
     const teamEmail = await resend.emails.send({
       from,
       to,
       subject: `Thank you ${name} - New Contact (ID: ${submissionId})`,
       reply_to: email,
-      text: `New contact submission (submitted ${submittedAt}, ID: ${submissionId}):
-Name: ${name}
-Email: ${email}
-Phone: ${phone || "-"}
-Company: ${company || "-"}
-Contact Type: ${contactType || "-"}
-Tile Family: ${tileFamily || "-"}
-Tile Color: ${tileColor || "-"}
-Message:
-${message}
-Attachments: ${fileUrls.length} file(s)
-`,
+      text: `New contact submission (submitted ${submittedAt}, ID: ${submissionId}):\nName: ${name}\nEmail: ${email}\nPhone: ${phone || "-"}\nCompany: ${company || "-"}\nContact Type: ${contactType || "-"}\nTile Family: ${tileFamily || "-"}\nTile Color: ${tileColor || "-"}\nMessage:\n${message}\nAttachments: ${fileUrls.length} file(s)`,
       html: renderTeamHtml({
         logoUrl,
         name,
@@ -235,9 +232,7 @@ Attachments: ${fileUrls.length} file(s)
         attachmentsCount: fileUrls.length,
       }),
       attachments: fileUrls.length
-        ? fileUrls.map((url) =>
-            fileToResendAttachment({ url, filename: url.split("/").pop() || "unknown" })
-          )
+        ? fileUrls.map((url) => fileToResendAttachment({ url, filename: url.split("/").pop() || "unknown" }))
         : undefined,
     });
 
@@ -265,28 +260,14 @@ Attachments: ${fileUrls.length} file(s)
           message,
           submittedAt,
         }),
-        text: `Thanks, ${name}!
-We received your message on ${submittedAt} (ID: ${submissionId}).
-Our Client Relations Manager will contact you shortly.
-Submission copy:
-Name: ${name}
-Email: ${email}
-Phone: ${phone || "-"}
-Company: ${company || "-"}
-Contact Type: ${contactType || "-"}
-Tile Family: ${tileFamily || "-"}
-Tile Color: ${tileColor || "-"}
-Message:
-${message}
-If this is urgent, call us at 212-365-4386.
-Clay Roofing New York`,
+        text: `Thanks, ${name}!\nWe received your message on ${submittedAt} (ID: ${submissionId}).\nOur Client Relations Manager will contact you shortly.\nSubmission copy:\nName: ${name}\nEmail: ${email}\nPhone: ${phone || "-"}\nCompany: ${company || "-"}\nContact Type: ${contactType || "-"}\nTile Family: ${tileFamily || "-"}\nTile Color: ${tileColor || "-"}\nMessage:\n${message}\nIf this is urgent, call us at 212-365-4386.\nClay Roofing New York`,
       });
     } catch (err) {
       console.warn("[API] User confirmation email failed:", err);
     }
 
-    // SMS opt-in handling
-    if (smsOptIn && phone) {
+    // SMS opt-in handling (after verification)
+    if (smsOptIn && phone && isVerified) {
       try {
         await smsClient.messages.create({
           body: `Thank you, ${name}! We'll send updates to ${phone}. Reply STOP to unsubscribe.`,
@@ -299,10 +280,27 @@ Clay Roofing New York`,
       }
     }
 
-    return NextResponse.json({ ok: true, message: "Thanks—your message was sent." });
+    return NextResponse.json({ ok: true, message: "Thanks—your message was sent. Verify your phone if opting in." });
   } catch (err) {
     console.error("[API] Unexpected error:", err);
-    return NextResponse.json({ ok: false, message: "Something went wrong. Please try again later." }, { status: 500 });
+    return NextResponse.json({ ok: false, message: "Something went wrong. Please try again later.", error: err.message }, { status: 500 });
+  }
+}
+
+// Verify endpoint (separate route for code check)
+export async function verify(req: NextRequest) {
+  const { phone, code } = await req.json();
+  try {
+    const verificationCheck = await smsClient.verify.v2
+      .services("VA0aba966fb38fe81d6f1556ab02ef1d80")
+      .verificationChecks.create({ to: phone, code });
+    if (verificationCheck.status === "approved") {
+      return NextResponse.json({ ok: true, message: "Phone verified" });
+    }
+    return NextResponse.json({ ok: false, message: "Invalid verification code" }, { status: 400 });
+  } catch (err) {
+    console.error("Verify error:", err);
+    return NextResponse.json({ ok: false, message: "Verification failed" }, { status: 500 });
   }
 }
 

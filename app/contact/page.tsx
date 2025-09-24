@@ -6,6 +6,8 @@ import { Check } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
+import PhoneInput from "react-phone-number-input";
+import "react-phone-number-input/style.css";
 import VercelBlobUploader from "@/components/upload/VercelBlobUploader";
 
 type BlobItem = {
@@ -124,6 +126,8 @@ function ContactForm() {
   const [showToast, setShowToast] = useState(false);
   const [docResults, setDocResults] = useState<BlobItem[]>([]);
   const [photoResults, setPhotoResults] = useState<BlobItem[]>([]);
+  const [verificationCode, setVerificationCode] = useState("");
+  const [showCodeInput, setShowCodeInput] = useState(false);
   const docBytes = docResults.reduce((s, r) => s + (r.size || 0), 0);
   const photoBytes = photoResults.reduce((s, r) => s + (r.size || 0), 0);
   const totalBytes = docBytes + photoBytes;
@@ -179,26 +183,22 @@ function ContactForm() {
     }
   }, [state.success, reset]);
 
-  const onSubmit = async () => {
+  const onSubmit = async (data: ContactFormData) => {
     startTransition(async () => {
       try {
         const formEl = formRef.current;
         if (!formEl) return;
         const fd = new FormData(formEl);
-        const combined = JSON.stringify([...docResults, ...photoResults]);
-        fd.set("uploadedFiles", combined); // This was the original intent—now handled in route.ts
         const res = await fetch("/api/contact", { method: "POST", body: fd });
         const data = await res.json().catch(() => ({ ok: false }));
-        if (res.ok && data.ok) {
-          setState({ message: "Thanks—your message was sent.", success: true });
-        } else {
-          if (data.fieldErrors) {
-            Object.entries(data.fieldErrors).forEach(([field, messages]: any) => {
-              if (messages?.[0]) setError(field as keyof ContactFormData, { type: "server", message: messages[0] });
-            });
-          }
-          setState({ message: data.message || "Please complete the required fields highlighted below.", success: false, errors: data.fieldErrors });
+        if (res.ok && data.ok && fd.get("smsOptIn") === "true" && fd.get("phone")) {
+          setShowCodeInput(true); // Show code input for SMS opt-in
+        } else if (data.fieldErrors) {
+          Object.entries(data.fieldErrors).forEach(([field, messages]: any) => {
+            if (messages?.[0]) setError(field as keyof ContactFormData, { type: "server", message: messages[0] });
+          });
         }
+        setState(data);
       } catch (e) {
         console.error("[Contact] submit error", e);
         setState({ message: "Network error. Please try again.", success: false });
@@ -220,6 +220,35 @@ function ContactForm() {
 
   return (
     <>
+      {showCodeInput && (
+        <FieldWrapper id="verificationCode" label="Enter Verification Code" required error={errors.phone?.message}>
+          <FormInput
+            value={verificationCode}
+            onChange={(e) => setVerificationCode(e.target.value)}
+            placeholder="123456"
+          />
+          <Button
+            type="button"
+            onClick={async () => {
+              const verifyRes = await fetch("/api/contact/verify", {
+                method: "POST",
+                body: JSON.stringify({ phone: watch("phone"), code: verificationCode }),
+                headers: { "Content-Type": "application/json" },
+              });
+              const verifyData = await verifyRes.json();
+              if (verifyRes.ok && verifyData.ok) {
+                setShowCodeInput(false);
+                setState({ message: "Phone verified. SMS will be sent.", success: true });
+              } else {
+                setError("phone", { type: "server", message: verifyData.message || "Invalid code" });
+              }
+            }}
+            className="mt-2"
+          >
+            Verify
+          </Button>
+        </FieldWrapper>
+      )}
       {showToast && (
         <div className="fixed top-4 right-4 z-50 bg-green-600 text-white px-6 py-3 rounded-lg shadow-lg flex items-center gap-2">
           <Check className="h-5 w-5" />
@@ -234,7 +263,13 @@ function ContactForm() {
           <FormInput {...register("email")} type="email" placeholder="cocoa@example.com" />
         </FieldWrapper>
         <FieldWrapper id="phone" label="Phone" error={errors.phone?.message || state.errors?.phone?.[0]}>
-          <FormInput {...register("phone")} type="tel" placeholder="(718) 000-0000" />
+          <PhoneInput
+            {...register("phone")}
+            international
+            defaultCountry="US"
+            placeholder="(718) 000-0000"
+            className="block w-full h-11 rounded-xl border border-neutral-200 bg-white px-3 py-2 text-base text-neutral-900 shadow-sm focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20 focus:outline-none hover:border-neutral-300 transition-colors placeholder:text-neutral-400"
+          />
         </FieldWrapper>
         <FieldWrapper id="company" label="Company" error={errors.company?.message || state.errors?.company?.[0]}>
           <FormInput {...register("company")} placeholder="Cocoa's Roofing Company" />
