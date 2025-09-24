@@ -470,7 +470,7 @@ export default function ContactPage() {
                 <Button variant="outline" className="w-full justify-start gap-3 h-auto py-3 px-4 text-base font-medium text-neutral-800 border-neutral-300 bg-white hover:bg-neutral-50">
                   <a href="mailto:chris@clayroofingnewyork.com" className="flex items-center gap-3">
                     <img src="/icons/mail-icon.svg" alt="Email" className="h-5 w-5" />
-                    <span>Client Relations Manager: chris@clayroofingnewyork.com</span>
+                    <span>Email: chris@clayroofingnewyork.com</span>
                   </a>
                 </Button>
                 <Button variant="outline" className="w-full justify-start gap-3 h-auto py-3 px-4 text-base font-medium text-neutral-800 border-neutral-300 bg-white hover:bg-neutral-50">
@@ -479,25 +479,7 @@ export default function ContactPage() {
                     <span>Save our contact</span>
                   </a>
                 </Button>
-                <Button variant="outline" className="w-full justify-start gap-3 h-auto py-3 px-4 text-base font-medium text-neutral-800 border-neutral-300 bg-white hover:bg-neutral-50">
-                  <a href="sms:22395" className="flex items-center gap-3">
-                    <img src="/icons/imessage-icon.svg" alt="SMS Notification" className="h-5 w-5" />
-                    <span>SMS Notifications: 22395</span>
-                  </a>
-                </Button>
               </div>
-            </div>
-            <div>
-              <h2 className="text-xl font-semibold text-neutral-900 mt-6 mb-4">Warehouse</h2>
-              <Button variant="outline" className="w-full justify-start gap-3 h-auto py-3 px-4 text-base font-medium text-neutral-800 border-neutral-300 bg-white hover:bg-neutral-50">
-                <span
-                  onClick={copyAddressToClipboard}
-                  className="flex items-center gap-3 cursor-pointer"
-                >
-                  <img src="/icons/location-icon.svg" alt="Warehouse" className="h-5 w-5" />
-                  <span>{addressCopied ? "Copied!" : "33-15 127th Pl, Corona, NY 11368"}</span>
-                </span>
-              </Button>
             </div>
           </div>
           <div className="bg-white rounded-xl border border-neutral-200 p-6 sm:p-8">
