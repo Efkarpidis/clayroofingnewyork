@@ -408,7 +408,7 @@ function ContactForm() {
               ? "Please complete the required fields highlighted below."
               : state.message}
           </p>
-        )
+        )}
       </form>
     </>
   );
@@ -489,7 +489,7 @@ export default function ContactPage() {
         </div>
       </main>
       <footer className="border-t border-neutral-200 bg-neutral-50">
-        <div className="max-w-7xl mx-auto px-4 py-6 space-y-4 text-center text-neutral-500">
+        <div className="max-w-7xl mx auto px-4 py-6 space-y-4 text-center text-neutral-500">
           <p>&copy; {new Date().getFullYear()} Clay Roofs New York. All Rights Reserved.</p>
         </div>
       </footer>
