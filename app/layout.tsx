@@ -1,9 +1,8 @@
 import type { Metadata } from 'next';
-import '@fontsource/geist-sans'; // Fixed import
-import '@fontsource/geist-mono'; // Fixed import
-import './globals.css';
+import '@fontsource/geist-sans';
+import '@fontsource/geist-mono';
+import '../globals.css';
 import { Header } from '@/components/Header';
-import { Analytics } from '@vercel/analytics/react'; // Optional: Remove if not wanted
 
 export const metadata: Metadata = {
   title: {
@@ -98,7 +97,6 @@ export default function RootLayout({
       <body>
         <Header />
         {children}
-        <Analytics /> {/* Optional: Remove if not wanted */}
       </body>
     </html>
   );
