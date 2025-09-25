@@ -1,11 +1,9 @@
-'use client'; // Make this a client component for theme logic
-
-import { useEffect } from 'react';
 import type { Metadata } from 'next';
 import { GeistSans } from 'geist/font/sans';
 import { GeistMono } from 'geist/font/mono';
 import './globals.css';
 import { Header } from '@/components/Header';
+import { Analytics } from '@vercel/analytics/react'; // Add this import
 
 export const metadata: Metadata = {
   title: {
@@ -80,10 +78,7 @@ export const metadata: Metadata = {
     },
   },
   manifest: '/site.webmanifest',
-  themeColor: [
-    { media: '(prefers-color-scheme: light)', color: '#ea580c' },
-    { media: '(prefers-color-scheme: dark)', color: '#1f1f1f' },
-  ],
+  themeColor: '#ea580c',
   appleWebApp: {
     capable: true,
     statusBarStyle: 'default',
@@ -98,35 +93,12 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  useEffect(() => {
-    // Set initial theme based on localStorage or system preference
-    const savedTheme = localStorage.getItem('theme');
-    const systemDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-    const initialTheme = savedTheme || (systemDark ? 'dark' : 'light');
-    
-    document.documentElement.classList.remove('light', 'dark');
-    document.documentElement.classList.add(initialTheme);
-    localStorage.setItem('theme', initialTheme);
-
-    // Listen for system theme changes
-    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-    const handleChange = () => {
-      if (!localStorage.getItem('theme')) { // Only update if no user preference
-        const newTheme = mediaQuery.matches ? 'dark' : 'light';
-        document.documentElement.classList.remove('light', 'dark');
-        document.documentElement.classList.add(newTheme);
-        localStorage.setItem('theme', newTheme);
-      }
-    };
-    mediaQuery.addEventListener('change', handleChange);
-    return () => mediaQuery.removeEventListener('change', handleChange);
-  }, []);
-
   return (
-    <html lang="en" className={`${GeistSans.variable} ${GeistMono.variable}`} suppressHydrationWarning>
+    <html lang="en" className={`${GeistSans.variable} ${GeistMono.variable}`}>
       <body>
         <Header />
         {children}
+        <Analytics /> {/* Add this component here for tracking */}
       </body>
     </html>
   );

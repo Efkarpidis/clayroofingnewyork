@@ -1,3 +1,4 @@
+/* app/globals.css */
 @import "tailwindcss";
 @import "tw-animate-css";
 
@@ -98,8 +99,9 @@
   * {
     @apply border-border outline-ring/50;
   }
-  body {
+  html, body {
     @apply bg-background text-foreground;
+    overflow-x: hidden; /* Prevent horizontal scrolling */
   }
   /* Ensure main content is not hidden under header */
   main {
