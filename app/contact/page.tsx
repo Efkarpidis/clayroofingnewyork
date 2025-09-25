@@ -483,7 +483,7 @@ export default function ContactPage() {
             </div>
           </div>
           <div className="bg-white rounded-xl border border-neutral-200 p-6 sm:p-8">
-            <h2 className="text-xl font-semibold text-neutral-900 mb-6">Alternatively, submit your inquiry below.</h2>
+            <h2 className="text-xl font-semibold text-neutral-900 mb-6">Or, submit your inquiry below.</h2>
             <p className="text-sm text-neutral-600 mb-4">We'll respond within 24 hours.</p>
             <ContactForm />
           </div>

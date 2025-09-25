@@ -1,4 +1,3 @@
-// components/Header.tsx
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -12,11 +11,10 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { Phone, ChevronDown, Sun, Moon } from 'lucide-react';
+import { Phone, ChevronDown } from 'lucide-react';
 
 export function Header() {
   const [scrolled, setScrolled] = useState(false);
-  const [theme, setTheme] = useState<'light' | 'dark'>('light');
   const pathname = usePathname();
 
   const getCurrentPage = () => {
@@ -30,26 +28,10 @@ export function Header() {
   const currentPage = getCurrentPage();
 
   useEffect(() => {
-    // Set initial theme
-    const savedTheme = localStorage.getItem('theme');
-    const systemDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-    const initialTheme = savedTheme || (systemDark ? 'dark' : 'light');
-    setTheme(initialTheme as 'light' | 'dark');
-    document.documentElement.classList.add(initialTheme);
-
-    // Handle scroll for header styling
     const handleScroll = () => setScrolled(window.scrollY > 50);
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
-
-  const toggleTheme = () => {
-    const newTheme = theme === 'light' ? 'dark' : 'light';
-    document.documentElement.classList.remove('light', 'dark');
-    document.documentElement.classList.add(newTheme);
-    localStorage.setItem('theme', newTheme);
-    setTheme(newTheme);
-  };
 
   return (
     <header className="sticky top-0 left-0 right-0 z-[1000]">
@@ -81,16 +63,16 @@ export function Header() {
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             {/* Desktop Navigation */}
             <nav className="hidden md:flex items-center justify-center text-center py-2 space-x-8">
-              <a
+              <Link
                 href="tel:+1-212-365-4386"
-                className="flex items-center gap-2 px-3 py-2 text-sm font-medium rounded-md transition-colors text-foreground hover:text-primary hover:bg-muted"
+                className="tappable flex items-center gap-2 px-3 py-2 text-sm font-medium rounded-md transition-colors text-foreground hover:text-primary hover:bg-muted"
               >
                 <Phone className="w-4 h-4 flex-shrink-0" />
                 <span>212-365-4386</span>
-              </a>
+              </Link>
               <Link
                 href="/gallery"
-                className={`px-3 py-2 text-sm font-medium rounded-md transition-colors ${
+                className={`tappable px-3 py-2 text-sm font-medium rounded-md transition-colors ${
                   currentPage === 'gallery'
                     ? 'text-primary'
                     : 'text-foreground hover:text-primary hover:bg-muted'
@@ -100,7 +82,7 @@ export function Header() {
               </Link>
               <Link
                 href="/tile-selection"
-                className={`px-3 py-2 text-sm font-medium rounded-md transition-colors ${
+                className={`tappable px-3 py-2 text-sm font-medium rounded-md transition-colors ${
                   currentPage === 'tile-selection'
                     ? 'text-primary'
                     : 'text-foreground hover:text-primary hover:bg-muted'
@@ -110,7 +92,7 @@ export function Header() {
               </Link>
               <Link
                 href="/about"
-                className={`px-3 py-2 text-sm font-medium rounded-md transition-colors ${
+                className={`tappable px-3 py-2 text-sm font-medium rounded-md transition-colors ${
                   currentPage === 'about'
                     ? 'text-primary'
                     : 'text-foreground hover:text-primary hover:bg-muted'
@@ -120,7 +102,7 @@ export function Header() {
               </Link>
               <Link
                 href="/contact"
-                className={`px-3 py-2 text-sm font-medium rounded-md transition-colors ${
+                className={`tappable px-3 py-2 text-sm font-medium rounded-md transition-colors ${
                   currentPage === 'contact'
                     ? 'text-primary'
                     : 'text-foreground hover:text-primary hover:bg-muted'
@@ -129,30 +111,26 @@ export function Header() {
                 Contact
               </Link>
               {currentPage !== 'contact' && (
-                <Link href="/contact#quote">
+                <Link
+                  href="/contact#quote"
+                  className="tappable block"
+                >
                   <Button
                     size="sm"
-                    className="bg-gradient-to-r from-brand-600 to-brand-700 text-primary-foreground hover:from-brand-700 hover:to-brand-800 text-xs font-semibold transition-colors shadow-lg hover:shadow-xl h-9 px-4"
+                    className="bg-gradient-to-r from-brand-600 to-brand-700 text-primary-foreground hover:from-brand-700 hover:to-brand-800 text-xs font-semibold transition-colors shadow-lg hover:shadow-xl h-9 px-4 w-full"
                   >
                     Request Quote
                   </Button>
                 </Link>
               )}
-              <button
-                onClick={toggleTheme}
-                className="tappable p-2 rounded-md bg-muted text-foreground hover:bg-accent hover:text-accent-foreground transition-colors"
-                aria-label="Toggle theme"
-              >
-                {theme === 'light' ? <Moon className="w-5 h-5" /> : <Sun className="w-5 h-5" />}
-              </button>
             </nav>
             {/* Mobile Navigation Dropdown */}
-            <div className="md:hidden w-full px-4 py-2 flex items-center justify-between gap-2">
+            <div className="md:hidden w-full px-4 py-2">
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button
                     variant="outline"
-                    className="flex items-center justify-between gap-2 flex-1 py-3 text-base font-medium border-border text-foreground hover:bg-muted hover:text-foreground hover:border-accent bg-card"
+                    className="tappable flex items-center justify-between gap-2 w-full py-3 text-base font-medium border-border text-foreground hover:bg-muted hover:text-foreground hover:border-accent bg-card"
                   >
                     <ChevronDown className="h-4 w-4" />
                     <span className="flex-1 text-center">Menu</span>
@@ -161,18 +139,18 @@ export function Header() {
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="center" sideOffset={8} className="min-w-[200px] bg-card text-foreground border-border">
                   <DropdownMenuItem asChild>
-                    <a
+                    <Link
                       href="tel:+1-212-365-4386"
-                      className="flex items-center gap-3 px-3 py-3 text-base font-semibold text-primary rounded-md cursor-pointer hover:bg-muted"
+                      className="tappable flex items-center gap-3 px-3 py-3 text-base font-semibold text-primary rounded-md cursor-pointer hover:bg-muted w-full"
                     >
                       <Phone className="w-5 h-5 flex-shrink-0" />
                       <span>Call: 212-365-4386</span>
-                    </a>
+                    </Link>
                   </DropdownMenuItem>
                   <DropdownMenuItem asChild>
                     <Link
                       href="/"
-                      className={`flex items-center px-3 py-3 text-base font-medium rounded-md cursor-pointer ${
+                      className={`tappable flex items-center px-3 py-3 text-base font-medium rounded-md cursor-pointer w-full ${
                         currentPage === 'home' ? 'text-primary' : 'text-foreground hover:text-primary hover:bg-muted'
                       }`}
                     >
@@ -182,7 +160,7 @@ export function Header() {
                   <DropdownMenuItem asChild>
                     <Link
                       href="/gallery"
-                      className={`flex items-center px-3 py-3 text-base font-medium rounded-md cursor-pointer ${
+                      className={`tappable flex items-center px-3 py-3 text-base font-medium rounded-md cursor-pointer w-full ${
                         currentPage === 'gallery' ? 'text-primary' : 'text-foreground hover:text-primary hover:bg-muted'
                       }`}
                     >
@@ -192,7 +170,7 @@ export function Header() {
                   <DropdownMenuItem asChild>
                     <Link
                       href="/tile-selection"
-                      className={`flex items-center px-3 py-3 text-base font-medium rounded-md cursor-pointer ${
+                      className={`tappable flex items-center px-3 py-3 text-base font-medium rounded-md cursor-pointer w-full ${
                         currentPage === 'tile-selection' ? 'text-primary' : 'text-foreground hover:text-primary hover:bg-muted'
                       }`}
                     >
@@ -202,7 +180,7 @@ export function Header() {
                   <DropdownMenuItem asChild>
                     <Link
                       href="/about"
-                      className={`flex items-center px-3 py-3 text-base font-medium rounded-md cursor-pointer ${
+                      className={`tappable flex items-center px-3 py-3 text-base font-medium rounded-md cursor-pointer w-full ${
                         currentPage === 'about' ? 'text-primary' : 'text-foreground hover:text-primary hover:bg-muted'
                       }`}
                     >
@@ -212,7 +190,7 @@ export function Header() {
                   <DropdownMenuItem asChild>
                     <Link
                       href="/contact"
-                      className={`flex items-center px-3 py-3 text-base font-medium rounded-md cursor-pointer ${
+                      className={`tappable flex items-center px-3 py-3 text-base font-medium rounded-md cursor-pointer w-full ${
                         currentPage === 'contact' ? 'text-primary' : 'text-foreground hover:text-primary hover:bg-muted'
                       }`}
                     >
@@ -223,40 +201,14 @@ export function Header() {
                     <DropdownMenuItem asChild>
                       <Link
                         href="/contact#quote"
-                        className="flex items-center justify-center px-3 py-3 text-base font-bold text-primary-foreground rounded-md cursor-pointer mt-2 bg-gradient-to-r from-brand-600 to-brand-700 hover:from-brand-700 hover:to-brand-800 min-h-[44px]"
+                        className="tappable flex items-center justify-center px-3 py-3 text-base font-bold text-primary-foreground rounded-md cursor-pointer mt-2 bg-gradient-to-r from-brand-600 to-brand-700 hover:from-brand-700 hover:to-brand-800 min-h-[44px] w-full"
                       >
                         Request Quote
                       </Link>
                     </DropdownMenuItem>
                   )}
-                  <DropdownMenuItem asChild>
-                    <button
-                      onClick={toggleTheme}
-                      className="flex items-center w-full px-3 py-3 text-base font-medium rounded-md cursor-pointer text-foreground hover:text-primary hover:bg-muted"
-                      aria-label="Toggle theme"
-                    >
-                      {theme === 'light' ? (
-                        <>
-                          <Moon className="w-5 h-5 mr-3" />
-                          Switch to Dark Mode
-                        </>
-                      ) : (
-                        <>
-                          <Sun className="w-5 h-5 mr-3" />
-                          Switch to Light Mode
-                        </>
-                      )}
-                    </button>
-                  </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
-              <button
-                onClick={toggleTheme}
-                className="tappable p-2 rounded-md bg-muted text-foreground hover:bg-accent hover:text-accent-foreground transition-colors"
-                aria-label="Toggle theme"
-              >
-                {theme === 'light' ? <Moon className="w-5 h-5" /> : <Sun className="w-5 h-5" />}
-              </button>
             </div>
           </div>
         </div>
