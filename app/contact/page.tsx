@@ -9,7 +9,6 @@ import { z } from "zod";
 import PhoneInput from "react-phone-number-input";
 import "react-phone-number-input/style.css";
 import VercelBlobUploader from "@/components/upload/VercelBlobUploader";
-import { Moon, Sun } from "lucide-react"; // For theme toggle icons
 
 type BlobItem = {
   url: string;
@@ -54,26 +53,26 @@ const FieldWrapper = ({
   required?: boolean;
 }) => (
   <div className="space-y-2">
-    <label htmlFor={id} className="block text-base font-medium text-foreground">
+    <label htmlFor={id} className="block text-base font-medium text-neutral-700">
       {label}
       {required && <span className="text-red-500 ml-1">*</span>}
     </label>
     {children}
-    {error && <p className="mt-1 text-sm text-destructive-foreground">{error}</p>}
+    {error && <p className="mt-1 text-sm text-red-600">{error}</p>}
   </div>
 );
 
 const FormInput = (p: React.ComponentProps<"input">) => (
   <input
     {...p}
-    className="block w-full h-11 rounded-xl border border-border bg-card px-3 py-2 text-base text-foreground shadow-sm focus:border-primary focus:ring-2 focus:ring-primary/20 focus:outline-none hover:border-muted transition-colors placeholder:text-muted-foreground"
+    className="block w-full h-11 rounded-xl border border-neutral-200 bg-white px-3 py-2 text-base text-neutral-900 shadow-sm focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20 focus:outline-none hover:border-neutral-300 transition-colors placeholder:text-neutral-400"
   />
 );
 
 const FormTextarea = (p: React.ComponentProps<"textarea">) => (
   <textarea
     {...p}
-    className="block w-full rounded-md border-border bg-card p-3 text-base text-foreground shadow-sm focus:border-primary focus:ring-primary focus:outline-none focus:ring-2"
+    className="block w-full rounded-md border-neutral-300 bg-white p-3 text-base shadow-sm focus:border-orange-500 focus:ring-orange-500 focus:outline-none focus:ring-2"
   />
 );
 
@@ -81,7 +80,7 @@ const FormSelect = ({ children, ...props }: React.ComponentProps<"select">) => (
   <div className="relative">
     <select
       {...props}
-      className="block w-full h-11 rounded-xl border border-border bg-card px-3 py-2 text-base text-foreground shadow-sm appearance-none focus:border-primary focus:ring-2 focus:ring-primary/20 focus:outline-none hover:border-muted transition-colors cursor-pointer"
+      className="block w-full h-11 rounded-xl border border-neutral-200 bg-white px-3 py-2 text-base text-neutral-900 shadow-sm appearance-none focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20 focus:outline-none hover:border-neutral-300 transition-colors cursor-pointer"
       style={{
         backgroundImage: `url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' strokeLinecap='round' strokeLinejoin='round' strokeWidth='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e")`,
         backgroundPosition: "right 12px center",
@@ -213,8 +212,8 @@ function ContactForm() {
         <div className="h-12 w-12 rounded-full bg-green-100 p-2 text-green-600 flex items-center justify-center mb-4">
           <Check className="h-6 w-6" />
         </div>
-        <h3 className="text-xl font-semibold text-foreground mb-2">Message Sent!</h3>
-        <p className="text-muted-foreground">Thank you for reaching out. We'll get back to you shortly.</p>
+        <h3 className="text-xl font-semibold text-neutral-800 mb-2">Message Sent!</h3>
+        <p className="text-neutral-600">Thank you for reaching out. We'll get back to you shortly.</p>
       </div>
     );
   }
@@ -269,7 +268,7 @@ function ContactForm() {
             international
             defaultCountry="US"
             placeholder="(718) 000-0000"
-            className="block w-full h-11 rounded-xl border border-border bg-card px-3 py-2 text-base text-foreground shadow-sm focus:border-primary focus:ring-2 focus:ring-primary/20 focus:outline-none hover:border-muted transition-colors placeholder:text-muted-foreground"
+            className="block w-full h-11 rounded-xl border border-neutral-200 bg-white px-3 py-2 text-base text-neutral-900 shadow-sm focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20 focus:outline-none hover:border-neutral-300 transition-colors placeholder:text-neutral-400"
           />
         </FieldWrapper>
         <FieldWrapper id="company" label="Company" error={errors.company?.message || state.errors?.company?.[0]}>
@@ -329,8 +328,8 @@ function ContactForm() {
             label="Upload Documents"
             onComplete={setDocResults}
           />
-          <div className="mt-2 text-xs text-muted-foreground">
-            <span className="inline-flex items-center rounded-full border border-border px-2 py-0.5">
+          <div className="mt-2 text-xs text-neutral-600">
+            <span className="inline-flex items-center rounded-full border border-neutral-300 px-2 py-0.5">
               {docResults.length} file{docResults.length === 1 ? "" : "s"} • {formatMB(docBytes)} MB
             </span>
           </div>
@@ -343,13 +342,13 @@ function ContactForm() {
             label="Upload Photo"
             onComplete={setPhotoResults}
           />
-          <div className="mt-2 text-xs text-muted-foreground">
-            <span className="inline-flex items-center rounded-full border border-border px-2 py-0.5">
+          <div className="mt-2 text-xs text-neutral-600">
+            <span className="inline-flex items-center rounded-full border border-neutral-300 px-2 py-0.5">
               {photoResults.length} photo{photoResults.length === 1 ? "" : "s"} • {formatMB(photoBytes)} MB
             </span>
           </div>
-          <div className="mt-2 text-xs text-muted-foreground">
-            <span className="inline-flex items-center rounded-full border border-border px-2 py-0.5">
+          <div className="mt-2 text-xs text-neutral-600">
+            <span className="inline-flex items-center rounded-full border border-neutral-300 px-2 py-0.5">
               Total: {totalCount} file{totalCount === 1 ? "" : "s"} • {formatMB(totalBytes)} MB
             </span>
           </div>
@@ -361,30 +360,30 @@ function ContactForm() {
               id="privacyAccepted"
               {...register("privacyAccepted", { valueAsBoolean: true })}
               onChange={(e) => setValue("privacyAccepted", e.target.checked)}
-              className="mt-1 h-4 w-4 rounded border-border text-primary focus:ring-primary"
+              className="mt-1 h-4 w-4 rounded border-neutral-400 text-orange-600 focus:ring-orange-600"
               defaultChecked={false}
             />
-            <label htmlFor="privacyAccepted" className="text-sm text-foreground">
+            <label htmlFor="privacyAccepted" className="text-sm text-neutral-700">
               I have read and accept the{" "}
-              <a href="/privacy" className="text-primary hover:underline">
+              <a href="/privacy" className="text-orange-600 hover:underline">
                 Privacy Policy
               </a>
-              <span className="text-destructive-foreground ml-1">*</span>
+              <span className="text-red-500 ml-1">*</span>
             </label>
           </div>
           {(errors.privacyAccepted?.message || state.errors?.privacyAccepted?.[0]) && (
-            <p className="text-sm text-destructive-foreground">
+            <p className="text-sm text-red-600">
               {errors.privacyAccepted?.message || state.errors?.privacyAccepted?.[0]}
             </p>
           )}
         </div>
         <div className="space-y-2">
-          <label className="flex items-center text-sm text-foreground">
+          <label className="flex items-center text-sm text-neutral-700">
             <input
               type="checkbox"
               name="smsOptIn"
               value="true"
-              className="mr-2 h-4 w-4 rounded border-border text-primary focus:ring-primary"
+              className="mr-2 h-4 w-4 rounded border-neutral-400 text-orange-600 focus:ring-orange-600"
             />
             Yes, send me updates via text (Reply STOP to unsubscribe)
           </label>
@@ -392,11 +391,11 @@ function ContactForm() {
         <button
           type="submit"
           disabled={isPending}
-          className="w-full inline-flex items-center justify-center gap-2 rounded-lg bg-primary px-6 py-3 text-base font-semibold text-primary-foreground shadow-sm transition-colors hover:bg-primary/90 disabled:bg-muted disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-primary"
+          className="w-full inline-flex items-center justify-center gap-2 rounded-lg bg-orange-600 px-6 py-3 text-base font-semibold text-white shadow-sm transition-colors hover:bg-orange-700 disabled:bg-orange-400 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-orange-500"
         >
           {isPending ? (
             <>
-              <div className="h-5 w-5 animate-spin rounded-full border-2 border-primary-foreground border-t-transparent" />
+              <div className="h-5 w-5 animate-spin rounded-full border-2 border-white border-t-transparent" />
               Sending…
             </>
           ) : (
@@ -404,7 +403,7 @@ function ContactForm() {
           )}
         </button>
         {!state.success && state.message && (
-          <p className="text-center text-sm text-destructive-foreground">
+          <p className="text-center text-sm text-red-600">
             {state.message === "Please fix the errors below."
               ? "Please complete the required fields highlighted below."
               : state.message}
@@ -417,27 +416,10 @@ function ContactForm() {
 
 export default function ContactPage() {
   const [addressCopied, setAddressCopied] = useState(false);
-  const [theme, setTheme] = useState<"light" | "dark">("light");
 
   useEffect(() => {
-    // Set initial theme based on system preference
-    const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
-    setTheme(prefersDark ? "dark" : "light");
-
-    // Listen for system theme changes
-    const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
-    const handleChange = (e: MediaQueryListEvent) => setTheme(e.matches ? "dark" : "light");
-    mediaQuery.addEventListener("change", handleChange);
-
-    // Apply theme to document
-    document.documentElement.setAttribute("data-theme", theme);
-
-    return () => mediaQuery.removeEventListener("change", handleChange);
-  }, [theme]);
-
-  const toggleTheme = () => {
-    setTheme((prevTheme) => (prevTheme === "light" ? "dark" : "light"));
-  };
+    window.scrollTo(0, 0);
+  }, []);
 
   const copyAddressToClipboard = async () => {
     try {
@@ -450,59 +432,48 @@ export default function ContactPage() {
   };
 
   return (
-    <div className="bg-background text-foreground min-h-screen transition-colors duration-300" data-theme={theme}>
+    <div className="bg-white text-neutral-800 min-h-screen">
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-16">
-        <div className="text-center mb-8 sm:mb-12 flex justify-between items-center">
-          <div>
-            <h1 className="text-2xl sm:text-3xl md:text-4xl font-extrabold tracking-tight text-foreground luxury-title">
-              Contact Us
-            </h1>
-            <p className="mt-2 max-w-2xl mx-auto text-base sm:text-lg text-muted-foreground luxury-subtitle">
-              Have a question or need a quote? We're here to help.
-            </p>
-            <p className="mt-1 text-sm text-muted-foreground italic">We proudly back our installations with warranties up to 100 years.</p>
-          </div>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={toggleTheme}
-            className="flex items-center gap-2 border-border text-foreground hover:bg-card hover:text-card-foreground tappable"
-          >
-            {theme === "light" ? <Moon className="h-4 w-4" /> : <Sun className="h-4 w-4" />}
-            <span>{theme === "light" ? "Dark" : "Light"} Mode</span>
-          </Button>
+        <div className="text-center mb-8 sm:mb-12">
+          <h1 className="text-2xl sm:text-3xl md:text-4xl font-extrabold tracking-tight text-neutral-900">
+            Contact Us
+          </h1>
+          <p className="mt-2 max-w-2xl mx-auto text-base sm:text-lg text-neutral-600">
+            Have a question or need a quote? We're here to help.
+          </p>
+          <p className="mt-1 text-sm text-neutral-500 italic">We proudly back our installations with warranties up to 100 years.</p>
         </div>
         <div className="grid grid-cols-1 gap-8 lg:gap-16 lg:grid-cols-2">
-          <div className="bg-gradient-to-br from-brand-50 to-brand-100 rounded-xl p-6 sm:p-8 space-y-6">
+          <div className="bg-gradient-to-br from-orange-50 to-orange-100 rounded-xl p-6 sm:p-8 space-y-6">
             <div>
-              <h2 className="text-xl font-semibold text-foreground mb-4">Get in Touch</h2>
-              <p className="text-sm text-muted-foreground mb-4">Tap an option to get in touch</p>
+              <h2 className="text-xl font-semibold text-neutral-900 mb-4">Get in Touch</h2>
+              <p className="text-sm text-neutral-500 mb-4">Tap an option to get in touch</p>
               <div className="space-y-4">
-                <Button variant="outline" className="w-full justify-start gap-3 h-auto py-3 px-4 text-base font-medium text-foreground border-border bg-card hover:bg-card/80 tappable">
+                <Button variant="outline" className="w-full justify-start gap-3 h-auto py-3 px-4 text-base font-medium text-neutral-800 border-neutral-300 bg-white hover:bg-neutral-50">
                   <a href="tel:+1-212-365-4386" className="flex items-center gap-3">
                     <img src="/icons/phone-icon.svg" alt="Phone" className="h-5 w-5" />
                     <span>Tap here to call</span>
                   </a>
                 </Button>
-                <Button variant="outline" className="w-full justify-start gap-3 h-auto py-3 px-4 text-base font-medium text-foreground border-border bg-card hover:bg-card/80 tappable">
+                <Button variant="outline" className="w-full justify-start gap-3 h-auto py-3 px-4 text-base font-medium text-neutral-800 border-neutral-300 bg-white hover:bg-neutral-50">
                   <a href="sms:+1-212-365-4386" className="flex items-center gap-3">
                     <img src="/icons/imessage-icon.svg" alt="iMessage" className="h-5 w-5" />
                     <span>Tap here to text</span>
                   </a>
                 </Button>
-                <Button variant="outline" className="w-full justify-start gap-3 h-auto py-3 px-4 text-base font-medium text-foreground border-border bg-card hover:bg-card/80 tappable">
+                <Button variant="outline" className="w-full justify-start gap-3 h-auto py-3 px-4 text-base font-medium text-neutral-800 border-neutral-300 bg-white hover:bg-neutral-50">
                   <a href="https://wa.me/+1-212-365-4386" target="_blank" rel="noopener noreferrer" className="flex items-center gap-3">
                     <img src="/icons/whats-app-icon.svg" alt="WhatsApp" className="h-5 w-5" />
                     <span>Tap here to WhatsApp</span>
                   </a>
                 </Button>
-                <Button variant="outline" className="w-full justify-start gap-3 h-auto py-3 px-4 text-base font-medium text-foreground border-border bg-card hover:bg-card/80 tappable">
+                <Button variant="outline" className="w-full justify-start gap-3 h-auto py-3 px-4 text-base font-medium text-neutral-800 border-neutral-300 bg-white hover:bg-neutral-50">
                   <a href="mailto:chris@clayroofingnewyork.com" className="flex items-center gap-3">
                     <img src="/icons/mail-icon.svg" alt="Email" className="h-5 w-5" />
                     <span>Tap here to email</span>
                   </a>
                 </Button>
-                <Button variant="outline" className="w-full justify-start gap-3 h-auto py-3 px-4 text-base font-medium text-foreground border-border bg-card hover:bg-card/80 tappable">
+                <Button variant="outline" className="w-full justify-start gap-3 h-auto py-3 px-4 text-base font-medium text-neutral-800 border-neutral-300 bg-white hover:bg-neutral-50">
                   <a href="/api/vcard" download="clay_roofing_new_york.vcf" className="flex items-center gap-3">
                     <img src="/images/CRNY_Logo_1.png" alt="Contact" className="h-5 w-5" />
                     <span>Tap here to save our contact</span>
@@ -511,15 +482,15 @@ export default function ContactPage() {
               </div>
             </div>
           </div>
-          <div className="bg-card rounded-xl border border-border p-6 sm:p-8">
-            <h2 className="text-xl font-semibold text-foreground mb-6">Alternatively, submit your inquiry below.</h2>
-            <p className="text-sm text-muted-foreground mb-4">We'll respond within 24 hours.</p>
+          <div className="bg-white rounded-xl border border-neutral-200 p-6 sm:p-8">
+            <h2 className="text-xl font-semibold text-neutral-900 mb-6">Alternatively, submit your inquiry below.</h2>
+            <p className="text-sm text-neutral-600 mb-4">We'll respond within 24 hours.</p>
             <ContactForm />
           </div>
         </div>
       </main>
-      <footer className="border-t border-border bg-card">
-        <div className="max-w-7xl mx-auto px-4 py-6 space-y-4 text-center text-muted-foreground">
+      <footer className="border-t border-neutral-200 bg-neutral-50">
+        <div className="max-w-7xl mx-auto px-4 py-6 space-y-4 text-center text-neutral-500">
           <p>&copy; {new Date().getFullYear()} Clay Roofs New York. All Rights Reserved.</p>
         </div>
       </footer>
