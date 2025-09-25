@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
-import { GeistSans } from '@fontsource/geist-sans/font';
-import { GeistMono } from '@fontsource/geist-mono/font';
+import { GeistSans } from '@fontsource/geist-sans';
+import { GeistMono } from '@fontsource/geist-mono';
 import './globals.css';
 import { Header } from '@/components/Header';
 import { Analytics } from '@vercel/analytics/react';
