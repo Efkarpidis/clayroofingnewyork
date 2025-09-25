@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
-import { GeistSans } from '@fontsource/geist-sans';
-import { GeistMono } from '@fontsource/geist-mono';
+import '@fontsource/geist-sans'; // Fixed import
+import '@fontsource/geist-mono'; // Fixed import
 import './globals.css';
 import { Header } from '@/components/Header';
 import { Analytics } from '@vercel/analytics/react'; // Optional: Remove if not wanted
@@ -94,11 +94,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${GeistSans.variable} ${GeistMono.variable}`}>
+    <html lang="en">
       <body>
         <Header />
         {children}
-        <Analytics /> // Optional: Remove if not wanted
+        <Analytics /> {/* Optional: Remove if not wanted */}
       </body>
     </html>
   );
