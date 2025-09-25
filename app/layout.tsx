@@ -1,9 +1,8 @@
-import type React from "react"
-import type { Metadata } from "next"
-import { GeistSans } from "geist/font/sans"
-import { GeistMono } from "geist/font/mono"
-import "./globals.css"
-import { Header } from "@/components/Header"
+import type { Metadata } from "next";
+import { GeistSans } from "geist/font/sans";
+import { GeistMono } from "geist/font/mono";
+import "./globals.css";
+import { Header } from "@/components/Header";
 
 export const metadata: Metadata = {
   title: {
@@ -59,65 +58,43 @@ export const metadata: Metadata = {
   referrer: "origin-when-cross-origin",
   category: "construction",
   classification: "Business",
-}
+  icons: {
+    icon: [
+      { url: "/favicon-16.png", sizes: "16x16", type: "image/png" },
+      { url: "/favicon-32.png", sizes: "32x32", type: "image/png" },
+      { url: "/favicon-64.png", sizes: "64x64", type: "image/png" },
+    ],
+    apple: [
+      { url: "/favicon-120.png", sizes: "120x120", type: "image/png" },
+      { url: "/favicon-240.png", sizes: "240x240", type: "image/png" },
+      { url: "/favicon-512.png", sizes: "512x512", type: "image/png" },
+    ],
+    other: {
+      rel: "icon",
+      url: "/favicon-120.png",
+      sizes: "120x120",
+      type: "image/png",
+    },
+  },
+  manifest: "/site.webmanifest",
+  themeColor: "#ea580c",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: "Clay Roofs NY",
+  },
+  msTileImage: "/favicon-240.png",
+  msTileColor: "#ea580c",
+};
 
 export default function RootLayout({
   children,
 }: Readonly<{
-  children: React.ReactNode
+  children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <head>
-        {/* Proper viewport for mobile with safe area support */}
-        <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-
-        {/* Favicon and Icon References */}
-        <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16.png" />
-        <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png" />
-        <link rel="icon" type="image/png" sizes="64x64" href="/favicon-64.png" />
-
-        {/* Apple Touch Icons */}
-        <link rel="apple-touch-icon" sizes="120x120" href="/favicon-120.png" />
-        <link rel="apple-touch-icon" sizes="240x240" href="/favicon-240.png" />
-        <link rel="apple-touch-icon" sizes="512x512" href="/favicon-512.png" />
-
-        {/* Android/Chrome Icons */}
-        <link rel="icon" type="image/png" sizes="120x120" href="/favicon-120.png" />
-        <link rel="icon" type="image/png" sizes="240x240" href="/favicon-240.png" />
-        <link rel="icon" type="image/png" sizes="512x512" href="/favicon-512.png" />
-
-        {/* Web App Manifest */}
-        <link rel="manifest" href="/site.webmanifest" />
-
-        {/* Theme Colors */}
-        <meta name="theme-color" content="#ea580c" />
-        <meta name="msapplication-TileColor" content="#ea580c" />
-        <meta name="msapplication-TileImage" content="/favicon-240.png" />
-
-        {/* Apple Web App */}
-        <meta name="apple-mobile-web-app-capable" content="yes" />
-        <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-        <meta name="apple-mobile-web-app-title" content="Clay Roofs NY" />
-
-        {/* Windows Tiles */}
-        <meta name="msapplication-config" content="/browserconfig.xml" />
-
-        {/* Preload Critical Fonts */}
-        <link rel="preload" href="/fonts/geist-sans.woff2" as="font" type="font/woff2" crossOrigin="anonymous" />
-
-        <style>{`
-html {
-  font-family: ${GeistSans.style.fontFamily};
-  --font-sans: ${GeistSans.variable};
-  --font-mono: ${GeistMono.variable};
-}
-        `}</style>
-      </head>
-      <body>
-        <Header />
-        {children}
-      </body>
+    <html lang="en" className={`${GeistSans.variable} ${GeistMono.variable}`} data-theme="light">
+      <body>{<Header />}{children}</body>
     </html>
-  )
+  );
 }

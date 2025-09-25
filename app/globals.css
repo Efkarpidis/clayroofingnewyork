@@ -1,8 +1,7 @@
+/* app/globals.css */
 @import "tailwindcss";
 @import "tw-animate-css";
-
 @custom-variant dark (&:is(.dark *));
-
 :root {
   --background: oklch(1 0 0);
   --foreground: oklch(0.145 0 0);
@@ -37,12 +36,10 @@
   --sidebar-accent-foreground: oklch(0.205 0 0);
   --sidebar-border: oklch(0.922 0 0);
   --sidebar-ring: oklch(0.708 0 0);
-
   /* Header height variables for mobile layout */
   --header-height: 64px;
   --safe-area-top: env(safe-area-inset-top, 0px);
   --total-header-height: calc(var(--header-height) + var(--safe-area-top));
-
   /* Brand Colors */
   --clay-red: #c1442e;
   --clay-red-hover: #a13426;
@@ -50,7 +47,6 @@
   --charcoal-gray: #2b2b2b;
   --charcoal-gray-hover: #1f1f1f;
 }
-
 .dark {
   --background: oklch(0.145 0 0);
   --foreground: oklch(0.985 0 0);
@@ -85,7 +81,6 @@
   --sidebar-border: oklch(0.269 0 0);
   --sidebar-ring: oklch(0.439 0 0);
 }
-
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -123,7 +118,6 @@
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
-
   /* Brand Color Classes */
   --color-clay-red: var(--clay-red);
   --color-clay-red-hover: var(--clay-red-hover);
@@ -131,7 +125,6 @@
   --color-charcoal-gray: var(--charcoal-gray);
   --color-charcoal-gray-hover: var(--charcoal-gray-hover);
 }
-
 @layer base {
   * {
     @apply border-border outline-ring/50;
@@ -139,30 +132,25 @@
   body {
     @apply bg-background text-foreground;
   }
-
   /* Ensure main content is not hidden under header */
   main {
     padding-top: var(--total-header-height);
   }
-
   /* For pages that don't use main tag, add a general content class */
   .page-content {
     padding-top: var(--total-header-height);
   }
-
   /* Scroll margin for anchor links */
   [id] {
     scroll-margin-top: var(--total-header-height);
   }
 }
-
 /* Mobile-specific styles */
 @media (max-width: 768px) {
   :root {
     --header-height: 56px; /* Smaller on mobile */
   }
 }
-
 /* Tappable elements must meet 44x44px minimum */
 .tappable {
   min-width: 44px;
@@ -171,69 +159,55 @@
   align-items: center;
   justify-content: center;
 }
-
 /* iOS Safari safe area support */
 @supports (padding: max(0px)) {
   .safe-area-top {
     padding-top: max(8px, env(safe-area-inset-top));
   }
-
   .safe-area-bottom {
     padding-bottom: max(1rem, env(safe-area-inset-bottom));
   }
 }
-
 /* Disable touch callout only where necessary, not on buttons */
 .no-touch-callout {
   -webkit-touch-callout: none;
 }
-
 /* Brand Color Utilities */
 .bg-clay-red {
   background-color: var(--clay-red);
 }
-
 .bg-clay-red:hover {
   background-color: var(--clay-red-hover);
 }
-
 .text-clay-red {
   color: var(--clay-red);
 }
-
 .text-clay-red:hover {
   color: var(--clay-red-hover);
 }
-
 .border-clay-red {
   border-color: var(--clay-red);
 }
-
 .bg-charcoal-gray {
   background-color: var(--charcoal-gray);
 }
-
 .bg-charcoal-gray:hover {
   background-color: var(--charcoal-gray-hover);
 }
-
 .text-charcoal-gray {
   color: var(--charcoal-gray);
 }
-
 /* Luxury Typography */
 .luxury-title {
   font-weight: 800;
   letter-spacing: 0.1em;
   text-transform: uppercase;
 }
-
 .luxury-subtitle {
   font-weight: 500;
   letter-spacing: 0.05em;
   opacity: 0.8;
 }
-
 /* Premium Badge */
 .premium-badge {
   display: inline-flex;
