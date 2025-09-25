@@ -3,7 +3,7 @@ import { GeistSans } from '@fontsource/geist-sans';
 import { GeistMono } from '@fontsource/geist-mono';
 import './globals.css';
 import { Header } from '@/components/Header';
-import { Analytics } from '@vercel/analytics/react';
+import { Analytics } from '@vercel/analytics/react'; // Optional: Remove if not wanted
 
 export const metadata: Metadata = {
   title: {
@@ -98,7 +98,7 @@ export default function RootLayout({
       <body>
         <Header />
         {children}
-        <Analytics />
+        <Analytics /> // Optional: Remove if not wanted
       </body>
     </html>
   );
