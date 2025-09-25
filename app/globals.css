@@ -1,7 +1,9 @@
 /* app/globals.css */
 @import "tailwindcss";
 @import "tw-animate-css";
+
 @custom-variant dark (&:is(.dark *));
+
 :root {
   --background: oklch(1 0 0);
   --foreground: oklch(0.145 0 0);
@@ -47,6 +49,38 @@
   --charcoal-gray: #2b2b2b;
   --charcoal-gray-hover: #1f1f1f;
 }
+
+/* Fallback for system dark mode before JS loads */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --background: oklch(0.145 0 0);
+    --foreground: oklch(0.985 0 0);
+    --card: oklch(0.145 0 0);
+    --card-foreground: oklch(0.985 0 0);
+    --popover: oklch(0.145 0 0);
+    --popover-foreground: oklch(0.985 0 0);
+    --primary: oklch(0.985 0 0);
+    --primary-foreground: oklch(0.205 0 0);
+    --secondary: oklch(0.269 0 0);
+    --secondary-foreground: oklch(0.985 0 0);
+    --muted: oklch(0.269 0 0);
+    --muted-foreground: oklch(0.708 0 0);
+    --accent: oklch(0.269 0 0);
+    --accent-foreground: oklch(0.985 0 0);
+    --border: oklch(0.269 0 0);
+    --input: oklch(0.269 0 0);
+    --ring: oklch(0.439 0 0);
+    --sidebar: oklch(0.205 0 0);
+    --sidebar-foreground: oklch(0.985 0 0);
+    --sidebar-primary: oklch(0.488 0.243 264.376);
+    --sidebar-primary-foreground: oklch(0.985 0 0);
+    --sidebar-accent: oklch(0.269 0 0);
+    --sidebar-accent-foreground: oklch(0.985 0 0);
+    --sidebar-border: oklch(0.269 0 0);
+    --sidebar-ring: oklch(0.439 0 0);
+  }
+}
+
 .dark {
   --background: oklch(0.145 0 0);
   --foreground: oklch(0.985 0 0);
@@ -81,6 +115,7 @@
   --sidebar-border: oklch(0.269 0 0);
   --sidebar-ring: oklch(0.439 0 0);
 }
+
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -125,9 +160,11 @@
   --color-charcoal-gray: var(--charcoal-gray);
   --color-charcoal-gray-hover: var(--charcoal-gray-hover);
 }
+
 @layer base {
   * {
     @apply border-border outline-ring/50;
+    transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
   }
   body {
     @apply bg-background text-foreground;
@@ -145,12 +182,14 @@
     scroll-margin-top: var(--total-header-height);
   }
 }
+
 /* Mobile-specific styles */
 @media (max-width: 768px) {
   :root {
     --header-height: 56px; /* Smaller on mobile */
   }
 }
+
 /* Tappable elements must meet 44x44px minimum */
 .tappable {
   min-width: 44px;
@@ -159,6 +198,7 @@
   align-items: center;
   justify-content: center;
 }
+
 /* iOS Safari safe area support */
 @supports (padding: max(0px)) {
   .safe-area-top {
@@ -168,10 +208,12 @@
     padding-bottom: max(1rem, env(safe-area-inset-bottom));
   }
 }
+
 /* Disable touch callout only where necessary, not on buttons */
 .no-touch-callout {
   -webkit-touch-callout: none;
 }
+
 /* Brand Color Utilities */
 .bg-clay-red {
   background-color: var(--clay-red);
@@ -197,6 +239,7 @@
 .text-charcoal-gray {
   color: var(--charcoal-gray);
 }
+
 /* Luxury Typography */
 .luxury-title {
   font-weight: 800;
@@ -208,6 +251,7 @@
   letter-spacing: 0.05em;
   opacity: 0.8;
 }
+
 /* Premium Badge */
 .premium-badge {
   display: inline-flex;

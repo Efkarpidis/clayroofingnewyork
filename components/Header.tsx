@@ -1,45 +1,63 @@
-"use client";
-import { useState, useEffect } from "react";
-import Image from "next/image";
-import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { Button } from "@/components/ui/button";
+// components/Header.tsx
+'use client';
+
+import { useState, useEffect } from 'react';
+import Image from 'next/image';
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
+import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { Phone, ChevronDown } from "lucide-react";
+} from '@/components/ui/dropdown-menu';
+import { Phone, ChevronDown, Sun, Moon } from 'lucide-react';
 
 export function Header() {
   const [scrolled, setScrolled] = useState(false);
+  const [theme, setTheme] = useState<'light' | 'dark'>('light');
   const pathname = usePathname();
 
   const getCurrentPage = () => {
-    if (pathname === "/") return "home";
-    if (pathname === "/about") return "about";
-    if (pathname === "/contact") return "contact";
-    if (pathname === "/gallery") return "gallery";
-    if (pathname.startsWith("/tile-selection")) return "tile-selection";
-    return "home";
+    if (pathname === '/') return 'home';
+    if (pathname === '/about') return 'about';
+    if (pathname === '/contact') return 'contact';
+    if (pathname === '/gallery') return 'gallery';
+    if (pathname.startsWith('/tile-selection')) return 'tile-selection';
+    return 'home';
   };
-
   const currentPage = getCurrentPage();
 
   useEffect(() => {
+    // Set initial theme
+    const savedTheme = localStorage.getItem('theme');
+    const systemDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    const initialTheme = savedTheme || (systemDark ? 'dark' : 'light');
+    setTheme(initialTheme as 'light' | 'dark');
+    document.documentElement.classList.add(initialTheme);
+
+    // Handle scroll for header styling
     const handleScroll = () => setScrolled(window.scrollY > 50);
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
   }, []);
+
+  const toggleTheme = () => {
+    const newTheme = theme === 'light' ? 'dark' : 'light';
+    document.documentElement.classList.remove('light', 'dark');
+    document.documentElement.classList.add(newTheme);
+    localStorage.setItem('theme', newTheme);
+    setTheme(newTheme);
+  };
 
   return (
     <header className="sticky top-0 left-0 right-0 z-[1000]">
       <div
         className={`transition-all duration-300 ease-in-out ${
           scrolled
-            ? "bg-background/95 backdrop-blur-md border-b border-border shadow-lg"
-            : "bg-background/90 backdrop-blur-sm border-b border-border/50 shadow-sm"
+            ? 'bg-background/95 backdrop-blur-md border-b border-border shadow-lg'
+            : 'bg-background/90 backdrop-blur-sm border-b border-border/50 shadow-sm'
         }`}
       >
         {/* Logo Section - Centered */}
@@ -73,9 +91,9 @@ export function Header() {
               <Link
                 href="/gallery"
                 className={`px-3 py-2 text-sm font-medium rounded-md transition-colors ${
-                  currentPage === "gallery"
-                    ? "text-primary"
-                    : "text-foreground hover:text-primary hover:bg-muted"
+                  currentPage === 'gallery'
+                    ? 'text-primary'
+                    : 'text-foreground hover:text-primary hover:bg-muted'
                 }`}
               >
                 Projects
@@ -83,9 +101,9 @@ export function Header() {
               <Link
                 href="/tile-selection"
                 className={`px-3 py-2 text-sm font-medium rounded-md transition-colors ${
-                  currentPage === "tile-selection"
-                    ? "text-primary"
-                    : "text-foreground hover:text-primary hover:bg-muted"
+                  currentPage === 'tile-selection'
+                    ? 'text-primary'
+                    : 'text-foreground hover:text-primary hover:bg-muted'
                 }`}
               >
                 Tile Selection
@@ -93,9 +111,9 @@ export function Header() {
               <Link
                 href="/about"
                 className={`px-3 py-2 text-sm font-medium rounded-md transition-colors ${
-                  currentPage === "about"
-                    ? "text-primary"
-                    : "text-foreground hover:text-primary hover:bg-muted"
+                  currentPage === 'about'
+                    ? 'text-primary'
+                    : 'text-foreground hover:text-primary hover:bg-muted'
                 }`}
               >
                 About
@@ -103,14 +121,14 @@ export function Header() {
               <Link
                 href="/contact"
                 className={`px-3 py-2 text-sm font-medium rounded-md transition-colors ${
-                  currentPage === "contact"
-                    ? "text-primary"
-                    : "text-foreground hover:text-primary hover:bg-muted"
+                  currentPage === 'contact'
+                    ? 'text-primary'
+                    : 'text-foreground hover:text-primary hover:bg-muted'
                 }`}
               >
                 Contact
               </Link>
-              {currentPage !== "contact" && (
+              {currentPage !== 'contact' && (
                 <Link href="/contact#quote">
                   <Button
                     size="sm"
@@ -120,14 +138,21 @@ export function Header() {
                   </Button>
                 </Link>
               )}
+              <button
+                onClick={toggleTheme}
+                className="tappable p-2 rounded-md bg-muted text-foreground hover:bg-accent hover:text-accent-foreground transition-colors"
+                aria-label="Toggle theme"
+              >
+                {theme === 'light' ? <Moon className="w-5 h-5" /> : <Sun className="w-5 h-5" />}
+              </button>
             </nav>
             {/* Mobile Navigation Dropdown */}
-            <div className="md:hidden w-full px-4 py-2">
+            <div className="md:hidden w-full px-4 py-2 flex items-center justify-between gap-2">
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button
                     variant="outline"
-                    className="flex items-center justify-between gap-2 w-full py-3 text-base font-medium border-border text-foreground hover:bg-muted hover:text-foreground hover:border-accent bg-card"
+                    className="flex items-center justify-between gap-2 flex-1 py-3 text-base font-medium border-border text-foreground hover:bg-muted hover:text-foreground hover:border-accent bg-card"
                   >
                     <ChevronDown className="h-4 w-4" />
                     <span className="flex-1 text-center">Menu</span>
@@ -148,7 +173,7 @@ export function Header() {
                     <Link
                       href="/"
                       className={`flex items-center px-3 py-3 text-base font-medium rounded-md cursor-pointer ${
-                        currentPage === "home" ? "text-primary" : "text-foreground hover:text-primary hover:bg-muted"
+                        currentPage === 'home' ? 'text-primary' : 'text-foreground hover:text-primary hover:bg-muted'
                       }`}
                     >
                       Home
@@ -158,7 +183,7 @@ export function Header() {
                     <Link
                       href="/gallery"
                       className={`flex items-center px-3 py-3 text-base font-medium rounded-md cursor-pointer ${
-                        currentPage === "gallery" ? "text-primary" : "text-foreground hover:text-primary hover:bg-muted"
+                        currentPage === 'gallery' ? 'text-primary' : 'text-foreground hover:text-primary hover:bg-muted'
                       }`}
                     >
                       Projects
@@ -168,7 +193,7 @@ export function Header() {
                     <Link
                       href="/tile-selection"
                       className={`flex items-center px-3 py-3 text-base font-medium rounded-md cursor-pointer ${
-                        currentPage === "tile-selection" ? "text-primary" : "text-foreground hover:text-primary hover:bg-muted"
+                        currentPage === 'tile-selection' ? 'text-primary' : 'text-foreground hover:text-primary hover:bg-muted'
                       }`}
                     >
                       Tile Selection
@@ -178,7 +203,7 @@ export function Header() {
                     <Link
                       href="/about"
                       className={`flex items-center px-3 py-3 text-base font-medium rounded-md cursor-pointer ${
-                        currentPage === "about" ? "text-primary" : "text-foreground hover:text-primary hover:bg-muted"
+                        currentPage === 'about' ? 'text-primary' : 'text-foreground hover:text-primary hover:bg-muted'
                       }`}
                     >
                       About
@@ -188,25 +213,50 @@ export function Header() {
                     <Link
                       href="/contact"
                       className={`flex items-center px-3 py-3 text-base font-medium rounded-md cursor-pointer ${
-                        currentPage === "contact" ? "text-primary" : "text-foreground hover:text-primary hover:bg-muted"
+                        currentPage === 'contact' ? 'text-primary' : 'text-foreground hover:text-primary hover:bg-muted'
                       }`}
                     >
                       Contact
                     </Link>
                   </DropdownMenuItem>
-                  {currentPage !== "contact" && (
+                  {currentPage !== 'contact' && (
                     <DropdownMenuItem asChild>
                       <Link
                         href="/contact#quote"
-                        className="flex items-center justify-center px-3 py-3 text-base font-bold text-primary-foreground rounded-md cursor-pointer mt-2
-                                 bg-gradient-to-r from-brand-600 to-brand-700 hover:from-brand-700 hover:to-brand-800 min-h-[44px]"
+                        className="flex items-center justify-center px-3 py-3 text-base font-bold text-primary-foreground rounded-md cursor-pointer mt-2 bg-gradient-to-r from-brand-600 to-brand-700 hover:from-brand-700 hover:to-brand-800 min-h-[44px]"
                       >
                         Request Quote
                       </Link>
                     </DropdownMenuItem>
                   )}
+                  <DropdownMenuItem asChild>
+                    <button
+                      onClick={toggleTheme}
+                      className="flex items-center w-full px-3 py-3 text-base font-medium rounded-md cursor-pointer text-foreground hover:text-primary hover:bg-muted"
+                      aria-label="Toggle theme"
+                    >
+                      {theme === 'light' ? (
+                        <>
+                          <Moon className="w-5 h-5 mr-3" />
+                          Switch to Dark Mode
+                        </>
+                      ) : (
+                        <>
+                          <Sun className="w-5 h-5 mr-3" />
+                          Switch to Light Mode
+                        </>
+                      )}
+                    </button>
+                  </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
+              <button
+                onClick={toggleTheme}
+                className="tappable p-2 rounded-md bg-muted text-foreground hover:bg-accent hover:text-accent-foreground transition-colors"
+                aria-label="Toggle theme"
+              >
+                {theme === 'light' ? <Moon className="w-5 h-5" /> : <Sun className="w-5 h-5" />}
+              </button>
             </div>
           </div>
         </div>
