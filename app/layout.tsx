@@ -1,9 +1,9 @@
 import type { Metadata } from 'next';
-import { GeistSans } from 'geist/font/sans';
-import { GeistMono } from 'geist/font/mono';
+import { GeistSans } from '@fontsource/geist-sans/font';
+import { GeistMono } from '@fontsource/geist-mono/font';
 import './globals.css';
 import { Header } from '@/components/Header';
-import { Analytics } from '@vercel/analytics/react'; // Add this import
+import { Analytics } from '@vercel/analytics/react';
 
 export const metadata: Metadata = {
   title: {
@@ -98,7 +98,7 @@ export default function RootLayout({
       <body>
         <Header />
         {children}
-        <Analytics /> {/* Add this component here for tracking */}
+        <Analytics />
       </body>
     </html>
   );
