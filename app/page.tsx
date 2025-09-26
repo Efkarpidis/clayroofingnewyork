@@ -1,8 +1,7 @@
-"use client"
-
-import React, { useRef, useState, useEffect } from "react"
-import Image from "next/image"
-import Link from "next/link"
+'use client';
+import { useState, useEffect, useRef } from 'react';
+import Image from 'next/image';
+import Link from 'next/link';
 import {
   ArrowRight,
   Loader2,
@@ -16,18 +15,17 @@ import {
   Grid3X3,
   ChevronLeft,
   ChevronRight,
-} from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { StickyCallBar } from "@/components/sticky-call-bar"
-import { useActionState } from "react"
-import { useForm } from "react-hook-form"
-import { zodResolver } from "@hookform/resolvers/zod"
-import { type Step1Data, step1Schema, type Step2Data, step2Schema } from "./schemas"
-import { handleStep1Submit, handleStep2Submit, type Step1State, type Step2State } from "./actions"
-import { AnimatedCounter } from "@/components/animated-counter"
+} from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { StickyCallBar } from '@/components/sticky-call-bar';
+import { useActionState } from 'react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { type Step1Data, step1Schema, type Step2Data, step2Schema } from './schemas';
+import { handleStep1Submit, handleStep2Submit, type Step1State, type Step2State } from './actions';
+import { AnimatedCounter } from '@/components/animated-counter';
 
 // --- Self-Contained Form UI Components ---
-
 const FieldWrapper = ({
   id,
   label,
@@ -35,11 +33,11 @@ const FieldWrapper = ({
   children,
   labelComponent,
 }: {
-  id: string
-  label?: string
-  error?: string
-  children: React.ReactNode
-  labelComponent?: React.ReactNode
+  id: string;
+  label?: string;
+  error?: string;
+  children: React.ReactNode;
+  labelComponent?: React.ReactNode;
 }) => (
   <div className="space-y-2">
     {label && !labelComponent && (
@@ -51,37 +49,33 @@ const FieldWrapper = ({
     {children}
     {error && <p className="mt-1 text-sm text-red-600">{error}</p>}
   </div>
-)
+);
 
-const FormInput = (props: React.ComponentProps<"input">) => (
+const FormInput = (props: React.ComponentProps<'input'>) => (
   <input
     {...props}
     className="block w-full rounded-md border-neutral-300 bg-neutral-50 p-3 text-base shadow-sm focus:border-neutral-500 focus:ring-neutral-500 disabled:cursor-not-allowed disabled:bg-neutral-200"
   />
-)
+);
 
-const PhoneInput = React.forwardRef<HTMLInputElement, Omit<React.ComponentProps<"input">, "type">>((props, ref) => {
+const PhoneInput = React.forwardRef<HTMLInputElement, Omit<React.ComponentProps<'input'>, 'type'>>((props, ref) => {
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const rawValue = e.target.value.replace(/\D/g, "")
-    let formattedValue = ""
-
+    const rawValue = e.target.value.replace(/\D/g, '');
+    let formattedValue = '';
     if (rawValue.length > 0) {
-      formattedValue = `(${rawValue.substring(0, 3)}`
+      formattedValue = `(${rawValue.substring(0, 3)}`;
     }
     if (rawValue.length >= 4) {
-      formattedValue += `) ${rawValue.substring(3, 6)}`
+      formattedValue += `) ${rawValue.substring(3, 6)}`;
     }
     if (rawValue.length >= 7) {
-      formattedValue += `-${rawValue.substring(6, 10)}`
+      formattedValue += `-${rawValue.substring(6, 10)}`;
     }
-
-    e.target.value = formattedValue
-
+    e.target.value = formattedValue;
     if (props.onChange) {
-      props.onChange(e)
+      props.onChange(e);
     }
-  }
-
+  };
   return (
     <FormInput
       {...props}
@@ -92,42 +86,42 @@ const PhoneInput = React.forwardRef<HTMLInputElement, Omit<React.ComponentProps<
       maxLength={14}
       onChange={handleInputChange}
     />
-  )
-})
-PhoneInput.displayName = "PhoneInput"
+  );
+});
+PhoneInput.displayName = 'PhoneInput';
 
-const FormTextarea = (props: React.ComponentProps<"textarea">) => (
+const FormTextarea = (props: React.ComponentProps<'textarea'>) => (
   <textarea
     {...props}
     className="block w-full rounded-md border-neutral-300 bg-neutral-50 p-3 text-base shadow-sm focus:border-neutral-500 focus:ring-neutral-500"
   />
-)
+);
 
-const FormSelect = (props: React.ComponentProps<"select">) => (
+const FormSelect = (props: React.ComponentProps<'select'>) => (
   <select
     {...props}
     className="block w-full rounded-md border-neutral-300 bg-neutral-50 p-3 text-base shadow-sm focus:border-neutral-500 focus:ring-neutral-500"
   >
     {props.children}
   </select>
-)
+);
 
-const FormCheckbox = React.forwardRef<HTMLInputElement, React.ComponentProps<"input">>((props, ref) => (
+const FormCheckbox = React.forwardRef<HTMLInputElement, React.ComponentProps<'input'>>((props, ref) => (
   <input
     ref={ref}
     type="checkbox"
     {...props}
     className="h-4 w-4 rounded border-neutral-400 text-neutral-800 focus:ring-neutral-800"
   />
-))
-FormCheckbox.displayName = "FormCheckbox"
+));
+FormCheckbox.displayName = 'FormCheckbox';
 
 const RadioCard = ({
   id,
   value,
   children,
   ...props
-}: React.ComponentProps<"input"> & { children: React.ReactNode }) => (
+}: React.ComponentProps<'input'> & { children: React.ReactNode }) => (
   <div>
     <input type="radio" id={id} value={value} className="peer sr-only" {...props} />
     <label
@@ -137,7 +131,7 @@ const RadioCard = ({
       {children}
     </label>
   </div>
-)
+);
 
 const YesNoToggle = ({ value, onChange }: { value: boolean | null; onChange: (newValue: boolean) => void }) => (
   <div className="flex gap-3">
@@ -145,7 +139,7 @@ const YesNoToggle = ({ value, onChange }: { value: boolean | null; onChange: (ne
       type="button"
       onClick={() => onChange(true)}
       className={`rounded-md px-6 py-2 text-base font-medium transition-colors ${
-        value === true ? "bg-neutral-900 text-white shadow-sm" : "bg-neutral-200 text-neutral-700 hover:bg-neutral-300"
+        value === true ? 'bg-neutral-900 text-white shadow-sm' : 'bg-neutral-200 text-neutral-700 hover:bg-neutral-300'
       }`}
     >
       Yes
@@ -154,13 +148,13 @@ const YesNoToggle = ({ value, onChange }: { value: boolean | null; onChange: (ne
       type="button"
       onClick={() => onChange(false)}
       className={`rounded-md px-6 py-2 text-base font-medium transition-colors ${
-        value === false ? "bg-neutral-900 text-white shadow-sm" : "bg-neutral-200 text-neutral-700 hover:bg-neutral-300"
+        value === false ? 'bg-neutral-900 text-white shadow-sm' : 'bg-neutral-200 text-neutral-700 hover:bg-neutral-300'
       }`}
     >
       No
     </button>
   </div>
-)
+);
 
 const FileUploadButton = ({
   files,
@@ -170,41 +164,40 @@ const FileUploadButton = ({
   label,
   isPhotos = false,
 }: {
-  files: File[]
-  onChange: (files: File[]) => void
-  accept: string
-  multiple?: boolean
-  label: string
-  isPhotos?: boolean
+  files: File[];
+  onChange: (files: File[]) => void;
+  accept: string;
+  multiple?: boolean;
+  label: string;
+  isPhotos?: boolean;
 }) => {
-  const [isMobile, setIsMobile] = useState(false)
-  const fileInputRef = React.useRef<HTMLInputElement>(null)
-  const cameraInputRef = React.useRef<HTMLInputElement>(null)
+  const [isMobile, setIsMobile] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const cameraInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    setIsMobile(/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent))
-  }, [])
+    setIsMobile(/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent));
+  }, []);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const selectedFiles = Array.from(e.target.files || [])
-    onChange([...files, ...selectedFiles])
-  }
+    const selectedFiles = Array.from(e.target.files || []);
+    onChange([...files, ...selectedFiles]);
+  };
 
   const removeFile = (index: number) => {
-    const newFiles = files.filter((_, i) => i !== index)
-    onChange(newFiles)
-  }
+    const newFiles = files.filter((_, i) => i !== index);
+    onChange(newFiles);
+  };
 
   const getFilePreview = (file: File) => {
-    if (file.type.startsWith("image/")) {
-      return URL.createObjectURL(file)
+    if (file.type.startsWith('image/')) {
+      return URL.createObjectURL(file);
     }
-    return null
-  }
+    return null;
+  };
 
   return (
     <div className="space-y-3">
-      {/* Hidden file inputs */}
       <input
         ref={fileInputRef}
         type="file"
@@ -224,20 +217,15 @@ const FileUploadButton = ({
           className="sr-only"
         />
       )}
-
-      {/* Upload buttons */}
       <div className="space-y-2">
-        {/* Main upload button */}
         <button
           type="button"
           onClick={() => fileInputRef.current?.click()}
           className="flex w-full items-center justify-center gap-3 rounded-lg border-2 border-dashed border-neutral-300 bg-neutral-50 p-6 text-base font-medium text-neutral-700 transition-colors hover:border-neutral-400 hover:bg-neutral-100"
         >
           {isPhotos ? <ImageIcon className="h-6 w-6" /> : <Upload className="h-6 w-6" />}
-          {isPhotos ? "Choose Photos from Library" : label}
+          {isPhotos ? 'Choose Photos from Library' : label}
         </button>
-
-        {/* Camera button for mobile photos */}
         {isPhotos && isMobile && (
           <button
             type="button"
@@ -249,7 +237,6 @@ const FileUploadButton = ({
           </button>
         )}
       </div>
-
       {files.length > 0 && (
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
           {files.map((file, index) => (
@@ -257,7 +244,7 @@ const FileUploadButton = ({
               <div className="aspect-square overflow-hidden rounded-lg border border-neutral-200 bg-neutral-100">
                 {getFilePreview(file) ? (
                   <img
-                    src={getFilePreview(file)! || "/placeholder.svg"}
+                    src={getFilePreview(file)! || '/placeholder.svg'}
                     alt={file.name}
                     className="h-full w-full object-cover"
                   />
@@ -282,8 +269,8 @@ const FileUploadButton = ({
         </div>
       )}
     </div>
-  )
-}
+  );
+};
 
 const SubmitButton = ({ children, isPending }: { children: React.ReactNode; isPending: boolean }) => (
   <button
@@ -293,40 +280,39 @@ const SubmitButton = ({ children, isPending }: { children: React.ReactNode; isPe
   >
     {isPending ? <Loader2 className="h-5 w-5 animate-spin" /> : children}
   </button>
-)
+);
 
 // --- Step 1 Form Component ---
-
 function Step1Form({ onSuccess }: { onSuccess: (recordId: string) => void }) {
-  const id = useRef<string>(Math.random().toString(36).substr(2, 9)).current
+  const id = useRef<string>(Math.random().toString(36).substr(2, 9)).current;
   const [state, formAction, isPending] = useActionState<Step1State, FormData>(handleStep1Submit, {
-    message: "",
+    message: '',
     success: false,
-  })
+  });
   const {
     register,
     formState: { errors },
   } = useForm<Step1Data>({
     resolver: zodResolver(step1Schema),
     defaultValues: { projectType: undefined },
-  })
+  });
 
   useEffect(() => {
     if (state.success && state.recordId) {
-      onSuccess(state.recordId)
+      onSuccess(state.recordId);
     }
-  }, [state, onSuccess])
+  }, [state, onSuccess]);
 
   return (
     <form action={formAction} className="space-y-5">
       <FieldWrapper id={`${id}-name`} label="Full Name" error={errors.name?.message || state.errors?.name?.[0]}>
-        <FormInput id={`${id}-name`} {...register("name")} placeholder="John Doe" />
+        <FormInput id={`${id}-name`} {...register('name')} placeholder="John Doe" />
       </FieldWrapper>
       <FieldWrapper id={`${id}-phone`} label="Phone Number" error={errors.phone?.message || state.errors?.phone?.[0]}>
-        <PhoneInput id={`${id}-phone`} {...register("phone")} />
+        <PhoneInput id={`${id}-phone`} {...register('phone')} />
       </FieldWrapper>
       <FieldWrapper id={`${id}-email`} label="Email Address" error={errors.email?.message || state.errors?.email?.[0]}>
-        <FormInput id={`${id}-email`} {...register("email")} type="email" placeholder="you@example.com" />
+        <FormInput id={`${id}-email`} {...register('email')} type="email" placeholder="you@example.com" />
       </FieldWrapper>
       <FieldWrapper
         id={`${id}-projectType`}
@@ -334,13 +320,13 @@ function Step1Form({ onSuccess }: { onSuccess: (recordId: string) => void }) {
         error={errors.projectType?.message || state.errors?.projectType?.[0]}
       >
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
-          <RadioCard id={`${id}-new`} value="new-construction" {...register("projectType")}>
+          <RadioCard id={`${id}-new`} value="new-construction" {...register('projectType')}>
             New
           </RadioCard>
-          <RadioCard id={`${id}-replacement`} value="roof-replacement" {...register("projectType")}>
+          <RadioCard id={`${id}-replacement`} value="roof-replacement" {...register('projectType')}>
             Replacement
           </RadioCard>
-          <RadioCard id={`${id}-other`} value="other" {...register("projectType")}>
+          <RadioCard id={`${id}-other`} value="other" {...register('projectType')}>
             Other
           </RadioCard>
         </div>
@@ -350,17 +336,16 @@ function Step1Form({ onSuccess }: { onSuccess: (recordId: string) => void }) {
       </SubmitButton>
       {!state.success && state.message && <p className="text-center text-sm text-red-600">{state.message}</p>}
     </form>
-  )
+  );
 }
 
 // --- Step 2 Form Component ---
-
 function Step2Form({ airtableRecordId, onSuccess }: { airtableRecordId: string; onSuccess: () => void }) {
-  const id = useRef<string>(Math.random().toString(36).substr(2, 9)).current
+  const id = useRef<string>(Math.random().toString(36).substr(2, 9)).current;
   const [state, formAction, isPending] = useActionState<Step2State, FormData>(handleStep2Submit, {
-    message: "",
+    message: '',
     success: false,
-  })
+  });
   const {
     register,
     control,
@@ -372,42 +357,39 @@ function Step2Form({ airtableRecordId, onSuccess }: { airtableRecordId: string; 
     defaultValues: {
       isRoofSizeUnsure: false,
     },
-  })
-
-  const [hasPlans, setHasPlans] = useState<boolean | null>(null)
-  const [hasPhotos, setHasPhotos] = useState<boolean | null>(null)
-  const [planFiles, setPlanFiles] = useState<File[]>([])
-  const [photoFiles, setPhotoFiles] = useState<File[]>([])
-  const isRoofSizeUnsure = watch("isRoofSizeUnsure")
+  });
+  const [hasPlans, setHasPlans] = useState<boolean | null>(null);
+  const [hasPhotos, setHasPhotos] = useState<boolean | null>(null);
+  const [planFiles, setPlanFiles] = useState<File[]>([]);
+  const [photoFiles, setPhotoFiles] = useState<File[]>([]);
+  const isRoofSizeUnsure = watch('isRoofSizeUnsure');
 
   useEffect(() => {
     if (isRoofSizeUnsure) {
-      setValue("roofSize", "")
+      setValue('roofSize', '');
     }
-  }, [isRoofSizeUnsure, setValue])
+  }, [isRoofSizeUnsure, setValue]);
 
   useEffect(() => {
     if (state.success) {
-      onSuccess()
+      onSuccess();
     }
-  }, [state, onSuccess])
-
-  // Update form values when files change
-  useEffect(() => {
-    setValue("plans", planFiles)
-  }, [planFiles, setValue])
+  }, [state, onSuccess]);
 
   useEffect(() => {
-    setValue("photos", photoFiles)
-  }, [photoFiles, setValue])
+    setValue('plans', planFiles);
+  }, [planFiles, setValue]);
+
+  useEffect(() => {
+    setValue('photos', photoFiles);
+  }, [photoFiles, setValue]);
 
   return (
     <form action={formAction} className="space-y-5">
-      <input type="hidden" {...register("airtableRecordId")} value={airtableRecordId} />
+      <input type="hidden" {...register('airtableRecordId')} value={airtableRecordId} />
       <FieldWrapper id={`${id}-address`} label="Project Address" error={errors.projectAddress?.message}>
-        <FormInput id={`${id}-address`} {...register("projectAddress")} placeholder="123 Main St, New York, NY" />
+        <FormInput id={`${id}-address`} {...register('projectAddress')} placeholder="123 Main St, New York, NY" />
       </FieldWrapper>
-
       <FieldWrapper
         id={`${id}-roofSize`}
         error={errors.roofSize?.message}
@@ -417,7 +399,7 @@ function Step2Form({ airtableRecordId, onSuccess }: { airtableRecordId: string; 
               Approx. Roof Size (sq ft)
             </label>
             <div className="flex items-center gap-2">
-              <FormCheckbox id={`${id}-roofSizeUnsure`} {...register("isRoofSizeUnsure")} />
+              <FormCheckbox id={`${id}-roofSizeUnsure`} {...register('isRoofSizeUnsure')} />
               <label htmlFor={`${id}-roofSizeUnsure`} className="text-sm font-medium text-neutral-600">
                 Not sure
               </label>
@@ -427,12 +409,11 @@ function Step2Form({ airtableRecordId, onSuccess }: { airtableRecordId: string; 
       >
         <FormInput
           id={`${id}-roofSize`}
-          {...register("roofSize")}
+          {...register('roofSize')}
           placeholder="e.g., 2500"
           disabled={isRoofSizeUnsure}
         />
       </FieldWrapper>
-
       <FieldWrapper
         id={`${id}-plans`}
         label="Do you have architectural plans?"
@@ -442,10 +423,10 @@ function Step2Form({ airtableRecordId, onSuccess }: { airtableRecordId: string; 
           <YesNoToggle
             value={hasPlans}
             onChange={(val) => {
-              setHasPlans(val)
+              setHasPlans(val);
               if (!val) {
-                setPlanFiles([])
-                setValue("plans", [])
+                setPlanFiles([]);
+                setValue('plans', []);
               }
             }}
           />
@@ -461,7 +442,6 @@ function Step2Form({ airtableRecordId, onSuccess }: { airtableRecordId: string; 
           )}
         </div>
       </FieldWrapper>
-
       <FieldWrapper
         id={`${id}-photos`}
         label="Do you have photos of the roof?"
@@ -471,10 +451,10 @@ function Step2Form({ airtableRecordId, onSuccess }: { airtableRecordId: string; 
           <YesNoToggle
             value={hasPhotos}
             onChange={(val) => {
-              setHasPhotos(val)
+              setHasPhotos(val);
               if (!val) {
-                setPhotoFiles([])
-                setValue("photos", [])
+                setPhotoFiles([]);
+                setValue('photos', []);
               }
             }}
           />
@@ -490,9 +470,8 @@ function Step2Form({ airtableRecordId, onSuccess }: { airtableRecordId: string; 
           )}
         </div>
       </FieldWrapper>
-
       <FieldWrapper id={`${id}-tileType`} label="Clay Tile Type (if known)">
-        <FormSelect {...register("tileType")}>
+        <FormSelect {...register('tileType')}>
           <option value="">Select an option...</option>
           <option value="spanish-s">Traditional Spanish / S-Mission</option>
           <option value="flat">Flat Tile</option>
@@ -500,7 +479,7 @@ function Step2Form({ airtableRecordId, onSuccess }: { airtableRecordId: string; 
         </FormSelect>
       </FieldWrapper>
       <FieldWrapper id={`${id}-timeframe`} label="When are you hoping to start?">
-        <FormSelect {...register("timeframe")}>
+        <FormSelect {...register('timeframe')}>
           <option value="">Select a timeframe...</option>
           <option value="asap">ASAP</option>
           <option value="1-3-months">Within 1-3 months</option>
@@ -508,57 +487,55 @@ function Step2Form({ airtableRecordId, onSuccess }: { airtableRecordId: string; 
         </FormSelect>
       </FieldWrapper>
       <FieldWrapper id={`${id}-referral`} label="How did you hear about us?">
-        <FormInput id={`${id}-referral`} {...register("referral")} />
+        <FormInput id={`${id}-referral`} {...register('referral')} />
       </FieldWrapper>
       <FieldWrapper id={`${id}-message`} label="Additional Message">
-        <FormTextarea id={`${id}-message`} {...register("message")} rows={3} />
+        <FormTextarea id={`${id}-message`} {...register('message')} rows={3} />
       </FieldWrapper>
       <SubmitButton isPending={isPending}>Submit Full Details</SubmitButton>
       {!state.success && state.message && <p className="text-center text-sm text-red-600">{state.message}</p>}
     </form>
-  )
+  );
 }
 
 // --- Gallery Carousel Component ---
-
 function GalleryCarousel() {
-  const [currentSlide, setCurrentSlide] = useState(0)
-
+  const [currentSlide, setCurrentSlide] = useState(0);
   const galleryImages = [
     {
-      src: "/gallery/terracotta-s-tile.jpg",
-      alt: "Classic terracotta Spanish S-tiles installation",
+      src: '/gallery/terracotta-s-tile.jpg',
+      alt: 'Classic terracotta Spanish S-tiles installation',
     },
     {
-      src: "/gallery/slate-shake-main.jpg",
-      alt: "Custom home with weathered gray slate shake tile roof",
+      src: '/gallery/slate-shake-main.jpg',
+      alt: 'Custom home with weathered gray slate shake tile roof',
     },
     {
-      src: "/gallery/maroon-mission-construction-1.jpg",
-      alt: "Aerial view of deep maroon mission barrel tile roof",
+      src: '/gallery/maroon-mission-construction-1.jpg',
+      alt: 'Aerial view of deep maroon mission barrel tile roof',
     },
     {
-      src: "/gallery/flat-walnut-roof.jpg",
-      alt: "Large home with walnut brown flat profile tiles",
+      src: '/gallery/flat-walnut-roof.jpg',
+      alt: 'Large home with walnut brown flat profile tiles',
     },
     {
-      src: "/gallery/vintage-red-villa.jpg",
-      alt: "Luxury villa with vintage red mission barrel tile roof",
+      src: '/gallery/vintage-red-villa.jpg',
+      alt: 'Luxury villa with vintage red mission barrel tile roof',
     },
-  ]
+  ];
 
   const nextSlide = () => {
-    setCurrentSlide((prev) => (prev + 1) % galleryImages.length)
-  }
+    setCurrentSlide((prev) => (prev + 1) % galleryImages.length);
+  };
 
   const prevSlide = () => {
-    setCurrentSlide((prev) => (prev - 1 + galleryImages.length) % galleryImages.length)
-  }
+    setCurrentSlide((prev) => (prev - 1 + galleryImages.length) % galleryImages.length);
+  };
 
   useEffect(() => {
-    const timer = setInterval(nextSlide, 6500) // Auto-advance every 6.5 seconds
-    return () => clearInterval(timer)
-  }, [])
+    const timer = setInterval(nextSlide, 6500);
+    return () => clearInterval(timer);
+  }, []);
 
   return (
     <div className="relative w-full h-96 md:h-[500px] overflow-hidden rounded-lg bg-neutral-100">
@@ -566,11 +543,11 @@ function GalleryCarousel() {
         <div
           key={index}
           className={`absolute inset-0 transition-opacity duration-700 ease-in-out ${
-            index === currentSlide ? "opacity-100" : "opacity-0"
+            index === currentSlide ? 'opacity-100' : 'opacity-0'
           }`}
         >
           <Image
-            src={image.src || "/placeholder.svg"}
+            src={image.src || '/placeholder.svg'}
             alt={image.alt}
             fill
             className="object-cover"
@@ -578,8 +555,6 @@ function GalleryCarousel() {
           />
         </div>
       ))}
-
-      {/* Navigation arrows */}
       <button
         onClick={prevSlide}
         className="absolute left-4 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white text-neutral-800 p-2 rounded-full shadow-lg transition-all z-10"
@@ -594,61 +569,56 @@ function GalleryCarousel() {
       >
         <ChevronRight className="h-5 w-5" />
       </button>
-
-      {/* Dots indicator */}
       <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2 z-10">
         {galleryImages.map((_, index) => (
           <button
             key={index}
             onClick={() => setCurrentSlide(index)}
-            className={`w-2 h-2 rounded-full transition-all ${index === currentSlide ? "bg-white" : "bg-white/50"}`}
+            className={`w-2 h-2 rounded-full transition-all ${index === currentSlide ? 'bg-white' : 'bg-white/50'}`}
             aria-label={`Go to slide ${index + 1}`}
           />
         ))}
       </div>
     </div>
-  )
+  );
 }
 
 // --- Featured Tile Carousel Component ---
-
 function FeaturedTileCarousel() {
-  const [currentSlide, setCurrentSlide] = useState(0)
-
-  // Featured tile slides data
+  const [currentSlide, setCurrentSlide] = useState(0);
   const featuredTiles = [
     {
-      id: "red",
-      name: "Classic Red",
-      subtitle: "Our Most Popular Choice",
+      id: 'red',
+      name: 'Classic Red',
+      subtitle: 'Our Most Popular Choice',
       description:
-        "The timeless beauty of classic red clay tiles brings warmth and elegance to any home. Premium Selectum quality with consistent coloring.",
-      roofImage: "/tiles/selectum/selectum-red-tiles-roof.png",
-      singleTileImage: "/tiles/selectum/selectum-red-tile-updated.png",
+        'The timeless beauty of classic red clay tiles brings warmth and elegance to any home. Premium Selectum quality with consistent coloring.',
+      roofImage: '/tiles/selectum/selectum-red-tiles-roof.png',
+      singleTileImage: '/tiles/selectum/selectum-red-tile-updated.png',
     },
     {
-      id: "galia",
-      name: "Galia Speckled",
-      subtitle: "Natural Texture & Character",
+      id: 'galia',
+      name: 'Galia Speckled',
+      subtitle: 'Natural Texture & Character',
       description:
-        "Beautiful speckled finish with natural variation creates authentic Mediterranean charm. Each tile tells its own story.",
-      roofImage: "/tiles/selectum/selectum-galia-tiles-roof.png",
-      singleTileImage: "/tiles/selectum/selectum-galia-tile-single.png",
+        'Beautiful speckled finish with natural variation creates authentic Mediterranean charm. Each tile tells its own story.',
+      roofImage: '/tiles/selectum/selectum-galia-tiles-roof.png',
+      singleTileImage: '/tiles/selectum/selectum-galia-tile-single.png',
     },
-  ]
+  ];
 
   const nextSlide = () => {
-    setCurrentSlide((prev) => (prev + 1) % featuredTiles.length)
-  }
+    setCurrentSlide((prev) => (prev + 1) % featuredTiles.length);
+  };
 
   const prevSlide = () => {
-    setCurrentSlide((prev) => (prev - 1 + featuredTiles.length) % featuredTiles.length)
-  }
+    setCurrentSlide((prev) => (prev - 1 + featuredTiles.length) % featuredTiles.length);
+  };
 
   useEffect(() => {
-    const timer = setInterval(nextSlide, 5000) // Auto-advance every 5 seconds
-    return () => clearInterval(timer)
-  }, [])
+    const timer = setInterval(nextSlide, 5000);
+    return () => clearInterval(timer);
+  }, []);
 
   return (
     <section className="py-16 sm:py-20 bg-gradient-to-b from-white to-neutral-50 border-b border-neutral-200">
@@ -657,32 +627,28 @@ function FeaturedTileCarousel() {
           <h2 className="text-3xl font-bold text-neutral-900 sm:text-4xl mb-4">Featured Tiles</h2>
           <p className="text-lg text-neutral-600">Discover our premium clay tile collection</p>
         </div>
-
         <div className="bg-white rounded-2xl shadow-xl overflow-hidden max-w-4xl mx-auto relative">
           {featuredTiles.map((tile, index) => (
             <div
               key={tile.id}
               className={`transition-opacity duration-700 ease-in-out ${
-                index === currentSlide ? "opacity-100" : "opacity-0 absolute inset-0"
+                index === currentSlide ? 'opacity-100' : 'opacity-0 absolute inset-0'
               }`}
             >
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-0">
-                {/* Large roof installation image */}
                 <div className="lg:col-span-2 relative h-64 sm:h-80 lg:h-96">
                   <Image
-                    src={tile.roofImage || "/placeholder.svg"}
+                    src={tile.roofImage || '/placeholder.svg'}
                     alt={`${tile.name} tiles roof installation`}
                     fill
                     className="object-cover"
                     sizes="(max-width: 1024px) 100vw, 66vw"
                     priority={index === 0}
                   />
-
-                  {/* Single tile overlay in corner */}
                   <div className="absolute bottom-4 right-4 w-20 h-20 sm:w-24 sm:h-24 bg-white/95 rounded-lg p-2 shadow-lg">
                     <div className="relative w-full h-full">
                       <Image
-                        src={tile.singleTileImage || "/placeholder.svg"}
+                        src={tile.singleTileImage || '/placeholder.svg'}
                         alt={`${tile.name} single tile`}
                         fill
                         className="object-contain"
@@ -691,15 +657,12 @@ function FeaturedTileCarousel() {
                     </div>
                   </div>
                 </div>
-
-                {/* Content section */}
                 <div className="p-8 lg:p-10 flex flex-col justify-center">
                   <div className="mb-6">
                     <h3 className="text-2xl font-bold text-neutral-900 mb-2">{tile.name}</h3>
                     <p className="text-orange-600 font-semibold mb-4">{tile.subtitle}</p>
                     <p className="text-neutral-600 leading-relaxed">{tile.description}</p>
                   </div>
-
                   <Link href="/tile-selection" className="tappable">
                     <Button className="w-full h-12 bg-orange-600 hover:bg-orange-700 text-white font-semibold rounded-lg transition-all duration-200 cursor-pointer">
                       View All Tile Options
@@ -709,8 +672,6 @@ function FeaturedTileCarousel() {
               </div>
             </div>
           ))}
-
-          {/* Navigation arrows */}
           <button
             onClick={prevSlide}
             className="absolute left-4 top-1/2 -translate-y-1/2 bg-white/90 hover:bg-white text-neutral-800 p-2 rounded-full shadow-lg transition-all z-10"
@@ -725,15 +686,13 @@ function FeaturedTileCarousel() {
           >
             <ChevronRight className="h-5 w-5" />
           </button>
-
-          {/* Dots indicator */}
           <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2 z-10">
             {featuredTiles.map((_, index) => (
               <button
                 key={index}
                 onClick={() => setCurrentSlide(index)}
                 className={`w-2 h-2 rounded-full transition-all ${
-                  index === currentSlide ? "bg-orange-600" : "bg-white/60"
+                  index === currentSlide ? 'bg-orange-600' : 'bg-white/60'
                 }`}
                 aria-label={`Go to ${featuredTiles[index].name} slide`}
               />
@@ -742,80 +701,70 @@ function FeaturedTileCarousel() {
         </div>
       </div>
     </section>
-  )
+  );
 }
 
-// --- Main Landing Page Component ---
-
+// --- Intersection Observer Hook (Fixed) ---
 function useIntersectionObserver(options = {}) {
-  const [isVisible, setIsVisible] = useState(false)
-  const [hasBeenVisible, setHasBeenVisible] = useState(false)
-  const elementRef = useRef<HTMLElement>(null)
+  const [isVisible, setIsVisible] = useState(false);
+  const elementRef = useRef<HTMLElement>(null);
 
   useEffect(() => {
-    const element = elementRef.current
-    if (!element) return
+    const element = elementRef.current;
+    if (!element) return;
 
     const observer = new IntersectionObserver(
       ([entry]) => {
-        if (entry.isIntersecting && !hasBeenVisible) {
-          setIsVisible(true)
-          setHasBeenVisible(true)
+        if (entry.isIntersecting) {
+          setIsVisible(true);
         }
       },
       {
-        threshold: 0.3, // Trigger when 30% of the section is visible
-        rootMargin: "0px 0px -50px 0px", // Trigger slightly before fully visible
+        threshold: 0.3,
+        rootMargin: '0px 0px -50px 0px',
         ...options,
-      },
-    )
+      }
+    );
 
-    observer.observe(element)
+    observer.observe(element);
+    return () => observer.unobserve(element);
+  }, [options]);
 
-    return () => {
-      observer.unobserve(element)
-    }
-  }, [hasBeenVisible])
-
-  return { elementRef, isVisible }
+  return { elementRef, isVisible };
 }
 
+// --- Main Landing Page Component ---
 export default function Page() {
-  const [open, setOpen] = useState(false)
-  const [step, setStep] = useState(1)
-  const [airtableRecordId, setAirtableRecordId] = useState<string | null>(null)
-  const { elementRef: statsRef, isVisible: statsVisible } = useIntersectionObserver()
+  const [open, setOpen] = useState(false);
+  const [step, setStep] = useState(1);
+  const [airtableRecordId, setAirtableRecordId] = useState<string | null>(null);
+  const { elementRef: statsRef, isVisible: statsVisible } = useIntersectionObserver();
 
   const handleStep1Success = (recordId: string) => {
-    setAirtableRecordId(recordId)
-    setStep(2)
-  }
+    setAirtableRecordId(recordId);
+    setStep(2);
+  };
 
   const handleStep2Success = () => {
-    setStep(3) // Confirmation step
-  }
+    setStep(3);
+  };
 
-  // Reset form when dialog is closed
   useEffect(() => {
     if (!open) {
       setTimeout(() => {
-        setStep(1)
-        setAirtableRecordId(null)
-      }, 200) // Delay to allow dialog to close before state reset
+        setStep(1);
+        setAirtableRecordId(null);
+      }, 200);
     }
-  }, [open])
+  }, [open]);
 
   return (
     <>
       <main className="bg-white">
-        {/* Featured Tile Carousel */}
         <FeaturedTileCarousel />
-
-        {/* Stats/Credibility Section */}
         <section ref={statsRef} className="py-20 sm:py-24 bg-white relative z-10">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-8 lg:gap-12 text-center">
-              {/* Stat 1 - Years in Business */}
               <div className="flex flex-col items-center">
                 <div className="w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center mb-4 transition-all duration-300 hover:bg-orange-200 hover:scale-110">
                   <Briefcase className="h-8 w-8 text-orange-600 stroke-1 transition-colors duration-300 hover:text-orange-700" />
@@ -825,8 +774,6 @@ export default function Page() {
                 </h3>
                 <p className="text-lg text-neutral-600 font-medium">Years in Business</p>
               </div>
-
-              {/* Stat 2 - Projects Completed */}
               <div className="flex flex-col items-center">
                 <div className="w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center mb-4 transition-all duration-300 hover:bg-orange-200 hover:scale-110">
                   <Home className="h-8 w-8 text-orange-600 stroke-1 transition-colors duration-300 hover:text-orange-700" />
@@ -836,8 +783,6 @@ export default function Page() {
                 </h3>
                 <p className="text-lg text-neutral-600 font-medium">Projects Completed</p>
               </div>
-
-              {/* Stat 3 - Tiles Installed */}
               <div className="flex flex-col items-center">
                 <div className="w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center mb-4 transition-all duration-300 hover:bg-orange-200 hover:scale-110">
                   <Grid3X3 className="h-8 w-8 text-orange-600 stroke-1 transition-colors duration-300 hover:text-orange-700" />
@@ -848,8 +793,6 @@ export default function Page() {
                 <p className="text-lg text-neutral-600 font-medium">Tiles Installed</p>
               </div>
             </div>
-
-            {/* CTA Button in Credibility Section */}
             <div className="text-center mt-12">
               <Link href="/contact#quote" className="tappable">
                 <Button className="h-12 px-8 text-lg font-semibold bg-orange-600 hover:bg-orange-700 text-white rounded-full shadow-lg hover:shadow-xl transition-all duration-200 cursor-pointer">
@@ -859,8 +802,6 @@ export default function Page() {
             </div>
           </div>
         </section>
-
-        {/* Gallery Section */}
         <section className="py-20 sm:py-24 bg-neutral-50 border-t border-neutral-200 relative z-10">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-12">
@@ -870,8 +811,6 @@ export default function Page() {
             <GalleryCarousel />
           </div>
         </section>
-
-        {/* Call to Action Section */}
         <section className="py-20 sm:py-24 bg-white border-t border-neutral-100 relative z-10">
           <div className="max-w-4xl mx-auto text-center px-4 sm:px-6 lg:px-8">
             <h2 className="text-3xl font-bold text-neutral-900 sm:text-4xl mb-6">Ready to Get Started?</h2>
@@ -886,34 +825,28 @@ export default function Page() {
           </div>
         </section>
       </main>
-
       <StickyCallBar isHidden={open} />
-
-      {/* Footer */}
       <footer className="border-t border-neutral-200 bg-neutral-50 py-16 sm:py-20 relative z-10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            {/* Contact Info */}
             <div>
               <h3 className="text-lg font-semibold text-neutral-900 mb-4">Contact Information</h3>
               <div className="space-y-2 text-neutral-600">
                 <p>33-15 127th Pl, Corona, NY 11368</p>
                 <p>
-                  Phone:{" "}
+                  Phone:{' '}
                   <a href="tel:212-365-4386" className="hover:text-orange-600">
                     (212) 365-4386
                   </a>
                 </p>
                 <p>
-                  Email:{" "}
+                  Email:{' '}
                   <a href="mailto:chris@clayroofingnewyork.com" className="hover:text-orange-600">
                     chris@clayroofingnewyork.com
                   </a>
                 </p>
               </div>
             </div>
-
-            {/* Business Hours */}
             <div>
               <h3 className="text-lg font-semibold text-neutral-900 mb-4">Business Hours</h3>
               <div className="space-y-2 text-neutral-600">
@@ -922,7 +855,6 @@ export default function Page() {
               </div>
             </div>
           </div>
-
           <div className="mt-8 pt-8 border-t border-neutral-200">
             <div className="flex flex-col sm:flex-row justify-between items-center">
               <div className="flex items-center gap-3 mb-4 sm:mb-0">
@@ -959,5 +891,5 @@ export default function Page() {
         </div>
       </footer>
     </>
-  )
+  );
 }

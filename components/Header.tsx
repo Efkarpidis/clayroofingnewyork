@@ -59,16 +59,16 @@ export function Header() {
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             {/* Desktop Navigation */}
             <nav className="hidden md:flex items-center justify-center text-center py-2 space-x-8">
-              <Link
+              <a
                 href="tel:+1-212-365-4386"
-                className="tappable flex items-center gap-2 px-3 py-2 text-sm font-medium rounded-md transition-colors text-foreground hover:text-primary hover:bg-muted"
+                className="flex items-center gap-2 px-3 py-2 text-sm font-medium rounded-md transition-colors text-foreground hover:text-primary hover:bg-muted"
               >
                 <Phone className="w-4 h-4 flex-shrink-0" />
                 <span>212-365-4386</span>
-              </Link>
+              </a>
               <Link
                 href="/gallery"
-                className={`tappable px-3 py-2 text-sm font-medium rounded-md transition-colors ${
+                className={`px-3 py-2 text-sm font-medium rounded-md transition-colors ${
                   currentPage === 'gallery'
                     ? 'text-primary'
                     : 'text-foreground hover:text-primary hover:bg-muted'
@@ -78,7 +78,7 @@ export function Header() {
               </Link>
               <Link
                 href="/tile-selection"
-                className={`tappable px-3 py-2 text-sm font-medium rounded-md transition-colors ${
+                className={`px-3 py-2 text-sm font-medium rounded-md transition-colors ${
                   currentPage === 'tile-selection'
                     ? 'text-primary'
                     : 'text-foreground hover:text-primary hover:bg-muted'
@@ -88,7 +88,7 @@ export function Header() {
               </Link>
               <Link
                 href="/about"
-                className={`tappable px-3 py-2 text-sm font-medium rounded-md transition-colors ${
+                className={`px-3 py-2 text-sm font-medium rounded-md transition-colors ${
                   currentPage === 'about'
                     ? 'text-primary'
                     : 'text-foreground hover:text-primary hover:bg-muted'
@@ -98,7 +98,7 @@ export function Header() {
               </Link>
               <Link
                 href="/contact"
-                className={`tappable px-3 py-2 text-sm font-medium rounded-md transition-colors ${
+                className={`px-3 py-2 text-sm font-medium rounded-md transition-colors ${
                   currentPage === 'contact'
                     ? 'text-primary'
                     : 'text-foreground hover:text-primary hover:bg-muted'
@@ -107,10 +107,10 @@ export function Header() {
                 Contact
               </Link>
               {currentPage !== 'contact' && (
-                <Link href="/contact#quote" className="tappable block">
+                <Link href="/contact#quote">
                   <Button
                     size="sm"
-                    className="bg-gradient-to-r from-brand-600 to-brand-700 text-primary-foreground hover:from-brand-700 hover:to-brand-800 text-xs font-semibold transition-colors shadow-lg hover:shadow-xl h-9 px-4 w-full"
+                    className="bg-gradient-to-r from-brand-600 to-brand-700 text-primary-foreground hover:from-brand-700 hover:to-brand-800 text-xs font-semibold transition-colors shadow-lg hover:shadow-xl h-9 px-4"
                   >
                     Request Quote
                   </Button>
@@ -123,7 +123,7 @@ export function Header() {
                 <DropdownMenuTrigger asChild>
                   <Button
                     variant="outline"
-                    className="tappable flex items-center justify-between gap-2 w-full py-3 text-base font-medium border-border text-foreground hover:bg-muted hover:text-foreground hover:border-accent bg-card"
+                    className="flex items-center justify-between gap-2 w-full py-3 text-base font-medium border-border text-foreground hover:bg-muted hover:text-foreground hover:border-accent bg-card"
                   >
                     <ChevronDown className="h-4 w-4" />
                     <span className="flex-1 text-center">Menu</span>
@@ -132,18 +132,18 @@ export function Header() {
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="center" sideOffset={8} className="min-w-[200px] bg-card text-foreground border-border">
                   <DropdownMenuItem asChild>
-                    <Link
+                    <a
                       href="tel:+1-212-365-4386"
-                      className="tappable flex items-center gap-3 px-3 py-3 text-base font-semibold text-primary rounded-md cursor-pointer hover:bg-muted w-full"
+                      className="flex items-center gap-3 px-3 py-3 text-base font-semibold text-primary rounded-md cursor-pointer hover:bg-muted"
                     >
                       <Phone className="w-5 h-5 flex-shrink-0" />
                       <span>Call: 212-365-4386</span>
-                    </Link>
+                    </a>
                   </DropdownMenuItem>
                   <DropdownMenuItem asChild>
                     <Link
                       href="/"
-                      className={`tappable flex items-center px-3 py-3 text-base font-medium rounded-md cursor-pointer w-full ${
+                      className={`flex items-center px-3 py-3 text-base font-medium rounded-md cursor-pointer ${
                         currentPage === 'home' ? 'text-primary' : 'text-foreground hover:text-primary hover:bg-muted'
                       }`}
                     >
@@ -153,7 +153,7 @@ export function Header() {
                   <DropdownMenuItem asChild>
                     <Link
                       href="/gallery"
-                      className={`tappable flex items-center px-3 py-3 text-base font-medium rounded-md cursor-pointer w-full ${
+                      className={`flex items-center px-3 py-3 text-base font-medium rounded-md cursor-pointer ${
                         currentPage === 'gallery' ? 'text-primary' : 'text-foreground hover:text-primary hover:bg-muted'
                       }`}
                     >
@@ -163,7 +163,7 @@ export function Header() {
                   <DropdownMenuItem asChild>
                     <Link
                       href="/tile-selection"
-                      className={`tappable flex items-center px-3 py-3 text-base font-medium rounded-md cursor-pointer w-full ${
+                      className={`flex items-center px-3 py-3 text-base font-medium rounded-md cursor-pointer ${
                         currentPage === 'tile-selection' ? 'text-primary' : 'text-foreground hover:text-primary hover:bg-muted'
                       }`}
                     >
@@ -173,7 +173,7 @@ export function Header() {
                   <DropdownMenuItem asChild>
                     <Link
                       href="/about"
-                      className={`tappable flex items-center px-3 py-3 text-base font-medium rounded-md cursor-pointer w-full ${
+                      className={`flex items-center px-3 py-3 text-base font-medium rounded-md cursor-pointer ${
                         currentPage === 'about' ? 'text-primary' : 'text-foreground hover:text-primary hover:bg-muted'
                       }`}
                     >
@@ -183,7 +183,7 @@ export function Header() {
                   <DropdownMenuItem asChild>
                     <Link
                       href="/contact"
-                      className={`tappable flex items-center px-3 py-3 text-base font-medium rounded-md cursor-pointer w-full ${
+                      className={`flex items-center px-3 py-3 text-base font-medium rounded-md cursor-pointer ${
                         currentPage === 'contact' ? 'text-primary' : 'text-foreground hover:text-primary hover:bg-muted'
                       }`}
                     >
@@ -194,7 +194,7 @@ export function Header() {
                     <DropdownMenuItem asChild>
                       <Link
                         href="/contact#quote"
-                        className="tappable flex items-center justify-center px-3 py-3 text-base font-bold text-primary-foreground rounded-md cursor-pointer mt-2 bg-gradient-to-r from-brand-600 to-brand-700 hover:from-brand-700 hover:to-brand-800 min-h-[44px] w-full"
+                        className="flex items-center justify-center px-3 py-3 text-base font-bold text-primary-foreground rounded-md cursor-pointer mt-2 bg-gradient-to-r from-brand-600 to-brand-700 hover:from-brand-700 hover:to-brand-800 min-h-[44px]"
                       >
                         Request Quote
                       </Link>
