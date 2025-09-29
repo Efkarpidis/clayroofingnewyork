@@ -249,7 +249,7 @@ export async function POST(req: NextRequest) {
         reply_to: to,
         subject: `Thank you ${name} - Contact Received`,
         html: renderUserHtml({
-          logoUrl,
+          logoUrl: `${baseUrl}/Clay_Roofing_New_York_Email_Signature_1.jpg`, // Updated with your JPEG
           name,
           email,
           phone,
