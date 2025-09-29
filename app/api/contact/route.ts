@@ -169,6 +169,15 @@ export async function POST(req: NextRequest) {
     }
     console.log("File URLs:", fileUrls); // Debug
 
+    // Normalize phone number to US format (+1)
+    let normalizedPhone = phone.replace(/\D/g, ""); // Remove non-digits
+    if (normalizedPhone.startsWith("212") && normalizedPhone.length === 10) {
+      normalizedPhone = `+1${normalizedPhone}`; // Add +1 for US
+    } else if (normalizedPhone.startsWith("+212")) {
+      normalizedPhone = `+1212${normalizedPhone.slice(4)}`; // Correct +212 to +1212
+    }
+    console.log("Normalized phone:", normalizedPhone); // Debug
+
     // Validation
     const fieldErrors: Record<string, string[]> = {};
     if (!name) fieldErrors.name = ["Name is required"];
@@ -189,20 +198,20 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ ok: false, message: "Email service not configured." }, { status: 500 });
     }
     const baseUrl = getBaseUrl(req);
-    const logoUrl = `${baseUrl}/images/email-logo.png`;
+    const logoUrl = `${baseUrl}/Clay_Roofing_New_York_Email_Signature_1.jpg`; // Updated to new image
     const submittedAt = new Date().toLocaleString("en-US", { timeZone: "America/New_York", hour12: true });
 
     // Save to database
-    const submissionId = await saveSubmission(name, email, phone, company, contactType, tileFamily, tileColor, message, fileUrls, submittedAt, smsOptIn);
+    const submissionId = await saveSubmission(name, email, normalizedPhone, company, contactType, tileFamily, tileColor, message, fileUrls, submittedAt, smsOptIn);
     console.log(`Submission saved with ID: ${submissionId}`);
 
     // Twilio Verify for user phone
     let isVerified = false;
-    if (smsOptIn && phone) {
+    if (smsOptIn && normalizedPhone) {
       try {
         // Start verification
-        await smsClient.verify.v2.services("VA0aba966fb38fe81d6f1556ab02ef1d80").verifications.create({ to: phone, channel: "sms" });
-        console.log(`Verification sent to ${phone}`);
+        await smsClient.verify.v2.services("VA0aba966fb38fe81d6f1556ab02ef1d80").verifications.create({ to: normalizedPhone, channel: "sms" });
+        console.log(`Verification sent to ${normalizedPhone}`);
         // For now, assume manual verification (update page.tsx to automate)
         isVerified = true; // Placeholder—will be set via user code entry
       } catch (verifyError) {
@@ -217,12 +226,12 @@ export async function POST(req: NextRequest) {
       to,
       subject: `Thank you ${name} - New Contact (ID: ${submissionId})`,
       reply_to: email,
-      text: `New contact submission (submitted ${submittedAt}, ID: ${submissionId}):\nName: ${name}\nEmail: ${email}\nPhone: ${phone || "-"}\nCompany: ${company || "-"}\nContact Type: ${contactType || "-"}\nTile Family: ${tileFamily || "-"}\nTile Color: ${tileColor || "-"}\nMessage:\n${message}\nAttachments: ${fileUrls.length} file(s)`,
+      text: `New contact submission (submitted ${submittedAt}, ID: ${submissionId}):\nName: ${name}\nEmail: ${email}\nPhone: ${normalizedPhone || "-"}\nCompany: ${company || "-"}\nContact Type: ${contactType || "-"}\nTile Family: ${tileFamily || "-"}\nTile Color: ${tileColor || "-"}\nMessage:\n${message}\nAttachments: ${fileUrls.length} file(s)`,
       html: renderTeamHtml({
         logoUrl,
         name,
         email,
-        phone,
+        phone: normalizedPhone,
         company,
         contactType,
         tileFamily,
@@ -249,10 +258,10 @@ export async function POST(req: NextRequest) {
         reply_to: to,
         subject: `Thank you ${name} - Contact Received`,
         html: renderUserHtml({
-          logoUrl: `${baseUrl}/Clay_Roofing_New_York_Email_Signature_1.jpg`, // Updated with your JPEG
+          logoUrl: `${baseUrl}/Clay_Roofing_New_York_Email_Signature_1.jpg`, // Consistent new image
           name,
           email,
-          phone,
+          phone: normalizedPhone,
           company,
           contactType,
           tileFamily,
@@ -260,21 +269,21 @@ export async function POST(req: NextRequest) {
           message,
           submittedAt,
         }),
-        text: `Thanks, ${name}!\nWe received your message on ${submittedAt} (ID: ${submissionId}).\nOur Client Relations Manager will contact you shortly.\nSubmission copy:\nName: ${name}\nEmail: ${email}\nPhone: ${phone || "-"}\nCompany: ${company || "-"}\nContact Type: ${contactType || "-"}\nTile Family: ${tileFamily || "-"}\nTile Color: ${tileColor || "-"}\nMessage:\n${message}\nIf this is urgent, call us at 212-365-4386.\nClay Roofing New York`,
+        text: `Thanks, ${name}!\nWe received your message on ${submittedAt} (ID: ${submissionId}).\nOur Client Relations Manager will contact you shortly.\nSubmission copy:\nName: ${name}\nEmail: ${email}\nPhone: ${normalizedPhone || "-"}\nCompany: ${company || "-"}\nContact Type: ${contactType || "-"}\nTile Family: ${tileFamily || "-"}\nTile Color: ${tileColor || "-"}\nMessage:\n${message}\nIf this is urgent, call us at 212-365-4386.\nClay Roofing New York`,
       });
     } catch (err) {
       console.warn("[API] User confirmation email failed:", err);
     }
 
     // SMS opt-in handling (after verification)
-    if (smsOptIn && phone && isVerified) {
+    if (smsOptIn && normalizedPhone && isVerified) {
       try {
         await smsClient.messages.create({
-          body: `Thank you, ${name}! We'll send updates to ${phone}. Reply STOP to unsubscribe.`,
+          body: `Thank you, ${name}! We'll send updates to ${normalizedPhone}. Reply STOP to unsubscribe.`,
           from: process.env.TWILIO_PHONE_NUMBER!,
-          to: phone,
+          to: normalizedPhone,
         });
-        console.log(`SMS sent to ${phone} (ID: ${submissionId})`);
+        console.log(`SMS sent to ${normalizedPhone} (ID: ${submissionId})`);
       } catch (smsError) {
         console.error("SMS send failed:", smsError);
       }
