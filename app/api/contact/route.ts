@@ -198,22 +198,21 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ ok: false, message: "Email service not configured." }, { status: 500 });
     }
     const baseUrl = getBaseUrl(req);
-    const logoUrl = `${baseUrl}/Clay_Roofing_New_York_Email_Signature_1.jpg`; // Updated to new image
+    const logoUrl = `${baseUrl}/CRNY_email_banner.png`; // Updated to new banner
     const submittedAt = new Date().toLocaleString("en-US", { timeZone: "America/New_York", hour12: true });
 
     // Save to database
     const submissionId = await saveSubmission(name, email, normalizedPhone, company, contactType, tileFamily, tileColor, message, fileUrls, submittedAt, smsOptIn);
     console.log(`Submission saved with ID: ${submissionId}`);
 
-    // Twilio Verify for user phone
-    let isVerified = false;
+    // Twilio Verify for user phone (initiate only)
+    let verificationSent = false;
     if (smsOptIn && normalizedPhone) {
       try {
-        // Start verification
         await smsClient.verify.v2.services("VA0aba966fb38fe81d6f1556ab02ef1d80").verifications.create({ to: normalizedPhone, channel: "sms" });
         console.log(`Verification sent to ${normalizedPhone}`);
-        // For now, assume manual verification (update page.tsx to automate)
-        isVerified = true; // Placeholder—will be set via user code entry
+        verificationSent = true;
+        return NextResponse.json({ ok: true, message: "Verification code sent. Please enter the code.", phone: normalizedPhone });
       } catch (verifyError) {
         console.error("Verification failed:", verifyError);
         return NextResponse.json({ ok: false, message: "Phone verification failed. Try again." }, { status: 400 });
@@ -258,7 +257,7 @@ export async function POST(req: NextRequest) {
         reply_to: to,
         subject: `Thank you ${name} - Contact Received`,
         html: renderUserHtml({
-          logoUrl: `${baseUrl}/Clay_Roofing_New_York_Email_Signature_1.jpg`, // Consistent new image
+          logoUrl: `${baseUrl}/CRNY_email_banner.png`, // Consistent new banner
           name,
           email,
           phone: normalizedPhone,
@@ -273,20 +272,6 @@ export async function POST(req: NextRequest) {
       });
     } catch (err) {
       console.warn("[API] User confirmation email failed:", err);
-    }
-
-    // SMS opt-in handling (after verification)
-    if (smsOptIn && normalizedPhone && isVerified) {
-      try {
-        await smsClient.messages.create({
-          body: `Thank you, ${name}! We'll send updates to ${normalizedPhone}. Reply STOP to unsubscribe.`,
-          from: process.env.TWILIO_PHONE_NUMBER!,
-          to: normalizedPhone,
-        });
-        console.log(`SMS sent to ${normalizedPhone} (ID: ${submissionId})`);
-      } catch (smsError) {
-        console.error("SMS send failed:", smsError);
-      }
     }
 
     return NextResponse.json({ ok: true, message: "Thanks—your message was sent. Verify your phone if opting in." });
