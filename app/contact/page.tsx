@@ -1,4 +1,3 @@
-// app/contact/page.tsx
 "use client";
 import React, { useEffect, useRef, useState, useTransition } from "react";
 import { Button } from "@/components/ui/button";
@@ -441,49 +440,10 @@ export default function ContactPage() {
           <p className="mt-2 max-w-2xl mx-auto text-base sm:text-lg text-neutral-600">
             Have a question or need a quote? We're here to help.
           </p>
-          <p className="mt-1 text-sm text-neutral-500 italic">We proudly back our installations with warranties up to 100 years.</p>
         </div>
-        <div className="grid grid-cols-1 gap-8 lg:gap-16 lg:grid-cols-2">
-          <div className="bg-gradient-to-br from-orange-50 to-orange-100 rounded-xl p-6 sm:p-8 space-y-6">
-            <div>
-              <h2 className="text-xl font-semibold text-neutral-900 mb-4">Get in Touch</h2>
-              <p className="text-sm text-neutral-500 mb-4">Tap an option to get in touch</p>
-              <div className="space-y-4">
-                <Button variant="outline" className="w-full justify-start gap-3 h-auto py-3 px-4 text-base font-medium text-neutral-800 border-neutral-300 bg-white hover:bg-neutral-50">
-                  <a href="tel:+1-212-365-4386" className="flex items-center gap-3">
-                    <img src="/icons/phone-icon.svg" alt="Phone" className="h-5 w-5" />
-                    <span>Tap here to call</span>
-                  </a>
-                </Button>
-                <Button variant="outline" className="w-full justify-start gap-3 h-auto py-3 px-4 text-base font-medium text-neutral-800 border-neutral-300 bg-white hover:bg-neutral-50">
-                  <a href="sms:+1-212-365-4386" className="flex items-center gap-3">
-                    <img src="/icons/imessage-icon.svg" alt="iMessage" className="h-5 w-5" />
-                    <span>Tap here to text</span>
-                  </a>
-                </Button>
-                <Button variant="outline" className="w-full justify-start gap-3 h-auto py-3 px-4 text-base font-medium text-neutral-800 border-neutral-300 bg-white hover:bg-neutral-50">
-                  <a href="https://wa.me/+1-212-365-4386" target="_blank" rel="noopener noreferrer" className="flex items-center gap-3">
-                    <img src="/icons/whats-app-icon.svg" alt="WhatsApp" className="h-5 w-5" />
-                    <span>Tap here to WhatsApp</span>
-                  </a>
-                </Button>
-                <Button variant="outline" className="w-full justify-start gap-3 h-auto py-3 px-4 text-base font-medium text-neutral-800 border-neutral-300 bg-white hover:bg-neutral-50">
-                  <a href="mailto:chris@clayroofingnewyork.com" className="flex items-center gap-3">
-                    <img src="/icons/mail-icon.svg" alt="Email" className="h-5 w-5" />
-                    <span>Tap here to email</span>
-                  </a>
-                </Button>
-                <Button variant="outline" className="w-full justify-start gap-3 h-auto py-3 px-4 text-base font-medium text-neutral-800 border-neutral-300 bg-white hover:bg-neutral-50">
-                  <a href="/api/vcard" download="clay_roofing_new_york.vcf" className="flex items-center gap-3">
-                    <img src="/images/CRNY_Logo_1.png" alt="Contact" className="h-5 w-5" />
-                    <span>Tap here to save our contact</span>
-                  </a>
-                </Button>
-              </div>
-            </div>
-          </div>
+        <div className="grid grid-cols-1 gap-8">
           <div className="bg-white rounded-xl border border-neutral-200 p-6 sm:p-8">
-            <h2 className="text-xl font-semibold text-neutral-900 mb-6">Alternatively, submit your inquiry below.</h2>
+            <h2 className="text-xl font-semibold text-neutral-900 mb-6">Submit your inquiry below.</h2>
             <p className="text-sm text-neutral-600 mb-4">We'll respond within 24 hours.</p>
             <ContactForm />
           </div>

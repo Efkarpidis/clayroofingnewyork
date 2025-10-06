@@ -67,8 +67,8 @@ export function Header() {
                 href="tel:+1-212-365-4386"
                 className="flex items-center gap-2 px-3 py-2 text-sm font-medium rounded-md transition-colors text-foreground hover:text-primary hover:bg-muted"
               >
-                <Phone className="w-4 h-4 flex-shrink-0" />
-                <span>212-365-4386</span>
+                
+                
               </a>
               <Link
                 href="/gallery"
