@@ -182,7 +182,7 @@ export default function PrivacyPage() {
                 <strong>Clay Roofing New York</strong>
               </p>
               <p>Email: chris@clayroofingnewyork.com</p>
-              <p>Phone: (212) 365-4386</p>
+              
               <p>Address: 33-15 127th Pl, Corona, NY 11368</p>
             </address>
           </section>

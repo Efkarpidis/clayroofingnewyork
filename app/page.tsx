@@ -898,12 +898,7 @@ export default function Page() {
               <h3 className="text-lg font-semibold text-neutral-900 mb-4">Contact Information</h3>
               <div className="space-y-2 text-neutral-600">
                 <p>33-15 127th Pl, Corona, NY 11368</p>
-                <p>
-                  Phone:{" "}
-                  <a href="tel:212-365-4386" className="hover:text-orange-600">
-                    (212) 365-4386
-                  </a>
-                </p>
+                
                 <p>
                   Email:{" "}
                   <a href="mailto:chris@clayroofingnewyork.com" className="hover:text-orange-600">
@@ -917,7 +912,7 @@ export default function Page() {
             <div>
               <h3 className="text-lg font-semibold text-neutral-900 mb-4">Business Hours</h3>
               <div className="space-y-2 text-neutral-600">
-                <p>Mon-Sat: 9:00 AM - 5:00 PM</p>
+                <p>Mon-Sat: 8:00 AM - 6:00 PM</p>
                 <p>Sunday: Closed</p>
               </div>
             </div>
