@@ -2,6 +2,8 @@ name: Visualize Dependencies
 on: [push, workflow_dispatch]
 jobs:
   visualize:
+    permissions:
+      contents: write
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
@@ -14,3 +16,4 @@ jobs:
       with:
         name: dependency-graph
         path: graph.svg
+        
