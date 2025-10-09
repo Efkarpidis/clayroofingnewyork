@@ -11,6 +11,10 @@ import { cn } from "@/lib/utils"
  * - Collisions disabled (no auto-shrink)
  * - No auto-focus on open (no pre-highlight)
  * - Single-row highlight via data-[highlighted] (background + ring only)
+ *
+ * Extras:
+ * - DropdownMenuItem now supports `fallbackText`:
+ *   If children are empty/whitespace, it renders the fallback label instead.
  */
 
 function DropdownMenu(
@@ -60,24 +64,56 @@ function DropdownMenuContent({
   )
 }
 
+type DropdownMenuItemProps =
+  React.ComponentProps<typeof DropdownMenuPrimitive.Item> & {
+    inset?: boolean
+    /** If the item has no visible children, this text will be rendered instead. */
+    fallbackText?: string
+  }
+
+/** Determine if children render something visible (non-empty string / at least one node). */
+function hasVisibleChildren(children: React.ReactNode) {
+  const count = React.Children.count(children)
+  if (count === 0) return false
+  if (count === 1 && typeof children === "string") {
+    return children.trim().length > 0
+  }
+  return true
+}
+
 function DropdownMenuItem({
   className,
   inset,
+  fallbackText,
+  children,
   ...props
-}: React.ComponentProps<typeof DropdownMenuPrimitive.Item> & { inset?: boolean }) {
+}: DropdownMenuItemProps) {
+  const content =
+    hasVisibleChildren(children) ? (
+      children
+    ) : (
+      <span aria-hidden={false}>{fallbackText ?? "Submit Quote"}</span>
+    )
+
   return (
     <DropdownMenuPrimitive.Item
       data-slot="dropdown-menu-item"
       className={cn(
         "relative flex cursor-default select-none items-center rounded-md px-3 py-3 text-base outline-none transition-colors",
-        // Only background + ring on highlight; DO NOT force text color (keeps white text on CTA white)
+        // Only background + ring on highlight; avoid forcing a light text color
         "data-[highlighted]:bg-brand-50 data-[highlighted]:ring-2 data-[highlighted]:ring-brand-300 data-[highlighted]:ring-offset-0",
         "data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
         inset && "pl-8",
         className
       )}
+      // Use aria-label to preserve accessibility even if original children were empty.
+      aria-label={
+        hasVisibleChildren(children) ? undefined : (fallbackText ?? "Submit Quote")
+      }
       {...props}
-    />
+    >
+      {content}
+    </DropdownMenuPrimitive.Item>
   )
 }
 

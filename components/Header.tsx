@@ -10,12 +10,11 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Phone, ChevronDown } from "lucide-react";
+import { ChevronDown } from "lucide-react";
 
 export function Header() {
   const [scrolled, setScrolled] = useState(false);
   const pathname = usePathname();
-
   const getCurrentPage = () => {
     if (pathname === "/") return "home";
     if (pathname === "/about") return "about";
@@ -24,15 +23,12 @@ export function Header() {
     if (pathname.startsWith("/tile-selection")) return "tile-selection";
     return "home";
   };
-
   const currentPage = getCurrentPage();
-
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 50);
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
-
   return (
     <header className="sticky top-0 left-0 right-0 z-[1000]">
       <div
@@ -63,13 +59,16 @@ export function Header() {
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             {/* Desktop Navigation */}
             <nav className="hidden md:flex items-center justify-center text-center py-2 space-x-8">
-              <a
-                href="tel:+1-212-365-4386"
-                className="flex items-center gap-2 px-3 py-2 text-sm font-medium rounded-md transition-colors text-foreground hover:text-primary hover:bg-muted"
+              <Link
+                href="/"
+                className={`px-3 py-2 text-sm font-medium rounded-md transition-colors ${
+                  currentPage === "home"
+                    ? "text-primary"
+                    : "text-foreground hover:text-primary hover:bg-muted"
+                }`}
               >
-                
-                
-              </a>
+                Home
+              </Link>
               <Link
                 href="/gallery"
                 className={`px-3 py-2 text-sm font-medium rounded-md transition-colors ${
@@ -136,15 +135,6 @@ export function Header() {
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="center" sideOffset={8} className="min-w-[200px] bg-card text-foreground border-border">
                   <DropdownMenuItem asChild>
-                    <a
-                      href="tel:+1-212-365-4386"
-                      className="flex items-center gap-3 px-3 py-3 text-base font-semibold text-primary rounded-md cursor-pointer hover:bg-muted"
-                    >
-                      <Phone className="w-5 h-5 flex-shrink-0" />
-                      <span>Call: 212-365-4386</span>
-                    </a>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem asChild>
                     <Link
                       href="/"
                       className={`flex items-center px-3 py-3 text-base font-medium rounded-md cursor-pointer ${
@@ -198,8 +188,7 @@ export function Header() {
                     <DropdownMenuItem asChild>
                       <Link
                         href="/contact#quote"
-                        className="flex items-center justify-center px-3 py-3 text-base font-bold text-primary-foreground rounded-md cursor-pointer mt-2
-                                 bg-gradient-to-r from-brand-600 to-brand-700 hover:from-brand-700 hover:to-brand-800 min-h-[44px]"
+                        className="flex items-center justify-center px-3 py-3 text-base font-bold text-primary-foreground rounded-md cursor-pointer mt-2 bg-gradient-to-r from-brand-600 to-brand-700 hover:from-brand-700 hover:to-brand-800 min-h-[44px]"
                       >
                         Request Quote
                       </Link>
