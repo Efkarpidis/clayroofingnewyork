@@ -1,0 +1,16 @@
+name: Visualize Dependencies
+on: [push, workflow_dispatch]
+jobs:
+  visualize:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - uses: githubocto/repo-visualizer@0.7.1
+      with:
+        output_file: "graph.svg"
+        excluded_paths: "node_modules,dist,.git"
+    - name: Upload Graph
+      uses: actions/upload-artifact@v4
+      with:
+        name: dependency-graph
+        path: graph.svg
