@@ -109,16 +109,14 @@ export function Header() {
               >
                 Contact
               </Link>
-              {currentPage !== "contact" && (
-                <Link href="/contact#quote">
-                  <Button
-                    size="sm"
-                    className="bg-gradient-to-r from-brand-600 to-brand-700 text-primary-foreground hover:from-brand-700 hover:to-brand-800 text-xs font-semibold transition-colors shadow-lg hover:shadow-xl h-9 px-4"
-                  >
-                    Request Quote
-                  </Button>
-                </Link>
-              )}
+              <Link href="/contact#quote">
+                <Button
+                  size="sm"
+                  className="bg-gradient-to-r from-brand-600 to-brand-700 text-black hover:from-brand-700 hover:to-brand-800 text-xs font-semibold transition-colors shadow-lg hover:shadow-xl h-9 px-4"
+                >
+                  Request Quote
+                </Button>
+              </Link>
             </nav>
             {/* Mobile Navigation Dropdown */}
             <div className="md:hidden w-full px-4 py-2">
@@ -184,16 +182,14 @@ export function Header() {
                       Contact
                     </Link>
                   </DropdownMenuItem>
-                  {currentPage !== "contact" && (
-                    <DropdownMenuItem asChild>
-                      <Link
-                        href="/contact#quote"
-                        className="flex items-center justify-center px-3 py-3 text-base font-bold text-primary-foreground rounded-md cursor-pointer mt-2 bg-gradient-to-r from-brand-600 to-brand-700 hover:from-brand-700 hover:to-brand-800 min-h-[44px]"
-                      >
-                        Request Quote
-                      </Link>
-                    </DropdownMenuItem>
-                  )}
+                  <DropdownMenuItem asChild>
+                    <Link
+                      href="/contact#quote"
+                      className="flex items-center justify-center px-3 py-3 text-base font-bold text-black rounded-md cursor-pointer bg-gradient-to-r from-brand-600 to-brand-700 hover:from-brand-700 hover:to-brand-800 min-h-[44px]"
+                    >
+                      Request Quote
+                    </Link>
+                  </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
             </div>

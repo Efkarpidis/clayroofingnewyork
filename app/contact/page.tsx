@@ -29,6 +29,9 @@ const contactFormSchema = z.object({
   }),
   tileFamily: z.string().optional(),
   tileColor: z.string().optional(),
+  serviceType: z.enum(["installation", "tile-purchase", "repairs", "custom"], {
+    errorMap: () => ({ message: "Please select a service type." }),
+  }),
   message: z.string().min(10, { message: "Your message must be at least 10 characters long." }),
   privacyAccepted: z.boolean().refine((v) => v === true, {
     message: "You must accept the Privacy Policy to continue.",
@@ -115,7 +118,7 @@ const tileColorOptions = {
 
 function ContactForm() {
   const formRef = useRef<HTMLFormElement>(null);
-  const [state, setState] = useState<{ message: string; success: boolean; errors?: Record<string, string[]> }>({
+  const [state, setState] = useState<{ message: string; success: boolean; errors?: Record<string, string[]>; login?: { success: boolean; message: string } }>({
     message: "",
     success: false,
   });
@@ -125,8 +128,9 @@ function ContactForm() {
   const [showToast, setShowToast] = useState(false);
   const [docResults, setDocResults] = useState<BlobItem[]>([]);
   const [photoResults, setPhotoResults] = useState<BlobItem[]>([]);
+  const [loginType, setLoginType] = useState<'email' | 'phone'>('email');
+  const [loginIdentifier, setLoginIdentifier] = useState('');
   const [verificationCode, setVerificationCode] = useState("");
-  const [showCodeInput, setShowCodeInput] = useState(false);
   const docBytes = docResults.reduce((s, r) => s + (r.size || 0), 0);
   const photoBytes = photoResults.reduce((s, r) => s + (r.size || 0), 0);
   const totalBytes = docBytes + photoBytes;
@@ -146,6 +150,8 @@ function ContactForm() {
   });
   const watchedTileFamily = watch("tileFamily");
   const watchedContactType = watch("contactType");
+  const watchedEmail = watch("email");
+  const watchedPhone = watch("phone");
 
   useEffect(() => {
     const url = new URLSearchParams(window.location.search);
@@ -178,9 +184,13 @@ function ContactForm() {
       setSelectedContactType("");
       setDocResults([]);
       setPhotoResults([]);
+      if (state.login?.success && (watchedEmail || watchedPhone)) {
+        setLoginIdentifier(watchedEmail || watchedPhone || '');
+        setShowCodeInput(true); // Trigger login prompt
+      }
       setTimeout(() => setShowToast(false), 5000);
     }
-  }, [state.success, reset]);
+  }, [state.success, reset, watchedEmail, watchedPhone, state.login]);
 
   const onSubmit = async (data: ContactFormData) => {
     startTransition(async () => {
@@ -189,15 +199,20 @@ function ContactForm() {
         if (!formEl) return;
         const fd = new FormData(formEl);
         const res = await fetch("/api/contact", { method: "POST", body: fd });
-        const data = await res.json().catch(() => ({ ok: false }));
-        if (res.ok && data.ok && fd.get("smsOptIn") === "true" && fd.get("phone")) {
-          setShowCodeInput(true); // Show code input for SMS opt-in
+        const data = await res.json().catch((e) => {
+          console.error("Fetch error:", e);
+          return { ok: false, message: "Network or server error." };
+        });
+        if (res.ok && data.ok) {
+          setState({ ...data, success: true });
         } else if (data.fieldErrors) {
           Object.entries(data.fieldErrors).forEach(([field, messages]: any) => {
             if (messages?.[0]) setError(field as keyof ContactFormData, { type: "server", message: messages[0] });
           });
+          setState({ message: data.message || "Please fix the errors below.", success: false, errors: data.fieldErrors });
+        } else {
+          setState({ message: data.message || "Submission failed. Check server logs.", success: false });
         }
-        setState(data);
       } catch (e) {
         console.error("[Contact] submit error", e);
         setState({ message: "Network error. Please try again.", success: false });
@@ -213,6 +228,7 @@ function ContactForm() {
         </div>
         <h3 className="text-xl font-semibold text-neutral-800 mb-2">Message Sent!</h3>
         <p className="text-neutral-600">Thank you for reaching out. We'll get back to you shortly.</p>
+        {state.login?.message && <p className="mt-2 text-sm text-neutral-600">{state.login.message}</p>}
       </div>
     );
   }
@@ -231,13 +247,13 @@ function ContactForm() {
             onClick={async () => {
               const verifyRes = await fetch("/api/contact/verify", {
                 method: "POST",
-                body: JSON.stringify({ phone: watch("phone"), code: verificationCode }),
+                body: JSON.stringify({ [loginType]: loginIdentifier, code: verificationCode }),
                 headers: { "Content-Type": "application/json" },
               });
               const verifyData = await verifyRes.json();
               if (verifyRes.ok && verifyData.ok) {
                 setShowCodeInput(false);
-                setState({ message: "Phone verified. SMS will be sent.", success: true });
+                window.location.href = '/dashboard';
               } else {
                 setError("phone", { type: "server", message: verifyData.message || "Invalid code" });
               }
@@ -285,8 +301,17 @@ function ContactForm() {
             <option value="homeowner">Homeowner</option>
             <option value="architect">Architect</option>
             <option value="manufacturer">Manufacturer</option>
-            <option value="previous-client">Previous Client (Warranty or Service Request)</option>
+            <option value="previous-client">Previous Client</option>
             <option value="other">Other</option>
+          </FormSelect>
+        </FieldWrapper>
+        <FieldWrapper id="serviceType" label="Service Type" required error={errors.serviceType?.message || state.errors?.serviceType?.[0]}>
+          <FormSelect {...register("serviceType")}>
+            <option value="">Select a service...</option>
+            <option value="installation">Full Installation</option>
+            <option value="tile-purchase">Tile Purchase Only (DIY)</option>
+            <option value="repairs">Repairs (Previous Clients Only)</option>
+            <option value="custom">Custom Request</option>
           </FormSelect>
         </FieldWrapper>
         <FieldWrapper id="tileFamily" label="Tile Family" error={errors.tileFamily?.message || state.errors?.tileFamily?.[0]}>
@@ -304,7 +329,11 @@ function ContactForm() {
             <option value="Request">Request</option>
           </FormSelect>
         </FieldWrapper>
-        {selectedTileFamily && (
+        {selectedTileFamily === "Request" ? (
+          <p className="text-sm text-muted-foreground mt-2">
+            Please submit your request in the message box below.
+          </p>
+        ) : selectedTileFamily ? (
           <FieldWrapper id="tileColor" label="Tile Color" error={errors.tileColor?.message || state.errors?.tileColor?.[0]}>
             <FormSelect {...register("tileColor")}>
               <option value="">Select...</option>
@@ -315,7 +344,7 @@ function ContactForm() {
               ))}
             </FormSelect>
           </FieldWrapper>
-        )}
+        ) : null}
         <FieldWrapper id="message" label="Message" required error={errors.message?.message || state.errors?.message?.[0]}>
           <FormTextarea {...register("message")} rows={4} placeholder="Type your message here." />
         </FieldWrapper>
@@ -347,7 +376,7 @@ function ContactForm() {
             </span>
           </div>
           <div className="mt-2 text-xs text-neutral-600">
-            <span className="inline-flex items-center rounded-full border border-neutral-300 px-2 py-0.5">
+            <span className="inline-flex items-center rounded-full border border-neutral-200 px-2 py-0.5">
               Total: {totalCount} file{totalCount === 1 ? "" : "s"} • {formatMB(totalBytes)} MB
             </span>
           </div>
@@ -442,6 +471,18 @@ export default function ContactPage() {
           </p>
         </div>
         <div className="grid grid-cols-1 gap-8">
+          <section className="mb-8">
+            <h2 className="text-xl font-semibold text-neutral-900 mb-4">Our Services</h2>
+            <p className="text-sm text-neutral-600 mb-4">
+              We specialize in clay and ceramic tile roofing. Choose from the options below or let us know your needs in the form. All quotes are provided after reviewing your submission. Note: We are not a general roof-repair service.
+            </p>
+            <ul className="list-disc pl-6 space-y-2 text-sm text-neutral-700">
+              <li><strong>Full Installation:</strong> Professional roofing installation for homes, businesses, and more. Includes site inspection, materials, and labor.</li>
+              <li><strong>Tile Purchase Only (DIY):</strong> Order high-quality tiles without installation. Perfect for self-install projects like garages or home renovations. Specify quantity, type, and delivery details in your message—we'll generate a quote afterward.</li>
+              <li><strong>Repairs (Previous Clients Only):</strong> Limited to existing clients for warranty or service requests (e.g., fixing leaks or replacing damaged tiles).</li>
+              <li><strong>Custom Requests:</strong> Anything else? Tell us in the form!</li>
+            </ul>
+          </section>
           <div className="bg-white rounded-xl border border-neutral-200 p-6 sm:p-8">
             <h2 className="text-xl font-semibold text-neutral-900 mb-6">Submit your inquiry below.</h2>
             <p className="text-sm text-neutral-600 mb-4">We'll respond within 24 hours.</p>

@@ -3,6 +3,8 @@ import { NextResponse, NextRequest } from "next/server";
 import { Resend } from "resend";
 import { Pool } from "pg";
 import twilio from "twilio";
+import crypto from 'crypto';
+import { cookies } from 'next/headers';
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 const pool = new Pool({ connectionString: process.env.DATABASE_URL });
@@ -198,24 +200,33 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ ok: false, message: "Email service not configured." }, { status: 500 });
     }
     const baseUrl = getBaseUrl(req);
-    const logoUrl = `${baseUrl}/CRNY_email_banner.png`; // Updated to new banner
+    const logoUrl = `${baseUrl}/CRNY_email_banner.png`;
     const submittedAt = new Date().toLocaleString("en-US", { timeZone: "America/New_York", hour12: true });
 
     // Save to database
     const submissionId = await saveSubmission(name, email, normalizedPhone, company, contactType, tileFamily, tileColor, message, fileUrls, submittedAt, smsOptIn);
     console.log(`Submission saved with ID: ${submissionId}`);
 
-    // Twilio Verify for user phone (initiate only)
-    let verificationSent = false;
-    if (smsOptIn && normalizedPhone) {
-      try {
-        await smsClient.verify.v2.services("VA0aba966fb38fe81d6f1556ab02ef1d80").verifications.create({ to: normalizedPhone, channel: "sms" });
-        console.log(`Verification sent to ${normalizedPhone}`);
-        verificationSent = true;
-        return NextResponse.json({ ok: true, message: "Verification code sent. Please enter the code.", phone: normalizedPhone });
-      } catch (verifyError) {
-        console.error("Verification failed:", verifyError);
-        return NextResponse.json({ ok: false, message: "Phone verification failed. Try again." }, { status: 400 });
+    // Initiate login if email or phone provided
+    let loginResponse = { success: false };
+    if ((email || normalizedPhone) && !cookies().get('auth-token')) {
+      const code = Math.floor(100000 + Math.random() * 900000).toString();
+      const expiresAt = new Date(Date.now() + 5 * 60 * 1000);
+      await pool.query(
+        'INSERT INTO verification_codes (code, email, phone, expires_at) VALUES ($1, $2, $3, $4) ON CONFLICT (email, phone) DO UPDATE SET code = $1, expires_at = $4',
+        [code, email || null, normalizedPhone || null, expiresAt]
+      );
+
+      if (normalizedPhone) {
+        await smsClient.messages.create({
+          body: `Your Clay Roofing NY login code: ${code}`,
+          from: process.env.TWILIO_PHONE || '+1YOUR_TWILIO_PHONE', // Add this to Vercel env
+          to: normalizedPhone,
+        });
+        loginResponse = { success: true, message: 'Login code sent to your phone.' };
+      } else if (email) {
+        // Add email sending logic (e.g., Resend) if desired
+        loginResponse = { success: true, message: 'Login code sent to your email.' }; // Placeholder
       }
     }
 
@@ -257,7 +268,7 @@ export async function POST(req: NextRequest) {
         reply_to: to,
         subject: `Thank you ${name} - Contact Received`,
         html: renderUserHtml({
-          logoUrl: `${baseUrl}/CRNY_email_banner.png`, // Consistent new banner
+          logoUrl: `${baseUrl}/CRNY_email_banner.png`,
           name,
           email,
           phone: normalizedPhone,
@@ -274,27 +285,51 @@ export async function POST(req: NextRequest) {
       console.warn("[API] User confirmation email failed:", err);
     }
 
-    return NextResponse.json({ ok: true, message: "Thanks—your message was sent. Verify your phone if opting in." });
+    return NextResponse.json({ ok: true, message: "Thanks—your message was sent.", login: loginResponse });
   } catch (err) {
     console.error("[API] Unexpected error:", err);
     return NextResponse.json({ ok: false, message: "Something went wrong. Please try again later.", error: err.message }, { status: 500 });
   }
 }
 
-// Verify endpoint (separate route for code check)
+// Verify endpoint (updated for login)
 export async function verify(req: NextRequest) {
-  const { phone, code } = await req.json();
+  const { phone, code, email } = await req.json();
   try {
-    const verificationCheck = await smsClient.verify.v2
-      .services("VA0aba966fb38fe81d6f1556ab02ef1d80")
-      .verificationChecks.create({ to: phone, code });
-    if (verificationCheck.status === "approved") {
-      return NextResponse.json({ ok: true, message: "Phone verified" });
+    const identifier = email || phone;
+    if (!identifier) {
+      return NextResponse.json({ ok: false, message: 'Email or phone required' }, { status: 400 });
     }
-    return NextResponse.json({ ok: false, message: "Invalid verification code" }, { status: 400 });
+
+    const [res] = await pool.query(
+      'SELECT * FROM verification_codes WHERE (email = $1 OR phone = $2) AND code = $3 AND expires_at > NOW()',
+      [email || null, phone || null, code]
+    );
+    const validCode = res.rows[0];
+
+    if (!validCode) {
+      return NextResponse.json({ ok: false, message: 'Invalid or expired code' }, { status: 400 });
+    }
+
+    const sessionToken = crypto.randomBytes(32).toString('hex');
+    await pool.query(
+      'INSERT INTO users (email, phone, session_token) VALUES ($1, $2, $3) ON CONFLICT (email) DO UPDATE SET session_token = $3, last_login = CURRENT_TIMESTAMP RETURNING id',
+      [email || null, phone || null, sessionToken]
+    );
+
+    if (email) {
+      await pool.query('UPDATE submissions SET session_token = $1 WHERE email = $2', [sessionToken, email]);
+    } else if (phone) {
+      await pool.query('UPDATE submissions SET session_token = $1 WHERE phone = $2', [sessionToken, phone]);
+    }
+
+    cookies().set('auth-token', sessionToken, { httpOnly: true, secure: true, maxAge: 30 * 24 * 60 * 60 });
+    await pool.query('DELETE FROM verification_codes WHERE (email = $1 OR phone = $2)', [email || null, phone || null]);
+
+    return NextResponse.json({ ok: true, message: 'Logged in!' });
   } catch (err) {
     console.error("Verify error:", err);
-    return NextResponse.json({ ok: false, message: "Verification failed" }, { status: 500 });
+    return NextResponse.json({ ok: false, message: 'Verification failed' }, { status: 500 });
   }
 }
 
