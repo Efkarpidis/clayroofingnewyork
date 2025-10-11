@@ -1,7 +1,7 @@
 "use client";
 import React, { useEffect, useRef, useState, useTransition } from "react";
 import { Button } from "@/components/ui/button";
-import { Check } from "lucide-react";
+import { Check, User } from "lucide-react"; // Added User icon for profile
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -116,7 +116,7 @@ const tileColorOptions = {
   ],
 } as const;
 
-function ContactForm() {
+function ContactForm({ onLoginClick }: { onLoginClick: () => void }) { // Added prop for login trigger
   const formRef = useRef<HTMLFormElement>(null);
   const [state, setState] = useState<{ message: string; success: boolean; errors?: Record<string, string[]>; login?: { success: boolean; message: string } }>({
     message: "",
@@ -130,6 +130,7 @@ function ContactForm() {
   const [photoResults, setPhotoResults] = useState<BlobItem[]>([]);
   const [loginType, setLoginType] = useState<'email' | 'phone'>('email');
   const [loginIdentifier, setLoginIdentifier] = useState('');
+  const [showCodeInput, setShowCodeInput] = useState(false);
   const [verificationCode, setVerificationCode] = useState("");
   const docBytes = docResults.reduce((s, r) => s + (r.size || 0), 0);
   const photoBytes = photoResults.reduce((s, r) => s + (r.size || 0), 0);
@@ -436,7 +437,7 @@ function ContactForm() {
               ? "Please complete the required fields highlighted below."
               : state.message}
           </p>
-        )}
+        )
       </form>
     </>
   );
@@ -444,6 +445,7 @@ function ContactForm() {
 
 export default function ContactPage() {
   const [addressCopied, setAddressCopied] = useState(false);
+  const token = typeof window !== "undefined" ? document.cookie.split("; ").find(row => row.startsWith("auth-token="))?.split("=")[1] : null; // Client-side token check
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -459,8 +461,30 @@ export default function ContactPage() {
     }
   };
 
+  const handleLoginClick = (onShowCodeInput: () => void) => {
+    if (!token) {
+      onShowCodeInput(); // Trigger login prompt via prop
+    } else {
+      window.location.href = '/dashboard';
+    }
+  };
+
   return (
     <div className="bg-white text-neutral-800 min-h-screen">
+      <header className="bg-white shadow-sm py-4">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex justify-between items-center">
+          <h1 className="text-xl font-bold">Clay Roofing New York</h1>
+          <div className="flex items-center space-x-4">
+            <Button variant="ghost" onClick={copyAddressToClipboard} disabled={addressCopied}>
+              {addressCopied ? "Copied!" : "Copy Address"}
+            </Button>
+            <Button variant="ghost" onClick={() => handleLoginClick(() => setShowCodeInput(true))}>
+              <User className="h-5 w-5 mr-2" />
+              {token ? "Client" : "Client"}
+            </Button>
+          </div>
+        </div>
+      </header>
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-16">
         <div className="text-center mb-8 sm:mb-12">
           <h1 className="text-2xl sm:text-3xl md:text-4xl font-extrabold tracking-tight text-neutral-900">
@@ -486,7 +510,7 @@ export default function ContactPage() {
           <div className="bg-white rounded-xl border border-neutral-200 p-6 sm:p-8">
             <h2 className="text-xl font-semibold text-neutral-900 mb-6">Submit your inquiry below.</h2>
             <p className="text-sm text-neutral-600 mb-4">We'll respond within 24 hours.</p>
-            <ContactForm />
+            <ContactForm onLoginClick={handleLoginClick} />
           </div>
         </div>
       </main>
@@ -498,3 +522,5 @@ export default function ContactPage() {
     </div>
   );
 }
+
+export const dynamic = "force-dynamic";

@@ -144,7 +144,7 @@ export async function POST(req: NextRequest) {
     const tileColor = formData.get("tileColor")?.toString().trim() || "";
     const message = formData.get("message")?.toString().trim() || "";
     const privacyAccepted = formData.get("privacyAccepted") === "true" || formData.get("privacyAccepted") === "on";
-    const smsOptIn = formData.get("smsOptIn") === "true" || formData.get("smsOptIn") === "on";
+    const smsOptIn = formData.get("smsOptIn") === "true" || formData.get("privacyAccepted") === "on";
 
     // Handle file uploads
     const files = formData.getAll("uploadedFiles") as File[];
@@ -220,13 +220,18 @@ export async function POST(req: NextRequest) {
       if (normalizedPhone) {
         await smsClient.messages.create({
           body: `Your Clay Roofing NY login code: ${code}`,
-          from: process.env.TWILIO_PHONE || '+1YOUR_TWILIO_PHONE', // Add this to Vercel env
+          from: process.env.TWILIO_PHONE,
           to: normalizedPhone,
         });
         loginResponse = { success: true, message: 'Login code sent to your phone.' };
       } else if (email) {
-        // Add email sending logic (e.g., Resend) if desired
-        loginResponse = { success: true, message: 'Login code sent to your email.' }; // Placeholder
+        await resend.emails.send({
+          from,
+          to: [email],
+          subject: "Your Clay Roofing NY Login Code",
+          text: `Your login code is: ${code}. It expires in 5 minutes.`,
+        });
+        loginResponse = { success: true, message: 'Login code sent to your email.' };
       }
     }
 
