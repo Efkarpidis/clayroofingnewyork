@@ -116,7 +116,31 @@ const tileColorOptions = {
   ],
 } as const;
 
-function ContactForm({ onLoginClick }: { onLoginClick: () => void }) { // Added prop for login trigger
+function VerificationInput({ onVerify, verificationCode, setVerificationCode, error }: {
+  onVerify: () => Promise<void>;
+  verificationCode: string;
+  setVerificationCode: (value: string) => void;
+  error?: string;
+}) {
+  return (
+    <FieldWrapper id="verificationCode" label="Enter Verification Code" required error={error}>
+      <FormInput
+        value={verificationCode}
+        onChange={(e) => setVerificationCode(e.target.value)}
+        placeholder="123456"
+      />
+      <Button
+        type="button"
+        onClick={onVerify}
+        className="mt-2"
+      >
+        Verify
+      </Button>
+    </FieldWrapper>
+  );
+}
+
+function ContactForm({ onLoginClick }: { onLoginClick: () => void }) {
   const formRef = useRef<HTMLFormElement>(null);
   const [state, setState] = useState<{ message: string; success: boolean; errors?: Record<string, string[]>; login?: { success: boolean; message: string } }>({
     message: "",
@@ -130,7 +154,6 @@ function ContactForm({ onLoginClick }: { onLoginClick: () => void }) { // Added 
   const [photoResults, setPhotoResults] = useState<BlobItem[]>([]);
   const [loginType, setLoginType] = useState<'email' | 'phone'>('email');
   const [loginIdentifier, setLoginIdentifier] = useState('');
-  const [showCodeInput, setShowCodeInput] = useState(false);
   const [verificationCode, setVerificationCode] = useState("");
   const docBytes = docResults.reduce((s, r) => s + (r.size || 0), 0);
   const photoBytes = photoResults.reduce((s, r) => s + (r.size || 0), 0);
@@ -221,6 +244,21 @@ function ContactForm({ onLoginClick }: { onLoginClick: () => void }) { // Added 
     });
   };
 
+  const handleVerify = async () => {
+    const verifyRes = await fetch("/api/contact/verify", {
+      method: "POST",
+      body: JSON.stringify({ [loginType]: loginIdentifier, code: verificationCode }),
+      headers: { "Content-Type": "application/json" },
+    });
+    const verifyData = await verifyRes.json();
+    if (verifyRes.ok && verifyData.ok) {
+      setShowCodeInput(false);
+      window.location.href = '/dashboard';
+    } else {
+      setError("phone", { type: "server", message: verifyData.message || "Invalid code" });
+    }
+  };
+
   if (state.success && !showToast) {
     return (
       <div className="flex flex-col items-center justify-center rounded-lg border border-green-200 bg-green-50 p-8 text-center">
@@ -237,33 +275,12 @@ function ContactForm({ onLoginClick }: { onLoginClick: () => void }) { // Added 
   return (
     <>
       {showCodeInput && (
-        <FieldWrapper id="verificationCode" label="Enter Verification Code" required error={errors.phone?.message}>
-          <FormInput
-            value={verificationCode}
-            onChange={(e) => setVerificationCode(e.target.value)}
-            placeholder="123456"
-          />
-          <Button
-            type="button"
-            onClick={async () => {
-              const verifyRes = await fetch("/api/contact/verify", {
-                method: "POST",
-                body: JSON.stringify({ [loginType]: loginIdentifier, code: verificationCode }),
-                headers: { "Content-Type": "application/json" },
-              });
-              const verifyData = await verifyRes.json();
-              if (verifyRes.ok && verifyData.ok) {
-                setShowCodeInput(false);
-                window.location.href = '/dashboard';
-              } else {
-                setError("phone", { type: "server", message: verifyData.message || "Invalid code" });
-              }
-            }}
-            className="mt-2"
-          >
-            Verify
-          </Button>
-        </FieldWrapper>
+        <VerificationInput
+          onVerify={handleVerify}
+          verificationCode={verificationCode}
+          setVerificationCode={setVerificationCode}
+          error={errors.phone?.message}
+        />
       )}
       {showToast && (
         <div className="fixed top-4 right-4 z-50 bg-green-600 text-white px-6 py-3 rounded-lg shadow-lg flex items-center gap-2">
@@ -445,6 +462,7 @@ function ContactForm({ onLoginClick }: { onLoginClick: () => void }) { // Added 
 
 export default function ContactPage() {
   const [addressCopied, setAddressCopied] = useState(false);
+  const [showCodeInput, setShowCodeInput] = useState(false); // Moved here to fix scoping
   const token = typeof window !== "undefined" ? document.cookie.split("; ").find(row => row.startsWith("auth-token="))?.split("=")[1] : null; // Client-side token check
 
   useEffect(() => {
@@ -461,9 +479,9 @@ export default function ContactPage() {
     }
   };
 
-  const handleLoginClick = (onShowCodeInput: () => void) => {
+  const handleLoginClick = () => {
     if (!token) {
-      onShowCodeInput(); // Trigger login prompt via prop
+      setShowCodeInput(true); // Use local state
     } else {
       window.location.href = '/dashboard';
     }
@@ -478,7 +496,7 @@ export default function ContactPage() {
             <Button variant="ghost" onClick={copyAddressToClipboard} disabled={addressCopied}>
               {addressCopied ? "Copied!" : "Copy Address"}
             </Button>
-            <Button variant="ghost" onClick={() => handleLoginClick(() => setShowCodeInput(true))}>
+            <Button variant="ghost" onClick={handleLoginClick}>
               <User className="h-5 w-5 mr-2" />
               {token ? "Client" : "Client"}
             </Button>

@@ -144,7 +144,7 @@ export async function POST(req: NextRequest) {
     const tileColor = formData.get("tileColor")?.toString().trim() || "";
     const message = formData.get("message")?.toString().trim() || "";
     const privacyAccepted = formData.get("privacyAccepted") === "true" || formData.get("privacyAccepted") === "on";
-    const smsOptIn = formData.get("smsOptIn") === "true" || formData.get("privacyAccepted") === "on";
+    const smsOptIn = formData.get("smsOptIn") === "true" || formData.get("smsOptIn") === "on";
 
     // Handle file uploads
     const files = formData.getAll("uploadedFiles") as File[];
@@ -297,46 +297,8 @@ export async function POST(req: NextRequest) {
   }
 }
 
-// Verify endpoint (updated for login)
-export async function verify(req: NextRequest) {
-  const { phone, code, email } = await req.json();
-  try {
-    const identifier = email || phone;
-    if (!identifier) {
-      return NextResponse.json({ ok: false, message: 'Email or phone required' }, { status: 400 });
-    }
-
-    const [res] = await pool.query(
-      'SELECT * FROM verification_codes WHERE (email = $1 OR phone = $2) AND code = $3 AND expires_at > NOW()',
-      [email || null, phone || null, code]
-    );
-    const validCode = res.rows[0];
-
-    if (!validCode) {
-      return NextResponse.json({ ok: false, message: 'Invalid or expired code' }, { status: 400 });
-    }
-
-    const sessionToken = crypto.randomBytes(32).toString('hex');
-    await pool.query(
-      'INSERT INTO users (email, phone, session_token) VALUES ($1, $2, $3) ON CONFLICT (email) DO UPDATE SET session_token = $3, last_login = CURRENT_TIMESTAMP RETURNING id',
-      [email || null, phone || null, sessionToken]
-    );
-
-    if (email) {
-      await pool.query('UPDATE submissions SET session_token = $1 WHERE email = $2', [sessionToken, email]);
-    } else if (phone) {
-      await pool.query('UPDATE submissions SET session_token = $1 WHERE phone = $2', [sessionToken, phone]);
-    }
-
-    cookies().set('auth-token', sessionToken, { httpOnly: true, secure: true, maxAge: 30 * 24 * 60 * 60 });
-    await pool.query('DELETE FROM verification_codes WHERE (email = $1 OR phone = $2)', [email || null, phone || null]);
-
-    return NextResponse.json({ ok: true, message: 'Logged in!' });
-  } catch (err) {
-    console.error("Verify error:", err);
-    return NextResponse.json({ ok: false, message: 'Verification failed' }, { status: 500 });
-  }
-}
+// Expose verify as a POST handler
+export { verify as POST };
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
