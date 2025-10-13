@@ -245,9 +245,9 @@ function ContactForm({ onLoginClick }: { onLoginClick: () => void }) {
   };
 
   const handleVerify = async () => {
-    const verifyRes = await fetch("/api/contact/verify", {
+    const verifyRes = await fetch("/api/contact", { // Changed to /api/contact to match POST handler
       method: "POST",
-      body: JSON.stringify({ [loginType]: loginIdentifier, code: verificationCode }),
+      body: JSON.stringify({ [loginType]: loginIdentifier, code: verificationCode, action: "verify" }), // Added action to distinguish
       headers: { "Content-Type": "application/json" },
     });
     const verifyData = await verifyRes.json();
@@ -273,7 +273,7 @@ function ContactForm({ onLoginClick }: { onLoginClick: () => void }) {
   }
 
   return (
-    <>
+    <div> {/* Single root element */}
       {showCodeInput && (
         <VerificationInput
           onVerify={handleVerify}
@@ -454,15 +454,16 @@ function ContactForm({ onLoginClick }: { onLoginClick: () => void }) {
               ? "Please complete the required fields highlighted below."
               : state.message}
           </p>
-        )
+        )}
       </form>
-    </>
+    </div>
   );
 }
 
 export default function ContactPage() {
   const [addressCopied, setAddressCopied] = useState(false);
   const [showCodeInput, setShowCodeInput] = useState(false); // Moved here to fix scoping
+
   const token = typeof window !== "undefined" ? document.cookie.split("; ").find(row => row.startsWith("auth-token="))?.split("=")[1] : null; // Client-side token check
 
   useEffect(() => {
