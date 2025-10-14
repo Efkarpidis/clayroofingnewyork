@@ -1,23 +1,24 @@
-"use client";
-import React, { useEffect, useRef, useState, useTransition } from "react";
-import { Button } from "@/components/ui/button";
-import { Check, User } from "lucide-react"; // Added User icon for profile
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
-import PhoneInput from "react-phone-number-input";
-import "react-phone-number-input/style.css";
-import VercelBlobUploader from "@/components/upload/VercelBlobUploader";
+"use client"
+import type React from "react"
+import { useEffect, useRef, useState, useTransition } from "react"
+import { Button } from "@/components/ui/button"
+import { Check, User } from "lucide-react"
+import { useForm } from "react-hook-form"
+import { zodResolver } from "@hookform/resolvers/zod"
+import { z } from "zod"
+import PhoneInput from "react-phone-number-input"
+import "react-phone-number-input/style.css"
+import VercelBlobUploader from "@/components/upload/VercelBlobUploader"
 
 type BlobItem = {
-  url: string;
-  pathname: string;
-  size?: number;
-  contentType?: string;
-  filename?: string;
-};
+  url: string
+  pathname: string
+  size?: number
+  contentType?: string
+  filename?: string
+}
 
-const formatMB = (bytes: number) => Math.round((bytes / (1024 * 1024)) * 10) / 10;
+const formatMB = (bytes: number) => Math.round((bytes / (1024 * 1024)) * 10) / 10
 
 const contactFormSchema = z.object({
   name: z.string().min(2, { message: "Please enter your full name." }),
@@ -37,9 +38,9 @@ const contactFormSchema = z.object({
     message: "You must accept the Privacy Policy to continue.",
   }),
   previousProjectReference: z.string().optional(),
-});
+})
 
-type ContactFormData = z.infer<typeof contactFormSchema>;
+type ContactFormData = z.infer<typeof contactFormSchema>
 
 const FieldWrapper = ({
   id,
@@ -48,11 +49,11 @@ const FieldWrapper = ({
   children,
   required = false,
 }: {
-  id: string;
-  label: string;
-  error?: string;
-  children: React.ReactNode;
-  required?: boolean;
+  id: string
+  label: string
+  error?: string
+  children: React.ReactNode
+  required?: boolean
 }) => (
   <div className="space-y-2">
     <label htmlFor={id} className="block text-base font-medium text-neutral-700">
@@ -62,21 +63,21 @@ const FieldWrapper = ({
     {children}
     {error && <p className="mt-1 text-sm text-red-600">{error}</p>}
   </div>
-);
+)
 
 const FormInput = (p: React.ComponentProps<"input">) => (
   <input
     {...p}
     className="block w-full h-11 rounded-xl border border-neutral-200 bg-white px-3 py-2 text-base text-neutral-900 shadow-sm focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20 focus:outline-none hover:border-neutral-300 transition-colors placeholder:text-neutral-400"
   />
-);
+)
 
 const FormTextarea = (p: React.ComponentProps<"textarea">) => (
   <textarea
     {...p}
     className="block w-full rounded-md border-neutral-300 bg-white p-3 text-base shadow-sm focus:border-orange-500 focus:ring-orange-500 focus:outline-none focus:ring-2"
   />
-);
+)
 
 const FormSelect = ({ children, ...props }: React.ComponentProps<"select">) => (
   <div className="relative">
@@ -94,7 +95,7 @@ const FormSelect = ({ children, ...props }: React.ComponentProps<"select">) => (
       {children}
     </select>
   </div>
-);
+)
 
 const tileColorOptions = {
   Vienna: ["Charcoal", "Terracotta", "Slate Gray", "Request a Color"],
@@ -114,51 +115,53 @@ const tileColorOptions = {
     "Slate",
     "Request a Color",
   ],
-} as const;
+} as const
 
-function VerificationInput({ onVerify, verificationCode, setVerificationCode, error }: {
-  onVerify: () => Promise<void>;
-  verificationCode: string;
-  setVerificationCode: (value: string) => void;
-  error?: string;
+function VerificationInput({
+  onVerify,
+  verificationCode,
+  setVerificationCode,
+  error,
+}: {
+  onVerify: () => Promise<void>
+  verificationCode: string
+  setVerificationCode: (value: string) => void
+  error?: string
 }) {
   return (
     <FieldWrapper id="verificationCode" label="Enter Verification Code" required error={error}>
-      <FormInput
-        value={verificationCode}
-        onChange={(e) => setVerificationCode(e.target.value)}
-        placeholder="123456"
-      />
-      <Button
-        type="button"
-        onClick={onVerify}
-        className="mt-2"
-      >
+      <FormInput value={verificationCode} onChange={(e) => setVerificationCode(e.target.value)} placeholder="123456" />
+      <Button type="button" onClick={onVerify} className="mt-2">
         Verify
       </Button>
     </FieldWrapper>
-  );
+  )
 }
 
-function ContactForm({ onLoginClick }: { onLoginClick: () => void }) {
-  const formRef = useRef<HTMLFormElement>(null);
-  const [state, setState] = useState<{ message: string; success: boolean; errors?: Record<string, string[]>; login?: { success: boolean; message: string } }>({
+function ContactForm({ onLoginClick, showCodeInput }: { onLoginClick: () => void; showCodeInput: boolean }) {
+  const formRef = useRef<HTMLFormElement>(null)
+  const [state, setState] = useState<{
+    message: string
+    success: boolean
+    errors?: Record<string, string[]>
+    login?: { success: boolean; message: string }
+  }>({
     message: "",
     success: false,
-  });
-  const [isPending, startTransition] = useTransition();
-  const [selectedTileFamily, setSelectedTileFamily] = useState<string>("");
-  const [selectedContactType, setSelectedContactType] = useState<string>("");
-  const [showToast, setShowToast] = useState(false);
-  const [docResults, setDocResults] = useState<BlobItem[]>([]);
-  const [photoResults, setPhotoResults] = useState<BlobItem[]>([]);
-  const [loginType, setLoginType] = useState<'email' | 'phone'>('email');
-  const [loginIdentifier, setLoginIdentifier] = useState('');
-  const [verificationCode, setVerificationCode] = useState("");
-  const docBytes = docResults.reduce((s, r) => s + (r.size || 0), 0);
-  const photoBytes = photoResults.reduce((s, r) => s + (r.size || 0), 0);
-  const totalBytes = docBytes + photoBytes;
-  const totalCount = docResults.length + photoResults.length;
+  })
+  const [isPending, startTransition] = useTransition()
+  const [selectedTileFamily, setSelectedTileFamily] = useState<string>("")
+  const [selectedContactType, setSelectedContactType] = useState<string>("")
+  const [showToast, setShowToast] = useState(false)
+  const [docResults, setDocResults] = useState<BlobItem[]>([])
+  const [photoResults, setPhotoResults] = useState<BlobItem[]>([])
+  const [loginType, setLoginType] = useState<"email" | "phone">("email")
+  const [loginIdentifier, setLoginIdentifier] = useState("")
+  const [verificationCode, setVerificationCode] = useState("")
+  const docBytes = docResults.reduce((s, r) => s + (r.size || 0), 0)
+  const photoBytes = photoResults.reduce((s, r) => s + (r.size || 0), 0)
+  const totalBytes = docBytes + photoBytes
+  const totalCount = docResults.length + photoResults.length
   const {
     register,
     handleSubmit,
@@ -171,93 +174,95 @@ function ContactForm({ onLoginClick }: { onLoginClick: () => void }) {
     resolver: zodResolver(contactFormSchema),
     shouldUnregister: false,
     defaultValues: { privacyAccepted: false },
-  });
-  const watchedTileFamily = watch("tileFamily");
-  const watchedContactType = watch("contactType");
-  const watchedEmail = watch("email");
-  const watchedPhone = watch("phone");
+  })
+  const watchedTileFamily = watch("tileFamily")
+  const watchedContactType = watch("contactType")
+  const watchedEmail = watch("email")
+  const watchedPhone = watch("phone")
 
   useEffect(() => {
-    const url = new URLSearchParams(window.location.search);
-    const tf = url.get("tileFamily");
-    const tc = url.get("tileColor");
+    const url = new URLSearchParams(window.location.search)
+    const tf = url.get("tileFamily")
+    const tc = url.get("tileColor")
     if (tf) {
-      setValue("tileFamily", tf);
-      setSelectedTileFamily(tf);
+      setValue("tileFamily", tf)
+      setSelectedTileFamily(tf)
     }
-    if (tc) setValue("tileColor", tc);
-    window.scrollTo(0, 0);
-  }, [setValue]);
+    if (tc) setValue("tileColor", tc)
+    window.scrollTo(0, 0)
+  }, [setValue])
 
   useEffect(() => {
     if (watchedTileFamily) {
-      setSelectedTileFamily(watchedTileFamily);
-      setValue("tileColor", "");
+      setSelectedTileFamily(watchedTileFamily)
+      setValue("tileColor", "")
     }
-  }, [watchedTileFamily, setValue]);
+  }, [watchedTileFamily, setValue])
 
   useEffect(() => {
-    if (watchedContactType) setSelectedContactType(watchedContactType);
-  }, [watchedContactType]);
+    if (watchedContactType) setSelectedContactType(watchedContactType)
+  }, [watchedContactType])
 
   useEffect(() => {
     if (state.success) {
-      setShowToast(true);
-      reset();
-      setSelectedTileFamily("");
-      setSelectedContactType("");
-      setDocResults([]);
-      setPhotoResults([]);
+      setShowToast(true)
+      reset()
+      setSelectedTileFamily("")
+      setSelectedContactType("")
+      setDocResults([])
+      setPhotoResults([])
       if (state.login?.success && (watchedEmail || watchedPhone)) {
-        setLoginIdentifier(watchedEmail || watchedPhone || '');
-        setShowCodeInput(true); // Trigger login prompt
+        setLoginIdentifier(watchedEmail || watchedPhone || "")
       }
-      setTimeout(() => setShowToast(false), 5000);
+      setTimeout(() => setShowToast(false), 5000)
     }
-  }, [state.success, reset, watchedEmail, watchedPhone, state.login]);
+  }, [state.success, reset, watchedEmail, watchedPhone, state.login])
 
   const onSubmit = async (data: ContactFormData) => {
     startTransition(async () => {
       try {
-        const formEl = formRef.current;
-        if (!formEl) return;
-        const fd = new FormData(formEl);
-        const res = await fetch("/api/contact", { method: "POST", body: fd });
+        const formEl = formRef.current
+        if (!formEl) return
+        const fd = new FormData(formEl)
+        const res = await fetch("/api/contact", { method: "POST", body: fd })
         const data = await res.json().catch((e) => {
-          console.error("Fetch error:", e);
-          return { ok: false, message: "Network or server error." };
-        });
+          console.error("Fetch error:", e)
+          return { ok: false, message: "Network or server error." }
+        })
         if (res.ok && data.ok) {
-          setState({ ...data, success: true });
+          setState({ ...data, success: true })
         } else if (data.fieldErrors) {
           Object.entries(data.fieldErrors).forEach(([field, messages]: any) => {
-            if (messages?.[0]) setError(field as keyof ContactFormData, { type: "server", message: messages[0] });
-          });
-          setState({ message: data.message || "Please fix the errors below.", success: false, errors: data.fieldErrors });
+            if (messages?.[0]) setError(field as keyof ContactFormData, { type: "server", message: messages[0] })
+          })
+          setState({
+            message: data.message || "Please fix the errors below.",
+            success: false,
+            errors: data.fieldErrors,
+          })
         } else {
-          setState({ message: data.message || "Submission failed. Check server logs.", success: false });
+          setState({ message: data.message || "Submission failed. Check server logs.", success: false })
         }
       } catch (e) {
-        console.error("[Contact] submit error", e);
-        setState({ message: "Network error. Please try again.", success: false });
+        console.error("[Contact] submit error", e)
+        setState({ message: "Network error. Please try again.", success: false })
       }
-    });
-  };
+    })
+  }
 
   const handleVerify = async () => {
-    const verifyRes = await fetch("/api/contact", { // Changed to /api/contact to match POST handler
+    const verifyRes = await fetch("/api/contact/verify", {
       method: "POST",
-      body: JSON.stringify({ [loginType]: loginIdentifier, code: verificationCode, action: "verify" }), // Added action to distinguish
+      body: JSON.stringify({ [loginType]: loginIdentifier, code: verificationCode }),
       headers: { "Content-Type": "application/json" },
-    });
-    const verifyData = await verifyRes.json();
+    })
+    const verifyData = await verifyRes.json()
     if (verifyRes.ok && verifyData.ok) {
-      setShowCodeInput(false);
-      window.location.href = '/dashboard';
+      window.location.href = "/dashboard"
     } else {
-      setError("phone", { type: "server", message: verifyData.message || "Invalid code" });
+      setError("phone", { type: "server", message: verifyData.message || "Invalid code" })
     }
-  };
+  }
 
   if (state.success && !showToast) {
     return (
@@ -269,11 +274,11 @@ function ContactForm({ onLoginClick }: { onLoginClick: () => void }) {
         <p className="text-neutral-600">Thank you for reaching out. We'll get back to you shortly.</p>
         {state.login?.message && <p className="mt-2 text-sm text-neutral-600">{state.login.message}</p>}
       </div>
-    );
+    )
   }
 
   return (
-    <div> {/* Single root element */}
+    <div>
       {showCodeInput && (
         <VerificationInput
           onVerify={handleVerify}
@@ -307,11 +312,16 @@ function ContactForm({ onLoginClick }: { onLoginClick: () => void }) {
         <FieldWrapper id="company" label="Company" error={errors.company?.message || state.errors?.company?.[0]}>
           <FormInput {...register("company")} placeholder="Cocoa's Roofing Company" />
         </FieldWrapper>
-        <FieldWrapper id="contactType" label="I am a" required error={errors.contactType?.message || state.errors?.contactType?.[0]}>
+        <FieldWrapper
+          id="contactType"
+          label="I am a"
+          required
+          error={errors.contactType?.message || state.errors?.contactType?.[0]}
+        >
           <FormSelect
             {...register("contactType")}
             onChange={(e) => {
-              register("contactType").onChange(e);
+              register("contactType").onChange(e)
             }}
           >
             <option value="">Select...</option>
@@ -323,7 +333,12 @@ function ContactForm({ onLoginClick }: { onLoginClick: () => void }) {
             <option value="other">Other</option>
           </FormSelect>
         </FieldWrapper>
-        <FieldWrapper id="serviceType" label="Service Type" required error={errors.serviceType?.message || state.errors?.serviceType?.[0]}>
+        <FieldWrapper
+          id="serviceType"
+          label="Service Type"
+          required
+          error={errors.serviceType?.message || state.errors?.serviceType?.[0]}
+        >
           <FormSelect {...register("serviceType")}>
             <option value="">Select a service...</option>
             <option value="installation">Full Installation</option>
@@ -332,12 +347,16 @@ function ContactForm({ onLoginClick }: { onLoginClick: () => void }) {
             <option value="custom">Custom Request</option>
           </FormSelect>
         </FieldWrapper>
-        <FieldWrapper id="tileFamily" label="Tile Family" error={errors.tileFamily?.message || state.errors?.tileFamily?.[0]}>
+        <FieldWrapper
+          id="tileFamily"
+          label="Tile Family"
+          error={errors.tileFamily?.message || state.errors?.tileFamily?.[0]}
+        >
           <FormSelect
             {...register("tileFamily")}
             onChange={(e) => {
-              register("tileFamily").onChange(e);
-              setSelectedTileFamily(e.target.value);
+              register("tileFamily").onChange(e)
+              setSelectedTileFamily(e.target.value)
             }}
           >
             <option value="">Select...</option>
@@ -348,11 +367,13 @@ function ContactForm({ onLoginClick }: { onLoginClick: () => void }) {
           </FormSelect>
         </FieldWrapper>
         {selectedTileFamily === "Request" ? (
-          <p className="text-sm text-muted-foreground mt-2">
-            Please submit your request in the message box below.
-          </p>
+          <p className="text-sm text-muted-foreground mt-2">Please submit your request in the message box below.</p>
         ) : selectedTileFamily ? (
-          <FieldWrapper id="tileColor" label="Tile Color" error={errors.tileColor?.message || state.errors?.tileColor?.[0]}>
+          <FieldWrapper
+            id="tileColor"
+            label="Tile Color"
+            error={errors.tileColor?.message || state.errors?.tileColor?.[0]}
+          >
             <FormSelect {...register("tileColor")}>
               <option value="">Select...</option>
               {tileColorOptions[selectedTileFamily as keyof typeof tileColorOptions]?.map((color) => (
@@ -363,7 +384,12 @@ function ContactForm({ onLoginClick }: { onLoginClick: () => void }) {
             </FormSelect>
           </FieldWrapper>
         ) : null}
-        <FieldWrapper id="message" label="Message" required error={errors.message?.message || state.errors?.message?.[0]}>
+        <FieldWrapper
+          id="message"
+          label="Message"
+          required
+          error={errors.message?.message || state.errors?.message?.[0]}
+        >
           <FormTextarea {...register("message")} rows={4} placeholder="Type your message here." />
         </FieldWrapper>
         <FieldWrapper id="files" label="Attach Documents">
@@ -457,36 +483,42 @@ function ContactForm({ onLoginClick }: { onLoginClick: () => void }) {
         )}
       </form>
     </div>
-  );
+  )
 }
 
 export default function ContactPage() {
-  const [addressCopied, setAddressCopied] = useState(false);
-  const [showCodeInput, setShowCodeInput] = useState(false); // Moved here to fix scoping
+  const [addressCopied, setAddressCopied] = useState(false)
+  const [showCodeInput, setShowCodeInput] = useState(false)
 
-  const token = typeof window !== "undefined" ? document.cookie.split("; ").find(row => row.startsWith("auth-token="))?.split("=")[1] : null; // Client-side token check
+  const token =
+    typeof window !== "undefined"
+      ? document.cookie
+          .split("; ")
+          .find((row) => row.startsWith("auth-token="))
+          ?.split("=")[1]
+      : null
 
   useEffect(() => {
-    window.scrollTo(0, 0);
-  }, []);
+    window.scrollTo(0, 0)
+  }, [])
 
   const copyAddressToClipboard = async () => {
     try {
-      await navigator.clipboard.writeText("33-15 127th Pl, Corona, NY 11368");
-      setAddressCopied(true);
-      setTimeout(() => setAddressCopied(false), 2000);
+      await navigator.clipboard.writeText("33-15 127th Pl, Corona, NY 11368")
+      setAddressCopied(true)
+      setTimeout(() => setAddressCopied(false), 2000)
     } catch (e) {
-      console.error(e);
+      console.error(e)
     }
-  };
+  }
 
   const handleLoginClick = () => {
     if (!token) {
-      setShowCodeInput(true); // Use local state
+      setShowCodeInput(true)
     } else {
-      window.location.href = '/dashboard';
+      window.location.href = "/dashboard"
     }
-  };
+  }
 
   return (
     <div className="bg-white text-neutral-800 min-h-screen">
@@ -517,19 +549,33 @@ export default function ContactPage() {
           <section className="mb-8">
             <h2 className="text-xl font-semibold text-neutral-900 mb-4">Our Services</h2>
             <p className="text-sm text-neutral-600 mb-4">
-              We specialize in clay and ceramic tile roofing. Choose from the options below or let us know your needs in the form. All quotes are provided after reviewing your submission. Note: We are not a general roof-repair service.
+              We specialize in clay and ceramic tile roofing. Choose from the options below or let us know your needs in
+              the form. All quotes are provided after reviewing your submission. Note: We are not a general roof-repair
+              service.
             </p>
             <ul className="list-disc pl-6 space-y-2 text-sm text-neutral-700">
-              <li><strong>Full Installation:</strong> Professional roofing installation for homes, businesses, and more. Includes site inspection, materials, and labor.</li>
-              <li><strong>Tile Purchase Only (DIY):</strong> Order high-quality tiles without installation. Perfect for self-install projects like garages or home renovations. Specify quantity, type, and delivery details in your message—we'll generate a quote afterward.</li>
-              <li><strong>Repairs (Previous Clients Only):</strong> Limited to existing clients for warranty or service requests (e.g., fixing leaks or replacing damaged tiles).</li>
-              <li><strong>Custom Requests:</strong> Anything else? Tell us in the form!</li>
+              <li>
+                <strong>Full Installation:</strong> Professional roofing installation for homes, businesses, and more.
+                Includes site inspection, materials, and labor.
+              </li>
+              <li>
+                <strong>Tile Purchase Only (DIY):</strong> Order high-quality tiles without installation. Perfect for
+                self-install projects like garages or home renovations. Specify quantity, type, and delivery details in
+                your message—we'll generate a quote afterward.
+              </li>
+              <li>
+                <strong>Repairs (Previous Clients Only):</strong> Limited to existing clients for warranty or service
+                requests (e.g., fixing leaks or replacing damaged tiles).
+              </li>
+              <li>
+                <strong>Custom Requests:</strong> Anything else? Tell us in the form!
+              </li>
             </ul>
           </section>
           <div className="bg-white rounded-xl border border-neutral-200 p-6 sm:p-8">
             <h2 className="text-xl font-semibold text-neutral-900 mb-6">Submit your inquiry below.</h2>
             <p className="text-sm text-neutral-600 mb-4">We'll respond within 24 hours.</p>
-            <ContactForm onLoginClick={handleLoginClick} />
+            <ContactForm onLoginClick={handleLoginClick} showCodeInput={showCodeInput} />
           </div>
         </div>
       </main>
@@ -539,7 +585,7 @@ export default function ContactPage() {
         </div>
       </footer>
     </div>
-  );
+  )
 }
 
-export const dynamic = "force-dynamic";
+export const dynamic = "force-dynamic"
