@@ -34,7 +34,7 @@ Next.js project on Vercel with v0.dev. Tailwind for styles, Radix UI for buttons
 ## Visual File Flow (Your Ladder Map)
 This shows file links. GitHub renders it automatically.
 
-```mermaid
+\`\`\`mermaid
 graph TD
     subgraph "Pages (Start Here)"
         A[pages/index.tsx (Home)]
