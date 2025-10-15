@@ -19,6 +19,7 @@ async function saveSubmission(
   phone: string,
   company: string,
   contactType: string,
+  serviceType: string,
   tileFamily: string,
   tileColor: string,
   message: string,
@@ -27,8 +28,8 @@ async function saveSubmission(
   optInSms: boolean,
 ) {
   const query = `
-    INSERT INTO submissions (name, email, phone, company, contact_type, tile_family, tile_color, message, uploaded_files, submitted_at, opt_in_sms)
-    VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
+    INSERT INTO submissions (name, email, phone, company, contact_type, service_type, tile_family, tile_color, message, uploaded_files, submitted_at, opt_in_sms)
+    VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
     RETURNING id`
   const values = [
     name,
@@ -36,6 +37,7 @@ async function saveSubmission(
     phone,
     company,
     contactType,
+    serviceType,
     tileFamily,
     tileColor,
     message,
@@ -47,7 +49,7 @@ async function saveSubmission(
     const result = await pool.query(query, values)
     return result.rows[0].id
   } catch (dbError) {
-    console.error("Database error:", dbError)
+    console.error("[v0] Database error:", dbError)
     throw dbError
   }
 }
@@ -59,6 +61,7 @@ function renderTeamHtml(params: {
   phone?: string
   company?: string
   contactType?: string
+  serviceType?: string
   tileFamily?: string
   tileColor?: string
   message: string
@@ -72,6 +75,7 @@ function renderTeamHtml(params: {
     phone,
     company,
     contactType,
+    serviceType,
     tileFamily,
     tileColor,
     message,
@@ -92,6 +96,7 @@ function renderTeamHtml(params: {
             <tr><td style="padding:6px 0;color:#666">Phone</td><td>${phone || "-"}</td></tr>
             <tr><td style="padding:6px 0;color:#666">Company</td><td>${company || "-"}</td></tr>
             <tr><td style="padding:6px 0;color:#666">Contact Type</td><td>${contactType || "-"}</td></tr>
+            <tr><td style="padding:6px 0;color:#666">Service Type</td><td>${serviceType || "-"}</td></tr>
             <tr><td style="padding:6px 0;color:#666">Tile Family</td><td>${tileFamily || "-"}</td></tr>
             <tr><td style="padding:6px 0;color:#666">Tile Color</td><td>${tileColor || "-"}</td></tr>
             <tr><td style="padding:6px 0;color:#666">Attachments</td><td>${attachmentsCount} file(s)</td></tr>
@@ -112,12 +117,25 @@ function renderUserHtml(params: {
   phone?: string
   company?: string
   contactType?: string
+  serviceType?: string
   tileFamily?: string
   tileColor?: string
   message: string
   submittedAt: string
 }) {
-  const { logoUrl, name, email, phone, company, contactType, tileFamily, tileColor, message, submittedAt } = params
+  const {
+    logoUrl,
+    name,
+    email,
+    phone,
+    company,
+    contactType,
+    serviceType,
+    tileFamily,
+    tileColor,
+    message,
+    submittedAt,
+  } = params
   return `
   <table width="100%" cellpadding="0" cellspacing="0" style="background:#f6f6f6;padding:24px 0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;">
     <tr><td align="center">
@@ -133,6 +151,7 @@ function renderUserHtml(params: {
             <tr><td style="padding:6px 0;color:#666">Phone</td><td>${phone || "-"}</td></tr>
             <tr><td style="padding:6px 0;color:#666">Company</td><td>${company || "-"}</td></tr>
             <tr><td style="padding:6px 0;color:#666">Contact Type</td><td>${contactType || "-"}</td></tr>
+            <tr><td style="padding:6px 0;color:#666">Service Type</td><td>${serviceType || "-"}</td></tr>
             <tr><td style="padding:6px 0;color:#666">Tile Family</td><td>${tileFamily || "-"}</td></tr>
             <tr><td style="padding:6px 0;color:#666">Tile Color</td><td>${tileColor || "-"}</td></tr>
           </table>
@@ -145,11 +164,9 @@ function renderUserHtml(params: {
   </table>`
 }
 
-async function fileToResendAttachment(fileData: { url: string; filename?: string; contentType?: string }) {
+function fileToResendAttachment(fileData: { url: string; filename?: string; contentType?: string }) {
   return {
     filename: fileData.filename || fileData.url.split("/").pop() || "unknown",
-    content: "",
-    contentType: fileData.contentType || "application/octet-stream",
     path: fileData.url,
   }
 }
@@ -157,49 +174,46 @@ async function fileToResendAttachment(fileData: { url: string; filename?: string
 export async function POST(req: NextRequest) {
   try {
     const formData = await req.formData()
-    console.log("FormData received:", Object.fromEntries(formData))
+    console.log("[v0] FormData received")
     const name = formData.get("name")?.toString().trim() || ""
     const email = formData.get("email")?.toString().trim() || ""
     const phone = formData.get("phone")?.toString().trim() || ""
     const company = formData.get("company")?.toString().trim() || ""
     const contactType = formData.get("contactType")?.toString().trim() || ""
+    const serviceType = formData.get("serviceType")?.toString().trim() || ""
     const tileFamily = formData.get("tileFamily")?.toString().trim() || ""
     const tileColor = formData.get("tileColor")?.toString().trim() || ""
     const message = formData.get("message")?.toString().trim() || ""
     const privacyAccepted = formData.get("privacyAccepted") === "true" || formData.get("privacyAccepted") === "on"
     const smsOptIn = formData.get("smsOptIn") === "true" || formData.get("smsOptIn") === "on"
 
-    const files = formData.getAll("uploadedFiles") as File[]
-    const fileUrls: string[] = []
-    for (const file of files) {
-      if (file.size > 0) {
-        const form = new FormData()
-        form.append("file", file)
-        const uploadResponse = await fetch(`${getBaseUrl(req)}/api/blob/upload`, {
-          method: "POST",
-          body: form,
-        })
-        if (uploadResponse.ok) {
-          const result = await uploadResponse.json()
-          if (result.ok && result.url) {
-            fileUrls.push(result.url)
-          } else {
-            console.warn("[API] Blob upload failed:", result.error)
-          }
-        } else {
-          console.warn("[API] Blob upload failed with status:", uploadResponse.status)
-        }
+    const uploadedFilesJson = formData.get("uploadedFiles")?.toString() || "[]"
+    let fileUrls: string[] = []
+    let fileData: Array<{ url: string; filename?: string; contentType?: string }> = []
+
+    try {
+      const parsed = JSON.parse(uploadedFilesJson)
+      if (Array.isArray(parsed)) {
+        fileData = parsed
+        fileUrls = parsed.map((f: any) => f.url).filter(Boolean)
       }
+    } catch (e) {
+      console.error("[v0] Failed to parse uploaded files JSON:", e)
     }
-    console.log("File URLs:", fileUrls)
+
+    console.log("[v0] Parsed file URLs:", fileUrls)
 
     let normalizedPhone = phone.replace(/\D/g, "")
-    if (normalizedPhone.startsWith("212") && normalizedPhone.length === 10) {
+    if (normalizedPhone.length === 10 && normalizedPhone.startsWith("212")) {
       normalizedPhone = `+1${normalizedPhone}`
-    } else if (normalizedPhone.startsWith("+212")) {
-      normalizedPhone = `+1212${normalizedPhone.slice(4)}`
+    } else if (normalizedPhone.startsWith("212") && normalizedPhone.length > 10) {
+      normalizedPhone = `+1${normalizedPhone}`
+    } else if (normalizedPhone.length === 11 && normalizedPhone.startsWith("1")) {
+      normalizedPhone = `+${normalizedPhone}`
+    } else if (!normalizedPhone.startsWith("+") && normalizedPhone.length >= 10) {
+      normalizedPhone = `+1${normalizedPhone}`
     }
-    console.log("Normalized phone:", normalizedPhone)
+    console.log("[v0] Normalized phone:", normalizedPhone)
 
     const fieldErrors: Record<string, string[]> = {}
     if (!name) fieldErrors.name = ["Name is required"]
@@ -208,8 +222,10 @@ export async function POST(req: NextRequest) {
     if (!message) fieldErrors.message = ["Message is required"]
     else if (message.length < 10) fieldErrors.message = ["Message must be at least 10 characters long"]
     if (!contactType) fieldErrors.contactType = ["Please select your contact type"]
+    if (!serviceType) fieldErrors.serviceType = ["Please select a service type"]
     if (!privacyAccepted) fieldErrors.privacyAccepted = ["You must accept the Privacy Policy to continue"]
     if (Object.keys(fieldErrors).length > 0) {
+      console.log("[v0] Validation errors:", fieldErrors)
       return NextResponse.json({ ok: false, message: "Please fix the errors below.", fieldErrors }, { status: 400 })
     }
 
@@ -219,18 +235,21 @@ export async function POST(req: NextRequest) {
       .map((s) => s.trim())
       .filter(Boolean)
     if (!process.env.RESEND_API_KEY || !from || to.length === 0) {
+      console.error("[v0] Email service not configured")
       return NextResponse.json({ ok: false, message: "Email service not configured." }, { status: 500 })
     }
     const baseUrl = getBaseUrl(req)
     const logoUrl = `${baseUrl}/CRNY_email_banner.png`
     const submittedAt = new Date().toLocaleString("en-US", { timeZone: "America/New_York", hour12: true })
 
+    console.log("[v0] Saving submission to database...")
     const submissionId = await saveSubmission(
       name,
       email,
       normalizedPhone,
       company,
       contactType,
+      serviceType,
       tileFamily,
       tileColor,
       message,
@@ -238,9 +257,9 @@ export async function POST(req: NextRequest) {
       submittedAt,
       smsOptIn,
     )
-    console.log(`Submission saved with ID: ${submissionId}`)
+    console.log(`[v0] Submission saved with ID: ${submissionId}`)
 
-    let loginResponse = { success: false }
+    let loginResponse = { success: false, message: "" }
     if ((email || normalizedPhone) && !cookies().get("auth-token")) {
       const code = Math.floor(100000 + Math.random() * 900000).toString()
       const expiresAt = new Date(Date.now() + 5 * 60 * 1000)
@@ -250,29 +269,40 @@ export async function POST(req: NextRequest) {
       )
 
       if (normalizedPhone) {
-        await smsClient.messages.create({
-          body: `Your Clay Roofing NY login code: ${code}`,
-          from: process.env.TWILIO_PHONE,
-          to: normalizedPhone,
-        })
-        loginResponse = { success: true, message: "Login code sent to your phone." }
+        try {
+          await smsClient.messages.create({
+            body: `Your Clay Roofing NY login code: ${code}`,
+            from: process.env.TWILIO_PHONE,
+            to: normalizedPhone,
+          })
+          loginResponse = { success: true, message: "Login code sent to your phone." }
+          console.log("[v0] SMS sent successfully")
+        } catch (smsError) {
+          console.error("[v0] Twilio SMS error:", smsError)
+        }
       } else if (email) {
-        await resend.emails.send({
-          from,
-          to: [email],
-          subject: "Your Clay Roofing NY Login Code",
-          text: `Your login code is: ${code}. It expires in 5 minutes.`,
-        })
-        loginResponse = { success: true, message: "Login code sent to your email." }
+        try {
+          await resend.emails.send({
+            from,
+            to: [email],
+            subject: "Your Clay Roofing NY Login Code",
+            text: `Your login code is: ${code}. It expires in 5 minutes.`,
+          })
+          loginResponse = { success: true, message: "Login code sent to your email." }
+          console.log("[v0] Login email sent successfully")
+        } catch (emailError) {
+          console.error("[v0] Login email error:", emailError)
+        }
       }
     }
 
+    console.log("[v0] Sending team notification email...")
     const teamEmail = await resend.emails.send({
       from,
       to,
-      subject: `Thank you ${name} - New Contact (ID: ${submissionId})`,
+      subject: `New Contact from ${name} (ID: ${submissionId})`,
       reply_to: email,
-      text: `New contact submission (submitted ${submittedAt}, ID: ${submissionId}):\nName: ${name}\nEmail: ${email}\nPhone: ${normalizedPhone || "-"}\nCompany: ${company || "-"}\nContact Type: ${contactType || "-"}\nTile Family: ${tileFamily || "-"}\nTile Color: ${tileColor || "-"}\nMessage:\n${message}\nAttachments: ${fileUrls.length} file(s)`,
+      text: `New contact submission (submitted ${submittedAt}, ID: ${submissionId}):\nName: ${name}\nEmail: ${email}\nPhone: ${normalizedPhone || "-"}\nCompany: ${company || "-"}\nContact Type: ${contactType || "-"}\nService Type: ${serviceType || "-"}\nTile Family: ${tileFamily || "-"}\nTile Color: ${tileColor || "-"}\nMessage:\n${message}\nAttachments: ${fileUrls.length} file(s)`,
       html: renderTeamHtml({
         logoUrl,
         name,
@@ -280,23 +310,24 @@ export async function POST(req: NextRequest) {
         phone: normalizedPhone,
         company,
         contactType,
+        serviceType,
         tileFamily,
         tileColor,
         message,
         submittedAt,
         attachmentsCount: fileUrls.length,
       }),
-      attachments: fileUrls.length
-        ? fileUrls.map((url) => fileToResendAttachment({ url, filename: url.split("/").pop() || "unknown" }))
-        : undefined,
+      attachments: fileData.length > 0 ? fileData.map(fileToResendAttachment) : undefined,
     })
 
     if (teamEmail.error) {
-      console.error("[API] Resend team email error:", teamEmail.error)
+      console.error("[v0] Resend team email error:", teamEmail.error)
       return NextResponse.json({ ok: false, message: "Failed to send email." }, { status: 502 })
     }
+    console.log("[v0] Team email sent successfully")
 
     try {
+      console.log("[v0] Sending user confirmation email...")
       await resend.emails.send({
         from,
         to: [email],
@@ -309,22 +340,25 @@ export async function POST(req: NextRequest) {
           phone: normalizedPhone,
           company,
           contactType,
+          serviceType,
           tileFamily,
           tileColor,
           message,
           submittedAt,
         }),
-        text: `Thanks, ${name}!\nWe received your message on ${submittedAt} (ID: ${submissionId}).\nOur Client Relations Manager will contact you shortly.\nSubmission copy:\nName: ${name}\nEmail: ${email}\nPhone: ${normalizedPhone || "-"}\nCompany: ${company || "-"}\nContact Type: ${contactType || "-"}\nTile Family: ${tileFamily || "-"}\nTile Color: ${tileColor || "-"}\nMessage:\n${message}\nIf this is urgent, call us at 212-365-4386.\nClay Roofing New York`,
+        text: `Thanks, ${name}!\nWe received your message on ${submittedAt} (ID: ${submissionId}).\nOur Client Relations Manager will contact you shortly.\nSubmission copy:\nName: ${name}\nEmail: ${email}\nPhone: ${normalizedPhone || "-"}\nCompany: ${company || "-"}\nContact Type: ${contactType || "-"}\nService Type: ${serviceType || "-"}\nTile Family: ${tileFamily || "-"}\nTile Color: ${tileColor || "-"}\nMessage:\n${message}\nIf this is urgent, call us at 212-365-4386.\nClay Roofing New York`,
       })
+      console.log("[v0] User confirmation email sent successfully")
     } catch (err) {
-      console.warn("[API] User confirmation email failed:", err)
+      console.warn("[v0] User confirmation email failed:", err)
     }
 
+    console.log("[v0] Form submission completed successfully")
     return NextResponse.json({ ok: true, message: "Thanks—your message was sent.", login: loginResponse })
-  } catch (err) {
-    console.error("[API] Unexpected error:", err)
+  } catch (err: any) {
+    console.error("[v0] Unexpected error:", err)
     return NextResponse.json(
-      { ok: false, message: "Something went wrong. Please try again later.", error: err.message },
+      { ok: false, message: "Something went wrong. Please try again later.", error: err?.message || String(err) },
       { status: 500 },
     )
   }

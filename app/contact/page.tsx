@@ -224,9 +224,15 @@ function ContactForm({ onLoginClick, showCodeInput }: { onLoginClick: () => void
         const formEl = formRef.current
         if (!formEl) return
         const fd = new FormData(formEl)
+
+        const allUploadedFiles = [...docResults, ...photoResults]
+        fd.delete("uploadedFilesDocs")
+        fd.delete("uploadedFilesPhotos")
+        fd.append("uploadedFiles", JSON.stringify(allUploadedFiles))
+
         const res = await fetch("/api/contact", { method: "POST", body: fd })
         const data = await res.json().catch((e) => {
-          console.error("Fetch error:", e)
+          console.error("[v0] Fetch error:", e)
           return { ok: false, message: "Network or server error." }
         })
         if (res.ok && data.ok) {
@@ -244,7 +250,7 @@ function ContactForm({ onLoginClick, showCodeInput }: { onLoginClick: () => void
           setState({ message: data.message || "Submission failed. Check server logs.", success: false })
         }
       } catch (e) {
-        console.error("[Contact] submit error", e)
+        console.error("[v0] Contact submit error", e)
         setState({ message: "Network error. Please try again.", success: false })
       }
     })
