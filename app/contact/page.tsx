@@ -2,7 +2,7 @@
 import type React from "react"
 import { useEffect, useRef, useState, useTransition } from "react"
 import { Button } from "@/components/ui/button"
-import { Check, User } from "lucide-react"
+import { Check } from "lucide-react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
@@ -138,7 +138,7 @@ function VerificationInput({
   )
 }
 
-function ContactForm({ onLoginClick, showCodeInput }: { onLoginClick: () => void; showCodeInput: boolean }) {
+function ContactForm() {
   const formRef = useRef<HTMLFormElement>(null)
   const [state, setState] = useState<{
     message: string
@@ -302,14 +302,6 @@ function ContactForm({ onLoginClick, showCodeInput }: { onLoginClick: () => void
 
   return (
     <div>
-      {showCodeInput && (
-        <VerificationInput
-          onVerify={handleVerify}
-          verificationCode={verificationCode}
-          setVerificationCode={setVerificationCode}
-          error={errors.phone?.message}
-        />
-      )}
       {showToast && (
         <div className="fixed top-4 right-4 z-50 bg-green-600 text-white px-6 py-3 rounded-lg shadow-lg flex items-center gap-2">
           <Check className="h-5 w-5" />
@@ -511,15 +503,6 @@ function ContactForm({ onLoginClick, showCodeInput }: { onLoginClick: () => void
 
 export default function ContactPage() {
   const [addressCopied, setAddressCopied] = useState(false)
-  const [showCodeInput, setShowCodeInput] = useState(false)
-
-  const token =
-    typeof window !== "undefined"
-      ? document.cookie
-          .split("; ")
-          .find((row) => row.startsWith("auth-token="))
-          ?.split("=")[1]
-      : null
 
   useEffect(() => {
     window.scrollTo(0, 0)
@@ -535,30 +518,8 @@ export default function ContactPage() {
     }
   }
 
-  const handleLoginClick = () => {
-    if (!token) {
-      setShowCodeInput(true)
-    } else {
-      window.location.href = "/dashboard"
-    }
-  }
-
   return (
     <div className="bg-white text-neutral-800 min-h-screen">
-      <header className="bg-white shadow-sm py-4">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex justify-between items-center">
-          <h1 className="text-xl font-bold">Clay Roofing New York</h1>
-          <div className="flex items-center space-x-4">
-            <Button variant="ghost" onClick={copyAddressToClipboard} disabled={addressCopied}>
-              {addressCopied ? "Copied!" : "Copy Address"}
-            </Button>
-            <Button variant="ghost" onClick={handleLoginClick}>
-              <User className="h-5 w-5 mr-2" />
-              {token ? "Client" : "Client"}
-            </Button>
-          </div>
-        </div>
-      </header>
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-16">
         <div className="text-center mb-8 sm:mb-12">
           <h1 className="text-2xl sm:text-3xl md:text-4xl font-extrabold tracking-tight text-neutral-900">
@@ -598,7 +559,7 @@ export default function ContactPage() {
           <div className="bg-white rounded-xl border border-neutral-200 p-6 sm:p-8">
             <h2 className="text-xl font-semibold text-neutral-900 mb-6">Submit your inquiry below.</h2>
             <p className="text-sm text-neutral-600 mb-4">We'll respond within 24 hours.</p>
-            <ContactForm onLoginClick={handleLoginClick} showCodeInput={showCodeInput} />
+            <ContactForm />
           </div>
         </div>
       </main>
