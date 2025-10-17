@@ -78,7 +78,7 @@ function Button({
       className={cn(
         buttonVariants({ variant, size, width }),
         // Guards (class-level) in case utilities sneak in
-        "hover:translate-x-0 hover:translate-y-0 hover:scale-100 active:scale-100",
+        "hover:translate-x-0 hover:translate-y-0 hover:scale-100 active:scale-100 text-white bg-[rgba(223,220,220,1)]",
         className
       )}
       {...props}
