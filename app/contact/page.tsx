@@ -206,11 +206,14 @@ function ContactForm({ onLoginClick, showCodeInput }: { onLoginClick: () => void
   useEffect(() => {
     if (state.success) {
       setShowToast(true)
-      reset()
-      setSelectedTileFamily("")
-      setSelectedContactType("")
-      setDocResults([])
-      setPhotoResults([])
+      setTimeout(() => {
+        reset()
+        setSelectedTileFamily("")
+        setSelectedContactType("")
+        setDocResults([])
+        setPhotoResults([])
+      }, 1000)
+
       if (state.login?.success && (watchedEmail || watchedPhone)) {
         setLoginIdentifier(watchedEmail || watchedPhone || "")
       }
@@ -270,7 +273,7 @@ function ContactForm({ onLoginClick, showCodeInput }: { onLoginClick: () => void
     }
   }
 
-  if (state.success && !showToast) {
+  if (state.success) {
     return (
       <div className="flex flex-col items-center justify-center rounded-lg border border-green-200 bg-green-50 p-8 text-center">
         <div className="h-12 w-12 rounded-full bg-green-100 p-2 text-green-600 flex items-center justify-center mb-4">
@@ -278,7 +281,21 @@ function ContactForm({ onLoginClick, showCodeInput }: { onLoginClick: () => void
         </div>
         <h3 className="text-xl font-semibold text-neutral-800 mb-2">Message Sent!</h3>
         <p className="text-neutral-600">Thank you for reaching out. We'll get back to you shortly.</p>
-        {state.login?.message && <p className="mt-2 text-sm text-neutral-600">{state.login.message}</p>}
+        {state.login?.message && (
+          <p className="mt-2 text-sm text-neutral-600 bg-blue-50 border border-blue-200 rounded-lg px-4 py-2">
+            {state.login.message}
+          </p>
+        )}
+        <Button
+          onClick={() => {
+            setState({ message: "", success: false })
+            setShowToast(false)
+          }}
+          variant="outline"
+          className="mt-4"
+        >
+          Send Another Message
+        </Button>
       </div>
     )
   }
