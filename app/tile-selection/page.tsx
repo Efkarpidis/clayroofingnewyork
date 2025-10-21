@@ -541,7 +541,7 @@ export default function TileSelectionPage() {
             <div className="premium-badge mx-auto mb-6 bg-terracotta/90 backdrop-blur-sm opacity-0">{""}</div>
 
             <h1 className="luxury-title md:text-6xl mb-6 text-white drop-shadow-lg font-semibold text-4xl rounded-none mt-2.5 opacity-100 shadow-none border-none">
-              {"SLECT YOUR SIGNATURE TILE"}
+              {"SELECT YOUR SIGNATURE TILE."}
             </h1>
 
             <p className="text-xl text-white/95 max-w-3xl mx-auto leading-relaxed drop-shadow-md mb-9">
