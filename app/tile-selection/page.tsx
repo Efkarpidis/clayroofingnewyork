@@ -540,7 +540,7 @@ export default function TileSelectionPage() {
           <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
             <div className="premium-badge mx-auto mb-6 bg-terracotta/90 backdrop-blur-sm opacity-0">{""}</div>
 
-            <h1 className="luxury-title md:text-6xl mb-6 text-white drop-shadow-lg mt-1.5 font-semibold text-4xl rounded-none">
+            <h1 className="luxury-title md:text-6xl mb-6 text-white drop-shadow-lg font-semibold text-4xl rounded-none mt-2.5 opacity-100 shadow-none border-none">
               Choose Your Perfect Clay Roof
             </h1>
 
