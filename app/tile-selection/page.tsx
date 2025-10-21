@@ -540,11 +540,11 @@ export default function TileSelectionPage() {
           <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
             <div className="premium-badge mx-auto mb-6 bg-terracotta/90 backdrop-blur-sm opacity-0">{""}</div>
 
-            <h1 className="luxury-title text-5xl md:text-6xl drop-shadow-lg mb-6 border-0 text-card text-center px-0.5 py-2.5 shadow-lg">
-              {"Select Your Signature tile"}
+            <h1 className="luxury-title text-5xl md:text-6xl mb-6 text-white drop-shadow-lg mt-1.5">
+              Choose Your Perfect Clay Roof
             </h1>
 
-            <p className="text-xl text-white/95 max-w-3xl mx-auto leading-relaxed drop-shadow-md font-medium mb-24 mt-0 leading-7 text-center">
+            <p className="text-xl text-white/95 max-w-3xl mx-auto leading-relaxed drop-shadow-md mb-9">
               Explore our clay tile collections. (Yes, Cocoa is judging your taste. Pick wisely.)
             </p>
 
@@ -561,6 +561,7 @@ export default function TileSelectionPage() {
           <FamilySection key={family.id} family={family} index={index} />
         ))}
 
+        {/* Tile Comparison section below family sections */}
         <TileComparison />
 
         {/* Final Call to Action */}
