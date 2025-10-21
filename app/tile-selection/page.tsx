@@ -120,7 +120,8 @@ function FamilySection({ family, index }: { family: (typeof tileFamilies)[0]; in
             <div className="max-w-2xl">
               {/* Premium Badge */}
               <div className="flex items-center gap-3 mb-6">
-                
+                <BadgeIcon size={24} className="text-white" />
+                <span className="text-white font-semibold text-lg">{family.badge.text}</span>
               </div>
 
               {/* Luxury Title */}
@@ -492,12 +493,7 @@ function TileComparison() {
                           </div>
                         </Link>
                       </div>
-                      <Link
-                        href={`/tile-details/${getTileSlug(tile.name)}`}
-                        className="block mt-2 text-center text-sm text-white hover:text-[#f3ecdb] font-medium transition-colors underline"
-                      >
-                        Learn More
-                      </Link>
+                      
                     </th>
                   ))}
                 </tr>
@@ -543,10 +539,7 @@ export default function TileSelectionPage() {
           </div>
 
           <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
-            <div className="premium-badge mx-auto mb-6 bg-terracotta/90 backdrop-blur-sm opacity-0">
-              
-              {""}
-            </div>
+            <div className="premium-badge mx-auto mb-6 bg-terracotta/90 backdrop-blur-sm opacity-0">{""}</div>
 
             <h1 className="luxury-title text-5xl md:text-6xl mb-6 text-white drop-shadow-lg">
               Choose Your Perfect Clay Roof
