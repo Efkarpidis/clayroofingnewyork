@@ -493,7 +493,6 @@ function TileComparison() {
                           </div>
                         </Link>
                       </div>
-                      
                     </th>
                   ))}
                 </tr>
@@ -541,29 +540,28 @@ export default function TileSelectionPage() {
           <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
             <div className="premium-badge mx-auto mb-6 bg-terracotta/90 backdrop-blur-sm opacity-0">{""}</div>
 
-            <h1 className="luxury-title text-5xl md:text-6xl mb-6 text-white drop-shadow-lg">
-              Choose Your Perfect Clay Roof
+            <h1 className="luxury-title text-5xl md:text-6xl drop-shadow-lg mb-6 border-0 text-card text-center px-0.5 py-2.5 shadow-lg">
+              {"Select Your Signature tile"}
             </h1>
 
-            <p className="text-xl text-white/95 max-w-3xl mx-auto leading-relaxed mb-8 drop-shadow-md">
+            <p className="text-xl text-white/95 max-w-3xl mx-auto leading-relaxed drop-shadow-md font-medium mb-24 mt-0 leading-7 text-center">
               Explore our clay tile collections. (Yes, Cocoa is judging your taste. Pick wisely.)
             </p>
 
             <div className="flex items-center justify-center gap-2 text-red-200">
               <span className="w-2 h-2 bg-terracotta rounded-full animate-pulse"></span>
-              <span className="text-sm font-medium drop-shadow">Scroll to explore each collection</span>
+              
               <span className="w-2 h-2 bg-terracotta rounded-full animate-pulse"></span>
             </div>
           </div>
         </section>
 
-        {/* Tile Comparison section below hero */}
-        <TileComparison />
-
         {/* Family Sections */}
         {tileFamilies.map((family, index) => (
           <FamilySection key={family.id} family={family} index={index} />
         ))}
+
+        <TileComparison />
 
         {/* Final Call to Action */}
         <section className="section py-20 bg-gradient-to-r from-clay-red to-red-700 text-white">
