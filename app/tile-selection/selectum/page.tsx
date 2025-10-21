@@ -154,7 +154,7 @@ export default function SelectumPage() {
 
   return (
     <>
-      <div className="bg-white text-neutral-800 min-h-screen">
+      <div className="min-h-screen">
         {/* Luxury Hero Banner */}
         <section className="pt-20 pb-0 relative overflow-hidden">
           <div className="relative rounded-b-3xl overflow-hidden shadow-2xl">
@@ -205,7 +205,7 @@ export default function SelectumPage() {
         </section>
 
         {/* Tile Grid */}
-        <section className="py-16 bg-white">
+        <section className="section py-16">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-12">
               <h2 className="text-3xl font-bold text-neutral-900 mb-4">Available Colors</h2>

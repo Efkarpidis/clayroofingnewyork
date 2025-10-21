@@ -4,7 +4,7 @@ import { StickyCallBar } from "@/components/sticky-call-bar"
 export default function AboutPage() {
   return (
     <>
-      <div className="bg-white text-neutral-800">
+      <div className="text-neutral-800">
         <main className="container mx-auto px-4 py-16 sm:py-24 pb-20 pt-20">
           <div className="flex flex-col items-center text-center">
             <div className="flex items-center gap-4 mb-8">
@@ -23,7 +23,7 @@ export default function AboutPage() {
           </div>
         </main>
 
-        <footer className="border-t border-neutral-200 bg-neutral-50">
+        <footer className="border-t bg-[#e8d9b8] text-background bg-[rgba(243,236,218,1)] border-popover-foreground">
           <div className="container mx-auto px-4 py-6 space-y-4">
             <div className="flex items-center justify-center gap-3 text-sm text-neutral-600">
               <a

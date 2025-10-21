@@ -1,8 +1,9 @@
-import type { Metadata } from "next";
-import { GeistSans } from "geist/font/sans";
-import { GeistMono } from "geist/font/mono";
-import "./globals.css";
-import { Header } from "@/components/Header";
+import type React from "react"
+import type { Metadata } from "next"
+import { GeistSans } from "geist/font/sans"
+import { GeistMono } from "geist/font/mono"
+import "./globals.css"
+import { Header } from "@/components/Header"
 
 export const metadata: Metadata = {
   title: {
@@ -84,20 +85,23 @@ export const metadata: Metadata = {
   },
   msTileImage: "/favicon-240.png",
   msTileColor: "#ea580c",
-};
+}
 
 export const viewport = {
   themeColor: "#ea580c",
-};
+}
 
 export default function RootLayout({
   children,
 }: Readonly<{
-  children: React.ReactNode;
+  children: React.ReactNode
 }>) {
   return (
     <html lang="en" className={`${GeistSans.variable} ${GeistMono.variable}`} data-theme="light">
-      <body>{<Header />}{children}</body>
+      <body>
+        <Header />
+        {children}
+      </body>
     </html>
-  );
+  )
 }

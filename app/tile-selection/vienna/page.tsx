@@ -98,9 +98,9 @@ export default function ViennaPage() {
 
   return (
     <>
-      <div className="bg-white text-neutral-800 min-h-screen">
+      <div className="min-h-screen">
         {/* Hero Section */}
-        <section className="pt-20 pb-16 bg-gradient-to-b from-neutral-50 to-white">
+        <section className="pt-20 pb-16 bg-gradient-to-b from-neutral-50 to-merino">
           <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
             <div className="flex items-center mb-6">
               <Link href="/tile-selection" className="flex items-center text-orange-600 hover:text-orange-700 mr-4">
@@ -116,7 +116,7 @@ export default function ViennaPage() {
         </section>
 
         {/* Tile Grid */}
-        <section className="py-16 bg-white">
+        <section className="section py-16">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 items-start">
               {viennaTiles.map((tile) => (

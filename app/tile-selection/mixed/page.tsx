@@ -186,9 +186,9 @@ export default function MixedPage() {
 
   return (
     <>
-      <div className="bg-white text-neutral-800 min-h-screen">
+      <div className="min-h-screen">
         {/* Hero Section */}
-        <section className="pt-20 pb-16 bg-gradient-to-b from-neutral-50 to-white">
+        <section className="pt-20 pb-16 bg-gradient-to-b from-neutral-50 to-merino">
           <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
             <div className="flex items-center mb-6">
               <Link href="/tile-selection" className="flex items-center text-orange-600 hover:text-orange-700 mr-4">
@@ -206,7 +206,7 @@ export default function MixedPage() {
         </section>
 
         {/* Tile Grid */}
-        <section className="py-16 bg-white">
+        <section className="section py-16">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-12">
               <h2 className="text-3xl font-bold text-neutral-900 mb-4">Available Colors</h2>

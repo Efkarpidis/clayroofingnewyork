@@ -56,7 +56,7 @@ const FieldWrapper = ({
 const FormInput = (props: React.ComponentProps<"input">) => (
   <input
     {...props}
-    className="block w-full rounded-md border-neutral-300 bg-neutral-50 p-3 text-base shadow-sm focus:border-neutral-500 focus:ring-neutral-500 disabled:cursor-not-allowed disabled:bg-neutral-200"
+    className="block w-full rounded-md border-stone-gray bg-parchment p-3 text-base text-old-copper shadow-sm focus:border-muted-terracotta focus:ring-muted-terracotta disabled:cursor-not-allowed disabled:bg-stone-gray/30"
   />
 )
 
@@ -99,14 +99,14 @@ PhoneInput.displayName = "PhoneInput"
 const FormTextarea = (props: React.ComponentProps<"textarea">) => (
   <textarea
     {...props}
-    className="block w-full rounded-md border-neutral-300 bg-neutral-50 p-3 text-base shadow-sm focus:border-neutral-500 focus:ring-neutral-500"
+    className="block w-full rounded-md border-stone-gray bg-parchment p-3 text-base text-old-copper shadow-sm focus:border-muted-terracotta focus:ring-muted-terracotta"
   />
 )
 
 const FormSelect = (props: React.ComponentProps<"select">) => (
   <select
     {...props}
-    className="block w-full rounded-md border-neutral-300 bg-neutral-50 p-3 text-base shadow-sm focus:border-neutral-500 focus:ring-neutral-500"
+    className="block w-full rounded-md border-stone-gray bg-parchment p-3 text-base text-old-copper shadow-sm focus:border-muted-terracotta focus:ring-muted-terracotta"
   >
     {props.children}
   </select>
@@ -117,7 +117,7 @@ const FormCheckbox = React.forwardRef<HTMLInputElement, React.ComponentProps<"in
     ref={ref}
     type="checkbox"
     {...props}
-    className="h-4 w-4 rounded border-neutral-400 text-neutral-800 focus:ring-neutral-800"
+    className="h-4 w-4 rounded border-stone-gray text-muted-terracotta focus:ring-muted-terracotta"
   />
 ))
 FormCheckbox.displayName = "FormCheckbox"
@@ -132,7 +132,7 @@ const RadioCard = ({
     <input type="radio" id={id} value={value} className="peer sr-only" {...props} />
     <label
       htmlFor={id}
-      className="block cursor-pointer rounded-lg border border-neutral-300 bg-white p-3 text-center text-base font-medium peer-checked:border-neutral-800 peer-checked:ring-1 peer-checked:ring-neutral-800"
+      className="block cursor-pointer rounded-lg border border-stone-gray bg-parchment p-3 text-center text-base font-medium text-old-copper peer-checked:border-muted-terracotta peer-checked:ring-1 peer-checked:ring-muted-terracotta"
     >
       {children}
     </label>
@@ -145,7 +145,9 @@ const YesNoToggle = ({ value, onChange }: { value: boolean | null; onChange: (ne
       type="button"
       onClick={() => onChange(true)}
       className={`rounded-md px-6 py-2 text-base font-medium transition-colors ${
-        value === true ? "bg-neutral-900 text-white shadow-sm" : "bg-neutral-200 text-neutral-700 hover:bg-neutral-300"
+        value === true
+          ? "bg-muted-terracotta text-white shadow-sm"
+          : "bg-parchment text-old-copper hover:bg-stone-gray/30 border border-stone-gray"
       }`}
     >
       Yes
@@ -154,7 +156,9 @@ const YesNoToggle = ({ value, onChange }: { value: boolean | null; onChange: (ne
       type="button"
       onClick={() => onChange(false)}
       className={`rounded-md px-6 py-2 text-base font-medium transition-colors ${
-        value === false ? "bg-neutral-900 text-white shadow-sm" : "bg-neutral-200 text-neutral-700 hover:bg-neutral-300"
+        value === false
+          ? "bg-muted-terracotta text-white shadow-sm"
+          : "bg-parchment text-old-copper hover:bg-stone-gray/30 border border-stone-gray"
       }`}
     >
       No
@@ -231,7 +235,7 @@ const FileUploadButton = ({
         <button
           type="button"
           onClick={() => fileInputRef.current?.click()}
-          className="flex w-full items-center justify-center gap-3 rounded-lg border-2 border-dashed border-neutral-300 bg-neutral-50 p-6 text-base font-medium text-neutral-700 transition-colors hover:border-neutral-400 hover:bg-neutral-100"
+          className="flex w-full items-center justify-center gap-3 rounded-lg border-2 border-dashed border-stone-gray bg-parchment p-6 text-base font-medium text-old-copper transition-colors hover:border-muted-terracotta hover:bg-merino"
         >
           {isPhotos ? <ImageIcon className="h-6 w-6" /> : <Upload className="h-6 w-6" />}
           {isPhotos ? "Choose Photos from Library" : label}
@@ -242,7 +246,7 @@ const FileUploadButton = ({
           <button
             type="button"
             onClick={() => cameraInputRef.current?.click()}
-            className="flex w-full items-center justify-center gap-3 rounded-lg border border-neutral-300 bg-white p-4 text-base font-medium text-neutral-700 transition-colors hover:border-neutral-400 hover:bg-neutral-50"
+            className="flex w-full items-center justify-center gap-3 rounded-lg border border-stone-gray bg-parchment p-4 text-base font-medium text-old-copper transition-colors hover:border-muted-terracotta hover:bg-merino"
           >
             <Camera className="h-5 w-5" />
             Take New Photo
@@ -254,7 +258,7 @@ const FileUploadButton = ({
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
           {files.map((file, index) => (
             <div key={index} className="relative">
-              <div className="aspect-square overflow-hidden rounded-lg border border-neutral-200 bg-neutral-100">
+              <div className="aspect-square overflow-hidden rounded-lg border border-stone-gray bg-parchment">
                 {getFilePreview(file) ? (
                   <img
                     src={getFilePreview(file)! || "/placeholder.svg"}
@@ -264,8 +268,8 @@ const FileUploadButton = ({
                 ) : (
                   <div className="flex h-full items-center justify-center">
                     <div className="text-center">
-                      <FileText className="mx-auto h-8 w-8 text-neutral-400" />
-                      <p className="mt-1 text-xs text-neutral-500 truncate px-2">{file.name}</p>
+                      <FileText className="mx-auto h-8 w-8 text-stone-gray" />
+                      <p className="mt-1 text-xs text-old-copper truncate px-2">{file.name}</p>
                     </div>
                   </div>
                 )}
@@ -289,7 +293,7 @@ const SubmitButton = ({ children, isPending }: { children: React.ReactNode; isPe
   <button
     type="submit"
     disabled={isPending}
-    className="flex w-full items-center justify-center gap-2 rounded-lg bg-neutral-900 px-6 py-3 text-base font-semibold text-white shadow-sm transition-colors hover:bg-neutral-800 disabled:bg-neutral-400"
+    className="flex w-full items-center justify-center gap-2 rounded-lg bg-muted-terracotta px-6 py-3 text-base font-semibold text-white shadow-sm transition-colors hover:bg-[#c25a42] disabled:bg-stone-gray"
   >
     {isPending ? <Loader2 className="h-5 w-5 animate-spin" /> : children}
   </button>
@@ -346,7 +350,7 @@ function Step1Form({ onSuccess }: { onSuccess: (recordId: string) => void }) {
         </div>
       </FieldWrapper>
       <SubmitButton isPending={isPending}>
-        Request Callback <ArrowRight className="h-5 w-5" />
+        Request a Callback <ArrowRight className="h-5 w-5" />
       </SubmitButton>
       {!state.success && state.message && <p className="text-center text-sm text-red-600">{state.message}</p>}
     </form>
@@ -561,7 +565,7 @@ function GalleryCarousel() {
   }, [])
 
   return (
-    <div className="relative w-full h-96 md:h-[500px] overflow-hidden rounded-lg bg-neutral-100">
+    <div className="relative w-full h-96 md:h-[500px] overflow-hidden rounded-lg bg-parchment">
       {galleryImages.map((image, index) => (
         <div
           key={index}
@@ -582,14 +586,14 @@ function GalleryCarousel() {
       {/* Navigation arrows */}
       <button
         onClick={prevSlide}
-        className="absolute left-4 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white text-neutral-800 p-2 rounded-full shadow-lg transition-all z-10"
+        className="absolute left-4 top-1/2 -translate-y-1/2 bg-parchment/90 hover:bg-parchment text-old-copper p-2 rounded-full shadow-lg transition-all z-10"
         aria-label="Previous image"
       >
         <ChevronLeft className="h-5 w-5" />
       </button>
       <button
         onClick={nextSlide}
-        className="absolute right-4 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white text-neutral-800 p-2 rounded-full shadow-lg transition-all z-10"
+        className="absolute right-4 top-1/2 -translate-y-1/2 bg-parchment/90 hover:bg-parchment text-old-copper p-2 rounded-full shadow-lg transition-all z-10"
         aria-label="Next image"
       >
         <ChevronRight className="h-5 w-5" />
@@ -601,7 +605,7 @@ function GalleryCarousel() {
           <button
             key={index}
             onClick={() => setCurrentSlide(index)}
-            className={`w-2 h-2 rounded-full transition-all ${index === currentSlide ? "bg-white" : "bg-white/50"}`}
+            className={`w-2 h-2 rounded-full transition-all ${index === currentSlide ? "bg-muted-terracotta" : "bg-white/50"}`}
             aria-label={`Go to slide ${index + 1}`}
           />
         ))}
@@ -651,14 +655,14 @@ function FeaturedTileCarousel() {
   }, [])
 
   return (
-    <section className="py-16 sm:py-20 bg-gradient-to-b from-white to-neutral-50 border-b border-neutral-200">
+    <section className="py-16 sm:py-20 bg-merino border-b border-stone-gray">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-12">
-          <h2 className="text-3xl font-bold text-neutral-900 sm:text-4xl mb-4">Featured Tiles</h2>
-          <p className="text-lg text-neutral-600">Discover our premium clay tile collection</p>
+          <h2 className="text-3xl font-bold text-old-copper sm:text-4xl mb-4">Featured Tiles</h2>
+          <p className="text-lg text-old-copper/80">Discover our premium clay tile collection</p>
         </div>
 
-        <div className="bg-white rounded-2xl shadow-xl overflow-hidden max-w-4xl mx-auto relative">
+        <div className="bg-parchment rounded-2xl shadow-xl overflow-hidden max-w-4xl mx-auto relative">
           {featuredTiles.map((tile, index) => (
             <div
               key={tile.id}
@@ -679,7 +683,7 @@ function FeaturedTileCarousel() {
                   />
 
                   {/* Single tile overlay in corner */}
-                  <div className="absolute bottom-4 right-4 w-20 h-20 sm:w-24 sm:h-24 bg-white/95 rounded-lg p-2 shadow-lg">
+                  <div className="absolute bottom-4 right-4 w-20 h-20 sm:w-24 sm:h-24 bg-parchment/95 rounded-lg p-2 shadow-lg">
                     <div className="relative w-full h-full">
                       <Image
                         src={tile.singleTileImage || "/placeholder.svg"}
@@ -695,13 +699,13 @@ function FeaturedTileCarousel() {
                 {/* Content section */}
                 <div className="p-8 lg:p-10 flex flex-col justify-center">
                   <div className="mb-6">
-                    <h3 className="text-2xl font-bold text-neutral-900 mb-2">{tile.name}</h3>
-                    <p className="text-orange-600 font-semibold mb-4">{tile.subtitle}</p>
-                    <p className="text-neutral-600 leading-relaxed">{tile.description}</p>
+                    <h3 className="text-2xl font-bold text-old-copper mb-2">{tile.name}</h3>
+                    <p className="text-muted-terracotta font-semibold mb-4">{tile.subtitle}</p>
+                    <p className="text-old-copper/80 leading-relaxed">{tile.description}</p>
                   </div>
 
                   <Link href="/tile-selection" className="tappable">
-                    <Button className="w-full h-12 bg-orange-600 hover:bg-orange-700 text-white font-semibold rounded-lg transition-all duration-200 cursor-pointer">
+                    <Button className="w-full h-12 bg-muted-terracotta hover:bg-[#c25a42] text-white font-semibold rounded-lg transition-all duration-200 cursor-pointer">
                       View All Tile Options
                     </Button>
                   </Link>
@@ -713,14 +717,14 @@ function FeaturedTileCarousel() {
           {/* Navigation arrows */}
           <button
             onClick={prevSlide}
-            className="absolute left-4 top-1/2 -translate-y-1/2 bg-white/90 hover:bg-white text-neutral-800 p-2 rounded-full shadow-lg transition-all z-10"
+            className="absolute left-4 top-1/2 -translate-y-1/2 bg-parchment/90 hover:bg-parchment text-old-copper p-2 rounded-full shadow-lg transition-all z-10"
             aria-label="Previous tile"
           >
             <ChevronLeft className="h-5 w-5" />
           </button>
           <button
             onClick={nextSlide}
-            className="absolute right-4 top-1/2 -translate-y-1/2 bg-white/90 hover:bg-white text-neutral-800 p-2 rounded-full shadow-lg transition-all z-10"
+            className="absolute right-4 top-1/2 -translate-y-1/2 bg-parchment/90 hover:bg-parchment text-old-copper p-2 rounded-full shadow-lg transition-all z-10"
             aria-label="Next tile"
           >
             <ChevronRight className="h-5 w-5" />
@@ -733,7 +737,7 @@ function FeaturedTileCarousel() {
                 key={index}
                 onClick={() => setCurrentSlide(index)}
                 className={`w-2 h-2 rounded-full transition-all ${
-                  index === currentSlide ? "bg-orange-600" : "bg-white/60"
+                  index === currentSlide ? "bg-muted-terracotta" : "bg-white/60"
                 }`}
                 aria-label={`Go to ${featuredTiles[index].name} slide`}
               />
@@ -807,52 +811,52 @@ export default function Page() {
 
   return (
     <>
-      <main className="bg-white">
+      <main className="bg-merino">
         {/* Featured Tile Carousel */}
         <FeaturedTileCarousel />
 
         {/* Stats/Credibility Section */}
-        <section ref={statsRef} className="py-20 sm:py-24 bg-white relative z-10">
+        <section ref={statsRef} className="section py-20 sm:py-24 relative z-10">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-8 lg:gap-12 text-center">
               {/* Stat 1 - Years in Business */}
               <div className="flex flex-col items-center">
-                <div className="w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center mb-4 transition-all duration-300 hover:bg-orange-200 hover:scale-110">
-                  <Briefcase className="h-8 w-8 text-orange-600 stroke-1 transition-colors duration-300 hover:text-orange-700" />
+                <div className="w-16 h-16 bg-parchment rounded-full flex items-center justify-center mb-4 transition-all duration-300 hover:bg-stone-gray/30 hover:scale-110 border border-stone-gray">
+                  <Briefcase className="h-8 w-8 text-muted-terracotta stroke-1 transition-colors duration-300 hover:text-[#c25a42]" />
                 </div>
-                <h3 className="text-4xl font-bold text-neutral-900 mb-2">
+                <h3 className="text-4xl font-bold text-old-copper mb-2">
                   <AnimatedCounter end={30} suffix="+" startAnimation={statsVisible} duration={1200} />
                 </h3>
-                <p className="text-lg text-neutral-600 font-medium">Years in Business</p>
+                <p className="text-lg text-old-copper/80 font-medium">Years in Business</p>
               </div>
 
               {/* Stat 2 - Projects Completed */}
               <div className="flex flex-col items-center">
-                <div className="w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center mb-4 transition-all duration-300 hover:bg-orange-200 hover:scale-110">
-                  <Home className="h-8 w-8 text-orange-600 stroke-1 transition-colors duration-300 hover:text-orange-700" />
+                <div className="w-16 h-16 bg-parchment rounded-full flex items-center justify-center mb-4 transition-all duration-300 hover:bg-stone-gray/30 hover:scale-110 border border-stone-gray">
+                  <Home className="h-8 w-8 text-muted-terracotta stroke-1 transition-colors duration-300 hover:text-[#c25a42]" />
                 </div>
-                <h3 className="text-4xl font-bold text-neutral-900 mb-2">
+                <h3 className="text-4xl font-bold text-old-copper mb-2">
                   <AnimatedCounter end={3000} suffix="+" startAnimation={statsVisible} duration={1200} />
                 </h3>
-                <p className="text-lg text-neutral-600 font-medium">Projects Completed</p>
+                <p className="text-lg text-old-copper/80 font-medium">Projects Completed</p>
               </div>
 
               {/* Stat 3 - Tiles Installed */}
               <div className="flex flex-col items-center">
-                <div className="w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center mb-4 transition-all duration-300 hover:bg-orange-200 hover:scale-110">
-                  <Grid3X3 className="h-8 w-8 text-orange-600 stroke-1 transition-colors duration-300 hover:text-orange-700" />
+                <div className="w-16 h-16 bg-parchment rounded-full flex items-center justify-center mb-4 transition-all duration-300 hover:bg-stone-gray/30 hover:scale-110 border border-stone-gray">
+                  <Grid3X3 className="h-8 w-8 text-muted-terracotta stroke-1 transition-colors duration-300 hover:text-[#c25a42]" />
                 </div>
-                <h3 className="text-4xl font-bold text-neutral-900 mb-2">
+                <h3 className="text-4xl font-bold text-old-copper mb-2">
                   <AnimatedCounter end={10} suffix="M+" startAnimation={statsVisible} duration={1200} />
                 </h3>
-                <p className="text-lg text-neutral-600 font-medium">Tiles Installed</p>
+                <p className="text-lg text-old-copper/80 font-medium">Tiles Installed</p>
               </div>
             </div>
 
             {/* CTA Button in Credibility Section */}
             <div className="text-center mt-12">
               <Link href="/contact#quote" className="tappable">
-                <Button className="h-12 px-8 text-lg font-semibold bg-orange-600 hover:bg-orange-700 text-white rounded-full shadow-lg hover:shadow-xl transition-all duration-200 cursor-pointer">
+                <Button className="h-12 px-8 text-lg font-semibold bg-muted-terracotta hover:bg-[#c25a42] text-white rounded-full shadow-lg hover:shadow-xl transition-all duration-200 cursor-pointer">
                   Request a Quote
                 </Button>
               </Link>
@@ -861,25 +865,25 @@ export default function Page() {
         </section>
 
         {/* Gallery Section */}
-        <section className="py-20 sm:py-24 bg-neutral-50 border-t border-neutral-200 relative z-10">
+        <section className="section py-20 sm:py-24 border-t border-stone-gray relative z-10">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-12">
-              <h2 className="text-3xl font-bold text-neutral-900 sm:text-4xl">Our Recent Projects</h2>
-              <p className="mt-4 text-lg text-neutral-600">See the quality and craftsmanship that sets us apart</p>
+              <h2 className="text-3xl font-bold text-old-copper sm:text-4xl">Our Recent Projects</h2>
+              <p className="mt-4 text-lg text-old-copper/80">See the quality and craftsmanship that sets us apart</p>
             </div>
             <GalleryCarousel />
           </div>
         </section>
 
         {/* Call to Action Section */}
-        <section className="py-20 sm:py-24 bg-white border-t border-neutral-100 relative z-10">
+        <section className="section py-20 sm:py-24 border-t border-stone-gray relative z-10">
           <div className="max-w-4xl mx-auto text-center px-4 sm:px-6 lg:px-8">
-            <h2 className="text-3xl font-bold text-neutral-900 sm:text-4xl mb-6">Ready to Get Started?</h2>
-            <p className="text-lg text-neutral-600 mb-8">
+            <h2 className="text-3xl font-bold text-old-copper sm:text-4xl mb-6">Ready to Get Started?</h2>
+            <p className="text-lg text-old-copper/80 mb-8">
               Contact us today for a free consultation and quote on your clay tile roofing project.
             </p>
             <Link href="/contact#quote" className="tappable">
-              <Button className="h-14 px-8 text-lg font-semibold bg-orange-600 hover:bg-orange-700 text-white rounded-lg shadow-lg hover:shadow-xl transition-all duration-200 cursor-pointer">
+              <Button className="h-14 px-8 text-lg font-semibold bg-muted-terracotta hover:bg-[#c25a42] text-white rounded-lg shadow-lg hover:shadow-xl transition-all duration-200 cursor-pointer">
                 Request a Quote
               </Button>
             </Link>
@@ -890,18 +894,18 @@ export default function Page() {
       <StickyCallBar isHidden={open} />
 
       {/* Footer */}
-      <footer className="border-t border-neutral-200 bg-neutral-50 py-16 sm:py-20 relative z-10">
+      <footer className="border-t border-stone-gray bg-parchment py-16 sm:py-20 relative z-10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             {/* Contact Info */}
             <div>
-              <h3 className="text-lg font-semibold text-neutral-900 mb-4">Contact Information</h3>
-              <div className="space-y-2 text-neutral-600">
+              <h3 className="text-lg font-semibold text-old-copper mb-4">Contact Information</h3>
+              <div className="space-y-2 text-old-copper/80">
                 <p>33-15 127th Pl, Corona, NY 11368</p>
-                
+
                 <p>
                   Email:{" "}
-                  <a href="mailto:chris@clayroofingnewyork.com" className="hover:text-orange-600">
+                  <a href="mailto:chris@clayroofingnewyork.com" className="hover:text-muted-terracotta">
                     chris@clayroofingnewyork.com
                   </a>
                 </p>
@@ -910,15 +914,15 @@ export default function Page() {
 
             {/* Business Hours */}
             <div>
-              <h3 className="text-lg font-semibold text-neutral-900 mb-4">Business Hours</h3>
-              <div className="space-y-2 text-neutral-600">
+              <h3 className="text-lg font-semibold text-old-copper mb-4">Business Hours</h3>
+              <div className="space-y-2 text-old-copper/80">
                 <p>Mon-Sat: 8:00 AM - 6:00 PM</p>
                 <p>Sunday: Closed</p>
               </div>
             </div>
           </div>
 
-          <div className="mt-8 pt-8 border-t border-neutral-200">
+          <div className="mt-8 pt-8 border-t border-stone-gray">
             <div className="flex flex-col sm:flex-row justify-between items-center">
               <div className="flex items-center gap-3 mb-4 sm:mb-0">
                 <Image
@@ -928,13 +932,13 @@ export default function Page() {
                   height={40}
                   className="h-6 w-auto"
                 />
-                <span className="text-sm text-neutral-600">Proudly partnered with La Escandella</span>
+                <span className="text-sm text-old-copper/80">Proudly partnered with La Escandella</span>
               </div>
               <div className="text-center sm:text-right">
-                <p className="text-sm text-neutral-600 mb-1">
+                <p className="text-sm text-old-copper/80 mb-1">
                   Operating out of Queens, New York — Serving the Tri-State Area
                 </p>
-                <p className="text-sm text-neutral-500">
+                <p className="text-sm text-old-copper/60">
                   &copy; {new Date().getFullYear()} Clay Roofing New York. All Rights Reserved.
                 </p>
                 <div className="mt-2">
@@ -942,7 +946,7 @@ export default function Page() {
                     <Button
                       variant="outline"
                       size="sm"
-                      className="border-orange-600 text-orange-600 hover:bg-orange-600 hover:text-white cursor-pointer bg-transparent"
+                      className="border-muted-terracotta text-muted-terracotta hover:bg-muted-terracotta hover:text-white cursor-pointer bg-transparent"
                     >
                       Request a Quote
                     </Button>

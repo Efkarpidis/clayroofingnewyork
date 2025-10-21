@@ -3,89 +3,114 @@
 
 @custom-variant dark (&:is(.dark *));
 
+/* ----------- LIGHT THEME (brand: warm beige + terracotta) ----------- */
 :root {
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0 0);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.97 0 0);
-  --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
-  --accent-foreground: oklch(0.205 0 0);
-  --destructive: oklch(0.577 0.245 27.325);
-  --destructive-foreground: oklch(0.577 0.245 27.325);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
+  /* Surfaces */
+  --background: #EBE8D9;       /* page */
+  --card: #FAF7EE;             /* cards/panels slightly lighter than bg */
+  --popover: #FFFFFF;
+
+  /* Text */
+  --foreground: #2B2A29;       /* charcoal */
+  --card-foreground: var(--foreground);
+  --popover-foreground: var(--foreground);
+
+  /* Brand / actions */
+  --primary: #E4572E;          /* terracotta (brand-600) */
+  --primary-foreground: #FFFFFF;
+
+  /* Subtle surfaces */
+  --secondary: #E6E1CF;        /* beige step darker than bg */
+  --secondary-foreground: #2B2A29;
+  --muted: #EDE8D6;            /* very light beige for chips, blocks */
+  --muted-foreground: #6B6B66; /* subdued text on muted surfaces */
+
+  /* Accents (use brand for accents, not background color) */
+  --accent: #FFB38F;           /* brand-300 for hovers/rings */
+  --accent-foreground: #2B2A29;
+
+  /* Feedback / misc */
+  --destructive: #B00020;
+  --destructive-foreground: #FFFFFF;
+
+  /* Lines / inputs / focus */
+  --border: #D6D2C2;           /* visible on beige */
+  --input: #D6D2C2;
+  --ring: #FFB38F;             /* brand-300 */
+
+  /* Charts (unchanged) */
   --chart-1: oklch(0.646 0.222 41.116);
   --chart-2: oklch(0.6 0.118 184.704);
   --chart-3: oklch(0.398 0.07 227.392);
   --chart-4: oklch(0.828 0.189 84.429);
   --chart-5: oklch(0.769 0.188 70.08);
-  --radius: 0.625rem;
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: oklch(0.205 0 0);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.97 0 0);
-  --sidebar-accent-foreground: oklch(0.205 0 0);
-  --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.708 0 0);
 
-  /* Brand palette (terracotta + sand) */
+  /* Radius */
+  --radius: 0.625rem;
+
+  /* Sidebar */
+  --sidebar: #F4F0E3;
+  --sidebar-foreground: var(--foreground);
+  --sidebar-primary: var(--primary);
+  --sidebar-primary-foreground: var(--primary-foreground);
+  --sidebar-accent: #FFE6D6;
+  --sidebar-accent-foreground: var(--foreground);
+  --sidebar-border: #D6D2C2;
+  --sidebar-ring: var(--ring);
+
+  /* Brand scale (unchanged from yours) */
   --brand-50:  #FFF3EA;
   --brand-100: #FFE6D6;
   --brand-200: #FFD1B8;
-  --brand-300: #FFB38F; /* rings / subtle accents */
+  --brand-300: #FFB38F;
   --brand-400: #FF8F5E;
   --brand-500: #F76D3B;
-  --brand-600: #E4572E; /* primary button bg */
-  --brand-700: #C84A26; /* hover */
+  --brand-600: #E4572E; /* primary */
+  --brand-700: #C84A26;
   --brand-800: #A63D1F;
   --brand-900: #7A2C16;
 }
 
+/* ----------- DARK THEME (keep background light OR disable) ----------- */
+/* If you don't want dark mode at all, keep background light here too */
 .dark {
-  --background: oklch(0.145 0 0);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.145 0 0);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.145 0 0);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.985 0 0);
-  --primary-foreground: oklch(0.205 0 0);
-  --secondary: oklch(0.269 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.269 0 0);
-  --accent-foreground: oklch(0.985 0 0);
-  --destructive: oklch(0.396 0.141 25.723);
-  --destructive-foreground: oklch(0.637 0.237 25.331);
-  --border: oklch(0.269 0 0);
-  --input: oklch(0.269 0 0);
-  --ring: oklch(0.439 0 0);
-  --chart-1: oklch(0.488 0.243 264.376);
-  --chart-2: oklch(0.696 0.17 162.48);
-  --chart-3: oklch(0.769 0.188 70.08);
-  --chart-4: oklch(0.627 0.265 303.9);
-  --chart-5: oklch(0.645 0.246 16.439);
-  --sidebar: oklch(0.205 0 0);
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.269 0 0);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(0.269 0 0);
-  --sidebar-ring: oklch(0.439 0 0);
+  --background: #EBE8D9;       /* keep site light even in dark mode */
+  --foreground: #2B2A29;
 
-  /* Dark-mode brand palette (slightly deeper) */
+  --card: #F0EBDD;
+  --card-foreground: var(--foreground);
+
+  --popover: #F7F3E8;
+  --popover-foreground: var(--foreground);
+
+  --primary: #E4572E;
+  --primary-foreground: #FFFFFF;
+
+  --secondary: #E1DAC5;
+  --secondary-foreground: #2B2A29;
+  --muted: #E7E0CB;
+  --muted-foreground: #5E5E59;
+
+  --accent: #FFB38F;
+  --accent-foreground: #2B2A29;
+
+  --destructive: #B00020;
+  --destructive-foreground: #FFFFFF;
+
+  --border: #CFCAB7;
+  --input: #CFCAB7;
+  --ring: #FFB38F;
+
+  --sidebar: #EFE9D8;
+  --sidebar-foreground: #2B2A29;
+  --sidebar-primary: #E4572E;
+  --sidebar-primary-foreground: #FFFFFF;
+  --sidebar-accent: #FFE6D6;
+  --sidebar-accent-foreground: #2B2A29;
+  --sidebar-border: #CFCAB7;
+  --sidebar-ring: #FFB38F;
+
+  /* dark-mode brand ramp (optional): keep as-is or your deeper ramp */
   --brand-50:  #3b241c;
   --brand-100: #4a2c22;
   --brand-200: #5a3427;
@@ -98,35 +123,47 @@
   --brand-900: #ff996b;
 }
 
+/* ----------- Map tokens to Tailwind design system ----------- */
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+
   --color-card: var(--card);
   --color-card-foreground: var(--card-foreground);
+
   --color-popover: var(--popover);
   --color-popover-foreground: var(--popover-foreground);
+
   --color-primary: var(--primary);
   --color-primary-foreground: var(--primary-foreground);
+
   --color-secondary: var(--secondary);
   --color-secondary-foreground: var(--secondary-foreground);
+
   --color-muted: var(--muted);
   --color-muted-foreground: var(--muted-foreground);
+
   --color-accent: var(--accent);
   --color-accent-foreground: var(--accent-foreground);
+
   --color-destructive: var(--destructive);
   --color-destructive-foreground: var(--destructive-foreground);
+
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
+
   --color-chart-1: var(--chart-1);
   --color-chart-2: var(--chart-2);
   --color-chart-3: var(--chart-3);
   --color-chart-4: var(--chart-4);
   --color-chart-5: var(--chart-5);
+
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) + 4px);
+
   --color-sidebar: var(--sidebar);
   --color-sidebar-foreground: var(--sidebar-foreground);
   --color-sidebar-primary: var(--sidebar-primary);
@@ -136,7 +173,7 @@
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
 
-  /* Expose brand scale to Tailwind as bg/text/ring classes */
+  /* brand scale */
   --color-brand-50:  var(--brand-50);
   --color-brand-100: var(--brand-100);
   --color-brand-200: var(--brand-200);
@@ -149,12 +186,13 @@
   --color-brand-900: var(--brand-900);
 }
 
+/* Base layer */
 @layer base {
   * { @apply border-border outline-ring/50; }
   body { @apply bg-background text-foreground; }
 }
 
-/* Safe area insets for iOS devices */
+/* Safe area insets */
 @supports (padding: env(safe-area-inset-bottom)) {
   .pb-safe { padding-bottom: env(safe-area-inset-bottom); }
 }

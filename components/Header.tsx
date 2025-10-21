@@ -32,8 +32,8 @@ export function Header() {
         <div
           className={`transition-all duration-300 ease-in-out ${
             scrolled
-              ? "bg-background/95 backdrop-blur-md border-b border-border shadow-lg"
-              : "bg-background/90 backdrop-blur-sm border-b border-border/50 shadow-sm"
+              ? "bg-merino/95 backdrop-blur-md border-b border-stone-gray shadow-lg"
+              : "bg-merino/90 backdrop-blur-sm border-b border-stone-gray/50 shadow-sm"
           }`}
         >
           {/* Logo Section - Centered */}
@@ -53,14 +53,16 @@ export function Header() {
             </div>
           </div>
           {/* Navigation Subheader - Full Width */}
-          <div className="border-t border-border w-full bg-card shadow-md">
+          <div className="border-t border-stone-gray w-full bg-merino shadow-md">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
               {/* Desktop Navigation */}
               <nav className="hidden md:flex items-center justify-center text-center py-2 space-x-8">
                 <Link
                   href="/"
                   className={`px-3 py-2 text-sm font-medium rounded-md transition-colors ${
-                    currentPage === "home" ? "text-primary" : "text-foreground hover:text-primary hover:bg-muted"
+                    currentPage === "home"
+                      ? "text-old-copper font-bold"
+                      : "text-old-copper hover:text-muted-terracotta hover:bg-parchment"
                   }`}
                 >
                   Home
@@ -68,7 +70,9 @@ export function Header() {
                 <Link
                   href="/gallery"
                   className={`px-3 py-2 text-sm font-medium rounded-md transition-colors ${
-                    currentPage === "gallery" ? "text-primary" : "text-foreground hover:text-primary hover:bg-muted"
+                    currentPage === "gallery"
+                      ? "text-old-copper font-bold"
+                      : "text-old-copper hover:text-muted-terracotta hover:bg-parchment"
                   }`}
                 >
                   Projects
@@ -77,8 +81,8 @@ export function Header() {
                   href="/tile-selection"
                   className={`px-3 py-2 text-sm font-medium rounded-md transition-colors ${
                     currentPage === "tile-selection"
-                      ? "text-primary"
-                      : "text-foreground hover:text-primary hover:bg-muted"
+                      ? "text-old-copper font-bold"
+                      : "text-old-copper hover:text-muted-terracotta hover:bg-parchment"
                   }`}
                 >
                   Tile Selection
@@ -86,7 +90,9 @@ export function Header() {
                 <Link
                   href="/about"
                   className={`px-3 py-2 text-sm font-medium rounded-md transition-colors ${
-                    currentPage === "about" ? "text-primary" : "text-foreground hover:text-primary hover:bg-muted"
+                    currentPage === "about"
+                      ? "text-old-copper font-bold"
+                      : "text-old-copper hover:text-muted-terracotta hover:bg-parchment"
                   }`}
                 >
                   About
@@ -94,14 +100,16 @@ export function Header() {
                 <Link
                   href="/contact"
                   className={`px-3 py-2 text-sm font-medium rounded-md transition-colors ${
-                    currentPage === "contact" ? "text-primary" : "text-foreground hover:text-primary hover:bg-muted"
+                    currentPage === "contact"
+                      ? "text-old-copper font-bold"
+                      : "text-old-copper hover:text-muted-terracotta hover:bg-parchment"
                   }`}
                 >
                   Contact
                 </Link>
                 <button
                   onClick={() => setShowLoginModal(true)}
-                  className="px-3 py-2 text-sm font-medium rounded-md transition-colors text-foreground hover:text-primary hover:bg-muted flex items-center gap-2"
+                  className="px-3 py-2 text-sm font-medium rounded-md transition-colors text-old-copper hover:text-muted-terracotta hover:bg-parchment flex items-center gap-2"
                 >
                   <User className="h-4 w-4" />
                   Client
@@ -109,7 +117,7 @@ export function Header() {
                 <Link href="/contact#quote">
                   <Button
                     size="sm"
-                    className="bg-gradient-to-r from-brand-600 to-brand-700 text-black hover:from-brand-700 hover:to-brand-800 text-xs font-semibold transition-colors shadow-lg hover:shadow-xl h-9 px-4"
+                    className="bg-muted-terracotta text-merino hover:bg-[#c25a42] text-xs font-semibold transition-colors shadow-lg hover:shadow-xl h-9 px-4"
                   >
                     Request Quote
                   </Button>
@@ -121,23 +129,25 @@ export function Header() {
                   <DropdownMenuTrigger asChild>
                     <Button
                       variant="outline"
-                      className="flex items-center justify-between gap-2 w-full py-3 text-base font-medium border-border text-foreground hover:bg-muted hover:text-foreground hover:border-accent bg-card"
+                      className="flex items-center justify-between gap-2 w-full py-3 text-base font-medium border-stone-gray text-old-copper hover:bg-parchment hover:text-old-copper hover:border-stone-gray bg-merino"
                     >
-                      <ChevronDown className="h-4 w-4" />
+                      <ChevronDown className="h-4 w-4 text-old-copper" />
                       <span className="flex-1 text-center">Menu</span>
-                      <ChevronDown className="h-4 w-4" />
+                      <ChevronDown className="h-4 w-4 text-old-copper" />
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent
                     align="center"
                     sideOffset={8}
-                    className="min-w-[200px] bg-card text-foreground border-border"
+                    className="min-w-[200px] bg-merino text-old-copper border-stone-gray"
                   >
                     <DropdownMenuItem asChild>
                       <Link
                         href="/"
                         className={`flex items-center px-3 py-3 text-base font-medium rounded-md cursor-pointer ${
-                          currentPage === "home" ? "text-primary" : "text-foreground hover:text-primary hover:bg-muted"
+                          currentPage === "home"
+                            ? "text-old-copper font-bold"
+                            : "text-old-copper hover:text-muted-terracotta hover:bg-parchment"
                         }`}
                       >
                         Home
@@ -148,8 +158,8 @@ export function Header() {
                         href="/gallery"
                         className={`flex items-center px-3 py-3 text-base font-medium rounded-md cursor-pointer ${
                           currentPage === "gallery"
-                            ? "text-primary"
-                            : "text-foreground hover:text-primary hover:bg-muted"
+                            ? "text-old-copper font-bold"
+                            : "text-old-copper hover:text-muted-terracotta hover:bg-parchment"
                         }`}
                       >
                         Projects
@@ -160,8 +170,8 @@ export function Header() {
                         href="/tile-selection"
                         className={`flex items-center px-3 py-3 text-base font-medium rounded-md cursor-pointer ${
                           currentPage === "tile-selection"
-                            ? "text-primary"
-                            : "text-foreground hover:text-primary hover:bg-muted"
+                            ? "text-old-copper font-bold"
+                            : "text-old-copper hover:text-muted-terracotta hover:bg-parchment"
                         }`}
                       >
                         Tile Selection
@@ -171,7 +181,9 @@ export function Header() {
                       <Link
                         href="/about"
                         className={`flex items-center px-3 py-3 text-base font-medium rounded-md cursor-pointer ${
-                          currentPage === "about" ? "text-primary" : "text-foreground hover:text-primary hover:bg-muted"
+                          currentPage === "about"
+                            ? "text-old-copper font-bold"
+                            : "text-old-copper hover:text-muted-terracotta hover:bg-parchment"
                         }`}
                       >
                         About
@@ -182,8 +194,8 @@ export function Header() {
                         href="/contact"
                         className={`flex items-center px-3 py-3 text-base font-medium rounded-md cursor-pointer ${
                           currentPage === "contact"
-                            ? "text-primary"
-                            : "text-foreground hover:text-primary hover:bg-muted"
+                            ? "text-old-copper font-bold"
+                            : "text-old-copper hover:text-muted-terracotta hover:bg-parchment"
                         }`}
                       >
                         Contact
@@ -192,7 +204,7 @@ export function Header() {
                     <DropdownMenuItem asChild>
                       <button
                         onClick={() => setShowLoginModal(true)}
-                        className="flex items-center gap-2 px-3 py-3 text-base font-medium rounded-md cursor-pointer text-foreground hover:text-primary hover:bg-muted w-full"
+                        className="flex items-center gap-2 px-3 py-3 text-base font-medium rounded-md cursor-pointer text-old-copper hover:text-muted-terracotta hover:bg-parchment w-full"
                       >
                         <User className="h-4 w-4" />
                         Client
@@ -201,7 +213,7 @@ export function Header() {
                     <DropdownMenuItem asChild>
                       <Link
                         href="/contact#quote"
-                        className="flex items-center justify-center px-3 py-3 text-base font-bold text-black rounded-md cursor-pointer bg-gradient-to-r from-brand-600 to-brand-700 hover:from-brand-700 hover:to-brand-800 min-h-[44px]"
+                        className="flex items-center justify-center px-3 py-3 text-base font-bold text-merino rounded-md cursor-pointer bg-muted-terracotta hover:bg-[#c25a42] min-h-[44px]"
                       >
                         Request Quote
                       </Link>

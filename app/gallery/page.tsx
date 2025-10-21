@@ -117,12 +117,27 @@ export default function GalleryPage() {
 
   return (
     <>
-      <div className="min-h-screen bg-white pb-20">
+      <div className="min-h-screen pb-20">
         {/* Hero Section */}
-        <section className="bg-gradient-to-r from-charcoal-gray via-neutral-800 to-charcoal-gray text-white py-16 pt-20">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <section className="relative py-16 pt-20 overflow-hidden">
+          {/* Background Image */}
+          <div className="absolute inset-0 z-0">
+            <Image
+              src="/images/design-mode/roofs-1391640_640.jpg"
+              alt="Terracotta clay tile roofs"
+              fill
+              className="object-cover"
+              sizes="100vw"
+              priority
+            />
+            {/* Dark overlay for text readability */}
+            <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/60 to-black/70" />
+          </div>
+
+          {/* Content */}
+          <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex items-center mb-6">
-              <Link href="/" className="flex items-center text-white/80 hover:text-white mr-4">
+              <Link href="/" className="flex items-center text-white/90 hover:text-white mr-4 transition-colors">
                 <ArrowLeft className="w-5 h-5 mr-2" />
                 Back to Home
               </Link>
@@ -130,30 +145,29 @@ export default function GalleryPage() {
 
             <div className="text-center max-w-5xl mx-auto">
               <div className="flex items-center justify-center gap-3 mb-6">
-                <div className="premium-badge">
-                  <Camera className="w-3 h-3 mr-1" />
-                  Project Gallery
-                </div>
+                
               </div>
 
-              <h1 className="luxury-title text-4xl md:text-5xl mb-6 text-white">Welcome to our Project Gallery</h1>
-              <p className="text-lg md:text-xl text-neutral-300 max-w-4xl mx-auto leading-relaxed">
-                Elevating America’s homes with European elegance.
+              <h1 className="luxury-title text-4xl md:text-5xl mb-6 text-white drop-shadow-lg">
+                Welcome to our Project Gallery
+              </h1>
+              <p className="text-lg md:text-xl text-white/95 max-w-4xl mx-auto leading-relaxed drop-shadow-md">
+                  Enriching American homes while keeping European tradition alive.
               </p>
             </div>
           </div>
         </section>
 
         {/* Hero Carousel */}
-        <section className="py-16 bg-white">
+        <section className="py-16">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <HeroCarousel />
           </div>
         </section>
 
         {/* Gallery Grid */}
-        <section className="py-16 bg-neutral-50">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <section className="py-16 bg-[#e8d9b8] bg-background border-2 border-solid border-l-0 border-r-0 border-b-0 border-accent-foreground rounded-2xl border-t shadow-none">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 bg-background">
             <div className="text-center mb-12">
               <h2 className="text-3xl font-bold text-charcoal-gray mb-4">Complete Project Portfolio</h2>
               <p className="text-lg text-neutral-600">
@@ -226,7 +240,7 @@ export default function GalleryPage() {
         </section>
 
         {/* Footer */}
-        <footer className="border-t border-neutral-200 bg-neutral-50">
+        <footer className="border-t border-neutral-200 bg-[#e8d9b8]">
           <div className="max-w-7xl mx-auto px-4 py-6 space-y-4">
             <div className="flex items-center justify-center gap-3 text-sm text-neutral-600">
               <a

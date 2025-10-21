@@ -56,7 +56,7 @@ const FieldWrapper = ({
   required?: boolean
 }) => (
   <div className="space-y-2">
-    <label htmlFor={id} className="block text-base font-medium text-neutral-700">
+    <label htmlFor={id} className="block text-base font-medium text-old-copper">
       {label}
       {required && <span className="text-red-500 ml-1">*</span>}
     </label>
@@ -68,14 +68,14 @@ const FieldWrapper = ({
 const FormInput = (p: React.ComponentProps<"input">) => (
   <input
     {...p}
-    className="block w-full h-11 rounded-xl border border-neutral-200 bg-white px-3 py-2 text-base text-neutral-900 shadow-sm focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20 focus:outline-none hover:border-neutral-300 transition-colors placeholder:text-neutral-400"
+    className="block w-full h-11 rounded-xl border border-stone-gray bg-parchment px-3 py-2 text-base text-old-copper shadow-sm focus:border-muted-terracotta focus:ring-2 focus:ring-muted-terracotta/20 focus:outline-none hover:border-stone-gray transition-colors placeholder:text-stone-gray"
   />
 )
 
 const FormTextarea = (p: React.ComponentProps<"textarea">) => (
   <textarea
     {...p}
-    className="block w-full rounded-md border-neutral-300 bg-white p-3 text-base shadow-sm focus:border-orange-500 focus:ring-orange-500 focus:outline-none focus:ring-2"
+    className="block w-full rounded-md border-stone-gray bg-parchment p-3 text-base shadow-sm focus:border-muted-terracotta focus:ring-muted-terracotta focus:outline-none focus:ring-2"
   />
 )
 
@@ -83,9 +83,9 @@ const FormSelect = ({ children, ...props }: React.ComponentProps<"select">) => (
   <div className="relative">
     <select
       {...props}
-      className="block w-full h-11 rounded-xl border border-neutral-200 bg-white px-3 py-2 text-base text-neutral-900 shadow-sm appearance-none focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20 focus:outline-none hover:border-neutral-300 transition-colors cursor-pointer"
+      className="block w-full h-11 rounded-xl border border-stone-gray bg-parchment px-3 py-2 text-base text-old-copper shadow-sm appearance-none focus:border-muted-terracotta focus:ring-2 focus:ring-muted-terracotta/20 focus:outline-none hover:border-stone-gray transition-colors cursor-pointer"
       style={{
-        backgroundImage: `url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' strokeLinecap='round' strokeLinejoin='round' strokeWidth='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e")`,
+        backgroundImage: `url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%23754e30' strokeLinecap='round' strokeLinejoin='round' strokeWidth='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e")`,
         backgroundPosition: "right 12px center",
         backgroundRepeat: "no-repeat",
         backgroundSize: "16px",
@@ -303,7 +303,7 @@ function ContactForm() {
   return (
     <div>
       {showToast && (
-        <div className="fixed top-4 right-4 z-50 bg-green-600 text-white px-6 py-3 rounded-lg shadow-lg flex items-center gap-2">
+        <div className="fixed top-4 right-4 z-50 bg-muted-terracotta text-merino px-6 py-3 rounded-lg shadow-lg flex items-center gap-2">
           <Check className="h-5 w-5" />
           <span>Thanks—your message was sent.</span>
         </div>
@@ -321,7 +321,7 @@ function ContactForm() {
             international
             defaultCountry="US"
             placeholder="(718) 000-0000"
-            className="block w-full h-11 rounded-xl border border-neutral-200 bg-white px-3 py-2 text-base text-neutral-900 shadow-sm focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20 focus:outline-none hover:border-neutral-300 transition-colors placeholder:text-neutral-400"
+            className="block w-full h-11 rounded-xl border border-stone-gray bg-parchment px-3 py-2 text-base text-old-copper shadow-sm focus:border-muted-terracotta focus:ring-2 focus:ring-muted-terracotta/20 focus:outline-none hover:border-stone-gray transition-colors placeholder:text-stone-gray"
           />
         </FieldWrapper>
         <FieldWrapper id="company" label="Company" error={errors.company?.message || state.errors?.company?.[0]}>
@@ -415,8 +415,8 @@ function ContactForm() {
             label="Upload Documents"
             onComplete={setDocResults}
           />
-          <div className="mt-2 text-xs text-neutral-600">
-            <span className="inline-flex items-center rounded-full border border-neutral-300 px-2 py-0.5">
+          <div className="mt-2 text-xs text-old-copper/80">
+            <span className="inline-flex items-center rounded-full border border-stone-gray px-2 py-0.5">
               {docResults.length} file{docResults.length === 1 ? "" : "s"} • {formatMB(docBytes)} MB
             </span>
           </div>
@@ -429,13 +429,13 @@ function ContactForm() {
             label="Upload Photo"
             onComplete={setPhotoResults}
           />
-          <div className="mt-2 text-xs text-neutral-600">
-            <span className="inline-flex items-center rounded-full border border-neutral-300 px-2 py-0.5">
+          <div className="mt-2 text-xs text-old-copper/80">
+            <span className="inline-flex items-center rounded-full border border-stone-gray px-2 py-0.5">
               {photoResults.length} photo{photoResults.length === 1 ? "" : "s"} • {formatMB(photoBytes)} MB
             </span>
           </div>
-          <div className="mt-2 text-xs text-neutral-600">
-            <span className="inline-flex items-center rounded-full border border-neutral-200 px-2 py-0.5">
+          <div className="mt-2 text-xs text-old-copper/80">
+            <span className="inline-flex items-center rounded-full border border-stone-gray px-2 py-0.5">
               Total: {totalCount} file{totalCount === 1 ? "" : "s"} • {formatMB(totalBytes)} MB
             </span>
           </div>
@@ -447,12 +447,12 @@ function ContactForm() {
               id="privacyAccepted"
               {...register("privacyAccepted", { valueAsBoolean: true })}
               onChange={(e) => setValue("privacyAccepted", e.target.checked)}
-              className="mt-1 h-4 w-4 rounded border-neutral-400 text-orange-600 focus:ring-orange-600"
+              className="mt-1 h-4 w-4 rounded border-neutral-400 text-old-copper focus:ring-old-copper"
               defaultChecked={false}
             />
-            <label htmlFor="privacyAccepted" className="text-sm text-neutral-700">
+            <label htmlFor="privacyAccepted" className="text-sm text-old-copper">
               I have read and accept the{" "}
-              <a href="/privacy" className="text-orange-600 hover:underline">
+              <a href="/privacy" className="text-old-copper hover:underline">
                 Privacy Policy
               </a>
               <span className="text-red-500 ml-1">*</span>
@@ -465,12 +465,12 @@ function ContactForm() {
           )}
         </div>
         <div className="space-y-2">
-          <label className="flex items-center text-sm text-neutral-700">
+          <label className="flex items-center text-sm text-old-copper">
             <input
               type="checkbox"
               name="smsOptIn"
               value="true"
-              className="mr-2 h-4 w-4 rounded border-neutral-400 text-orange-600 focus:ring-orange-600"
+              className="mr-2 h-4 w-4 rounded border-neutral-400 text-old-copper focus:ring-old-copper"
             />
             Yes, send me updates via text (Reply STOP to unsubscribe)
           </label>
@@ -478,11 +478,11 @@ function ContactForm() {
         <button
           type="submit"
           disabled={isPending}
-          className="w-full inline-flex items-center justify-center gap-2 rounded-lg bg-orange-600 px-6 py-3 text-base font-semibold text-white shadow-sm transition-colors hover:bg-orange-700 disabled:bg-orange-400 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-orange-500"
+          className="w-full inline-flex items-center justify-center gap-2 rounded-lg bg-muted-terracotta px-6 py-3 text-base font-semibold text-merino shadow-sm transition-colors hover:bg-[#c25a42] disabled:bg-stone-gray disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-muted-terracotta"
         >
           {isPending ? (
             <>
-              <div className="h-5 w-5 animate-spin rounded-full border-2 border-white border-t-transparent" />
+              <div className="h-5 w-5 animate-spin rounded-full border-2 border-merino border-t-transparent" />
               Sending…
             </>
           ) : (
@@ -519,25 +519,23 @@ export default function ContactPage() {
   }
 
   return (
-    <div className="bg-white text-neutral-800 min-h-screen">
+    <div className="text-old-copper min-h-screen">
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-16">
         <div className="text-center mb-8 sm:mb-12">
-          <h1 className="text-2xl sm:text-3xl md:text-4xl font-extrabold tracking-tight text-neutral-900">
-            Contact Us
-          </h1>
-          <p className="mt-2 max-w-2xl mx-auto text-base sm:text-lg text-neutral-600">
+          <h1 className="text-2xl sm:text-3xl md:text-4xl font-extrabold tracking-tight text-old-copper">Contact Us</h1>
+          <p className="mt-2 max-w-2xl mx-auto text-base sm:text-lg text-old-copper/80">
             Have a question or need a quote? We're here to help.
           </p>
         </div>
         <div className="grid grid-cols-1 gap-8">
           <section className="mb-8">
-            <h2 className="text-xl font-semibold text-neutral-900 mb-4">Our Services</h2>
-            <p className="text-sm text-neutral-600 mb-4">
+            <h2 className="text-xl font-semibold text-old-copper mb-4">Our Services</h2>
+            <p className="text-sm text-old-copper/80 mb-4">
               We specialize in clay and ceramic tile roofing. Choose from the options below or let us know your needs in
               the form. All quotes are provided after reviewing your submission. Note: We are not a general roof-repair
               service.
             </p>
-            <ul className="list-disc pl-6 space-y-2 text-sm text-neutral-700">
+            <ul className="list-disc pl-6 space-y-2 text-sm text-old-copper/90">
               <li>
                 <strong>Full Installation:</strong> Professional roofing installation for homes, businesses, and more.
                 Includes site inspection, materials, and labor.
@@ -556,15 +554,15 @@ export default function ContactPage() {
               </li>
             </ul>
           </section>
-          <div className="bg-white rounded-xl border border-neutral-200 p-6 sm:p-8">
-            <h2 className="text-xl font-semibold text-neutral-900 mb-6">Submit your inquiry below.</h2>
-            <p className="text-sm text-neutral-600 mb-4">We'll respond within 24 hours.</p>
+          <div className="bg-parchment rounded-xl border border-stone-gray p-6 sm:p-8">
+            <h2 className="text-xl font-semibold text-old-copper mb-6">Submit your inquiry below.</h2>
+            <p className="text-sm text-old-copper/80 mb-4">We'll respond within 24 hours.</p>
             <ContactForm />
           </div>
         </div>
       </main>
-      <footer className="border-t border-neutral-200 bg-neutral-50">
-        <div className="max-w-7xl mx-auto px-4 py-6 space-y-4 text-center text-neutral-500">
+      <footer className="border-t border-stone-gray bg-parchment">
+        <div className="max-w-7xl mx-auto px-4 py-6 space-y-4 text-center text-old-copper/70">
           <p>&copy; {new Date().getFullYear()} Clay Roofs New York. All Rights Reserved.</p>
         </div>
       </footer>
