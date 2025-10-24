@@ -1,11 +1,14 @@
 "use client"
 
+import type React from "react"
+
 import { useEffect, useRef, useState } from "react"
 import Image from "next/image"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { StickyCallBar } from "@/components/sticky-call-bar"
 import { Crown, Star, Award } from "lucide-react"
+import { useRouter } from "next/navigation"
 
 // Hook for scroll animations
 function useScrollAnimation() {
@@ -50,10 +53,14 @@ const tileFamilies = [
     heroImage: "/tiles/vienna/vienna-slate-tiles.jpg",
     route: "/tile-selection/vienna",
     tilePreview: [
-      { name: "Vienna Slate", image: "/tiles/vienna/vienna-slate-tile.png" },
-      { name: "Vienna Red", image: "/tiles/vienna/vienna-red-tile.png" },
-      { name: "Vienna Brown", image: "/tiles/vienna/vienna-brown-tile.png" },
-      { name: "Vienna Galaxy", image: "/tiles/vienna/vienna-galaxy-tile.png" },
+      { name: "Vienna Slate", image: "/tiles/vienna/vienna-slate-tile.png", homeImage: "/tiles/placeholder-home1.jpg" },
+      { name: "Vienna Red", image: "/tiles/vienna/vienna-red-tile.png", homeImage: "/tiles/placeholder-home2.jpg" },
+      { name: "Vienna Brown", image: "/tiles/vienna/vienna-brown-tile.png", homeImage: "/tiles/placeholder-home3.jpg" },
+      {
+        name: "Vienna Galaxy",
+        image: "/tiles/vienna/vienna-galaxy-tile.png",
+        homeImage: "/tiles/placeholder-home4.jpg",
+      },
     ],
   },
   {
@@ -66,10 +73,14 @@ const tileFamilies = [
     heroImage: "/tiles/s-mixed/mixed-castell-roof-tiles.jpg",
     route: "/tile-selection/mixed",
     tilePreview: [
-      { name: "Tossal", image: "/tiles/s-mixed/mixed-tossal-roof-tile.png" },
-      { name: "Slate", image: "/tiles/s-mixed/mixed-slate-roof-tile.png" },
-      { name: "Galia", image: "/tiles/s-mixed/mixed-galia-roof-tile.png" },
-      { name: "Jaspee Red", image: "/tiles/s-mixed/mixed-jaspee-red-roof-tile.png" },
+      { name: "Tossal", image: "/tiles/s-mixed/mixed-tossal-roof-tile.png", homeImage: "/tiles/placeholder-home1.jpg" },
+      { name: "Slate", image: "/tiles/s-mixed/mixed-slate-roof-tile.png", homeImage: "/tiles/placeholder-home2.jpg" },
+      { name: "Galia", image: "/tiles/s-mixed/mixed-galia-roof-tile.png", homeImage: "/tiles/placeholder-home3.jpg" },
+      {
+        name: "Jaspee Red",
+        image: "/tiles/s-mixed/mixed-jaspee-red-roof-tile.png",
+        homeImage: "/tiles/placeholder-home4.jpg",
+      },
     ],
   },
   {
@@ -82,13 +93,118 @@ const tileFamilies = [
     heroImage: "/tiles/selectum/selectum-red-tiles-roof.png",
     route: "/tile-selection/selectum",
     tilePreview: [
-      { name: "Red", image: "/tiles/selectum/selectum-red-tile-updated.png" },
-      { name: "Galia", image: "/tiles/selectum/selectum-galia-tile-single.png" },
-      { name: "Cognac", image: "/tiles/selectum/selectum-cognac-tile-single.png" },
-      { name: "Slate", image: "/tiles/selectum/selectum-slate-tile-single.png" },
+      {
+        name: "Red",
+        image: "/tiles/selectum/selectum-red-tile-updated.png",
+        homeImage: "/tiles/placeholder-home1.jpg",
+      },
+      {
+        name: "Galia",
+        image: "/tiles/selectum/selectum-galia-tile-single.png",
+        homeImage: "/tiles/placeholder-home2.jpg",
+      },
+      {
+        name: "Cognac",
+        image: "/tiles/selectum/selectum-cognac-tile-single.png",
+        homeImage: "/tiles/placeholder-home3.jpg",
+      },
+      {
+        name: "Slate",
+        image: "/tiles/selectum/selectum-slate-tile-single.png",
+        homeImage: "/tiles/placeholder-home4.jpg",
+      },
     ],
   },
 ]
+
+function InteractiveTileCard({
+  tile,
+  familyRoute,
+}: { tile: { name: string; image: string; homeImage: string }; familyRoute: string }) {
+  const router = useRouter()
+  const [showHome, setShowHome] = useState(false)
+  const [isHovered, setIsHovered] = useState(false)
+  const lastTapRef = useRef<number>(0)
+
+  const getTileSlug = (name: string) => {
+    return name.toLowerCase().replace(/\s+/g, "-")
+  }
+
+  const handleMobileClick = (e: React.MouseEvent) => {
+    e.preventDefault()
+    const now = Date.now()
+    const timeSinceLastTap = now - lastTapRef.current
+
+    // Double tap detection (within 300ms)
+    if (timeSinceLastTap < 300 && timeSinceLastTap > 0) {
+      // Double tap - navigate
+      router.push(`/tile-details/${getTileSlug(tile.name)}`)
+    } else {
+      // Single tap - toggle image
+      setShowHome(!showHome)
+    }
+
+    lastTapRef.current = now
+  }
+
+  const handleDesktopClick = (e: React.MouseEvent) => {
+    // On desktop, navigate normally
+    router.push(familyRoute)
+  }
+
+  return (
+    <div
+      className="group block transition-all duration-300 hover:scale-105 cursor-pointer"
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+      onClick={(e) => {
+        // Detect if mobile (touch device)
+        if ("ontouchstart" in window) {
+          handleMobileClick(e)
+        } else {
+          handleDesktopClick(e)
+        }
+      }}
+    >
+      <div className="bg-parchment rounded-xl shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden border border-stone-gray hover:border-terracotta/50">
+        <div className="aspect-square relative p-4 bg-merino overflow-hidden">
+          {/* Tile Image (base layer) */}
+          <div className="absolute inset-0 p-4">
+            <Image
+              src={tile.image || "/placeholder.svg"}
+              alt={`${tile.name} tile`}
+              fill
+              className="object-contain transition-transform duration-300 group-hover:scale-110 bg-[rgba(236,229,213,1)]"
+              sizes="(max-width: 768px) 50vw, 25vw"
+            />
+          </div>
+
+          <div
+            className="absolute inset-0 p-4 transition-all duration-700 ease-in-out"
+            style={{
+              clipPath:
+                isHovered || showHome ? "polygon(0 0, 100% 0, 100% 100%, 0 100%)" : "polygon(0 0, 0 0, 0 100%, 0 100%)",
+              opacity: isHovered || showHome ? 1 : 0,
+            }}
+          >
+            <Image
+              src={tile.homeImage || "/placeholder.svg"}
+              alt={`Home with ${tile.name} tiles`}
+              fill
+              className="object-cover bg-[rgba(236,229,213,1)]"
+              sizes="(max-width: 768px) 50vw, 25vw"
+            />
+          </div>
+        </div>
+        <div className="p-4 text-center bg-[rgba(236,232,220,1)] border-0">
+          <h4 className="font-bold text-sm text-[rgba(100,68,54,1)]">{tile.name}</h4>
+          {/* Mobile instruction hint */}
+          <p className="text-xs text-[rgba(100,68,54,0.6)] mt-1 md:hidden">Tap to preview • Double-tap for details</p>
+        </div>
+      </div>
+    </div>
+  )
+}
 
 function FamilySection({ family, index }: { family: (typeof tileFamilies)[0]; index: number }) {
   const { elementRef, isVisible } = useScrollAnimation()
@@ -152,26 +268,7 @@ function FamilySection({ family, index }: { family: (typeof tileFamilies)[0]; in
 
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6 lg:gap-8 border-0">
             {family.tilePreview.map((tile, tileIndex) => (
-              <Link
-                key={tileIndex}
-                href={family.route}
-                className="group block transition-all duration-300 hover:scale-105"
-              >
-                <div className="bg-parchment rounded-xl shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden border border-stone-gray hover:border-terracotta/50">
-                  <div className="aspect-square relative p-4 bg-merino">
-                    <Image
-                      src={tile.image || "/placeholder.svg"}
-                      alt={`${tile.name} tile`}
-                      fill
-                      className="object-contain transition-transform duration-300 group-hover:scale-110 bg-[rgba(236,229,213,1)]"
-                      sizes="(max-width: 768px) 50vw, 25vw"
-                    />
-                  </div>
-                  <div className="p-4 text-center bg-[rgba(236,232,220,1)] border-0">
-                    <h4 className="font-bold text-sm text-[rgba(100,68,54,1)]">{tile.name}</h4>
-                  </div>
-                </div>
-              </Link>
+              <InteractiveTileCard key={tileIndex} tile={tile} familyRoute={family.route} />
             ))}
           </div>
 
@@ -526,7 +623,7 @@ export default function TileSelectionPage() {
           {/* Background Image */}
           <div className="absolute inset-0">
             <Image
-              src="/images/design-mode/Cocoa_Is_Cool2.png"
+              src="/images/design-mode/Cocoa_Is_Cool2(1).png"
               alt="Poodle with sunglasses on clay tile roof"
               fill
               className="object-cover object-[50%_25%]"
@@ -550,7 +647,7 @@ export default function TileSelectionPage() {
 
             <div className="flex items-center justify-center gap-2 text-red-200">
               <span className="w-2 h-2 bg-terracotta rounded-full animate-pulse"></span>
-              
+
               <span className="w-2 h-2 bg-terracotta rounded-full animate-pulse"></span>
             </div>
           </div>
